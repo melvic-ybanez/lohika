@@ -1,0 +1,40 @@
+# source: https://stackoverflow.com/questions/24297331/whats-recommended-gitignore-for-scala-sbt-project-in-intellij-idea
+
+# Scala
+target
+*.class
+
+# Intellij
+*.iml
+*.ipr
+*.iws
+.idea/*
+out
+
+# Vim
+tags
+.*.swp
+.*.swo
+
+# Scala IDE (Eclipse)
+build
+.classpath
+.project
+.settings
+org.scala-ide.sdt.core/META-INF/MANIFEST.MF¡
+org.scala-ide.sdt.update-site/site.xml
+
+# Mac OS
+.DS_Store
+
+*.ppm
+*.png
+
+*.sc
+
+.metals
+
+.bsp
+
+# Project-specific
+!.idea/codeStyles
