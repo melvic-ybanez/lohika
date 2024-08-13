@@ -1,4 +1,4 @@
-package com.melvic.lohika.ast
+package com.melvic.lohika
 
 sealed trait Formula
 
@@ -9,3 +9,11 @@ object Formula:
   final case class Imply(p: Formula, q: Formula) extends Formula
   final case class Iff(p: Formula, q: Formula) extends Formula
   final case class Not(p: Formula) extends Formula
+  case object True extends Formula
+  case object False extends Formula
+
+  object Or:
+    def fromSeq(components: Seq[Formula]): Or =
+      components.tail.foldLeft(components.head)(Or.apply) match
+        case or: Or => or
+        case _      => Or(False, False)
