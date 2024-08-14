@@ -29,4 +29,7 @@ class ParserSpec extends BaseSpec:
   it should "support parenthesized components" in :
     parseSuccess("(A & B) & C", And(And(Var("A"), Var("B")), Var("C")))
 
+  it should "have higher precedence than disjunction" in:
+    parseSuccess("A | B & C", Or(Var("A"), And(Var("B"), Var("C"))))
+
 

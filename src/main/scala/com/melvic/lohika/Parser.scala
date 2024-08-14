@@ -2,26 +2,26 @@ package com.melvic.lohika
 
 import fastparse.*
 import MultiLineWhitespace.*
-import com.melvic.lohika.Formula.{And, Or, Var}
+import com.melvic.lohika.Formula.{And, Imply, Or, Var}
 
 object Parser:
-  def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!.map(Var.apply))
+  def parseFormula(input: String): Parsed[Formula] =
+    parse(input, formula(using _))
 
-  def parens[$: P]: P[Formula] = P("(" ~ (or | variable) ~ ")")
+  def formula[$: P]: P[Formula] = P(or)
 
-  def or[$: P]: P[Formula] = P(variable | parens)
+  def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")
     .map:
       case Seq(formula) => formula
-      case or           => Or.fromSeq(or)
+      case or => Or.fromSeq(or)
 
-  def and[$: P]: P[Formula] = P(or | ("(" ~ and ~ ")"))
+  def and[$: P]: P[Formula] = P(variable | parens)
     .rep(min = 1, sep = "&")
     .map:
       case Seq(formula) => formula
-      case and          => And.fromSeq(and)
+      case and => And.fromSeq(and)
 
-  def formula[$: P]: P[Formula] = P(and)
+  def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!.map(Var.apply))
 
-  def parseFormula(input: String): Parsed[Formula] =
-    parse(input, formula(using _))
+  def parens[$: P]: P[Formula] = P("(" ~ (and | variable) ~ ")")
