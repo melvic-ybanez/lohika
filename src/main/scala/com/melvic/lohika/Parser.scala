@@ -2,13 +2,15 @@ package com.melvic.lohika
 
 import fastparse.*
 import MultiLineWhitespace.*
-import com.melvic.lohika.Formula.{And, Imply, Or, Var}
+import com.melvic.lohika.Formula.{And, Iff, Imply, Or, Var}
 
 object Parser:
   def parseFormula(input: String): Parsed[Formula] =
     parse(input, formula(using _))
 
-  def formula[$: P]: P[Formula] = P(imply)
+  def formula[$: P]: P[Formula] = P(iff)
+
+  def iff[$: P]: P[Formula] = P(P(imply ~ "<=>" ~ imply).map(Iff.apply) | imply)
 
   def imply[$: P]: P[Formula] = P(P(or ~ "=>" ~ or).map(Imply.apply) | or)
 
