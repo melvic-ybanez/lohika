@@ -1,6 +1,6 @@
 package com.melvic.lohika.tests.parsers
 
-import com.melvic.lohika.Formula.{Or, Var}
+import com.melvic.lohika.Formula.{And, Or, Var}
 
 class ParserSpec extends BaseSpec:
   "A single alphanumeric string" should "map to a variable" in:
@@ -18,5 +18,15 @@ class ParserSpec extends BaseSpec:
 
   it should "support parenthesized components" in:
     parseSuccess("(A | B) | C", Or(Or(Var("A"), Var("B")), Var("C")))
+
+  "Conjunctions" should "be separated by &" in:
+    parseSuccess("A & B", And(Var("A"), Var("B")))
+    parseSuccess("some & where", And(Var("some"), Var("where")))
+
+  it should "support chaining" in :
+    parseSuccess("A&B&C", And(And(Var("A"), Var("B")), Var("C")))
+
+  it should "support parenthesized components" in :
+    parseSuccess("(A & B) & C", And(And(Var("A"), Var("B")), Var("C")))
 
 

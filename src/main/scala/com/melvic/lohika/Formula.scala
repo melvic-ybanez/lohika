@@ -17,3 +17,9 @@ object Formula:
       components.tail.foldLeft(components.head)(Or.apply) match
         case or: Or => or
         case _      => Or(False, False)
+
+  object And:
+    def fromSeq(components: Seq[Formula]): And =
+      components.tail.foldLeft(components.head)(And.apply) match
+        case and: And => and
+        case _        => And(False, False)
