@@ -8,7 +8,9 @@ object Parser:
   def parseFormula(input: String): Parsed[Formula] =
     parse(input, formula(using _))
 
-  def formula[$: P]: P[Formula] = P(or)
+  def formula[$: P]: P[Formula] = P(imply)
+
+  def imply[$: P]: P[Formula] = P(P(or ~ "=>" ~ or).map(Imply.apply) | or)
 
   def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")

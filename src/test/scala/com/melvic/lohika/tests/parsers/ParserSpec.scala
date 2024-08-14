@@ -1,6 +1,6 @@
 package com.melvic.lohika.tests.parsers
 
-import com.melvic.lohika.Formula.{And, Or, Var}
+import com.melvic.lohika.Formula.{And, Imply, Or, Var}
 
 class ParserSpec extends BaseSpec:
   "A single alphanumeric string" should "map to a variable" in:
@@ -31,5 +31,11 @@ class ParserSpec extends BaseSpec:
 
   it should "have higher precedence than disjunction" in:
     parseSuccess("A | B & C", Or(Var("A"), And(Var("B"), Var("C"))))
+
+  "Implications" should "be connected by =>" in:
+    parseSuccess("A => B", Imply(Var("A"), Var("B")))
+
+  it should "have lower precedence than disjunction" in:
+    parseSuccess("A | B => C | D", Imply(Or(Var("A"), Var("B")), Or(Var("C"), Var("D"))))
 
 
