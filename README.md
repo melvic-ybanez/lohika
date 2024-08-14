@@ -1,2 +1,3 @@
-# lohika
+# Lohika
+
 A Proof Generator
