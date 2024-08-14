@@ -16,19 +16,17 @@ object Formula:
 
   object Or:
     def fromSeq(components: Seq[Formula]): Or =
-      components.tail.foldLeft(components.head)(Or.apply) match
+      (components.tail.foldLeft(components.head)(Or.apply): @unchecked) match
         case or: Or => or
-        case _      => Or(False, False)
 
   object And:
     def fromSeq(components: Seq[Formula]): And =
-      components.tail.foldLeft(components.head)(And.apply) match
+      (components.tail.foldLeft(components.head)(And.apply): @unchecked) match
         case and: And => and
-        case _        => And(False, False)
 
   object Imply:
     def fromSeq(components: Seq[Formula]): Imply =
-      components.reduceRight(Imply.apply) match
+      (components.reduceRight(Imply.apply): @unchecked) match
         case imply: Imply => imply
 
   given stringToVar: Conversion[String, Var] with
@@ -42,4 +40,3 @@ object Formula:
     def ==>(that: Formula): Imply = Imply(formula, that)
 
     def <==>(that: Formula): Iff = Iff(formula, that)
-
