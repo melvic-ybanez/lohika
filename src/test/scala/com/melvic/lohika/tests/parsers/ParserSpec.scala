@@ -1,6 +1,6 @@
 package com.melvic.lohika.tests.parsers
 
-import com.melvic.lohika.Formula.{And, Iff, Imply, Or, Var}
+import com.melvic.lohika.Formula._
 
 class ParserSpec extends BaseSpec:
   "A single alphanumeric string" should "map to a variable" in:
@@ -10,36 +10,40 @@ class ParserSpec extends BaseSpec:
     parseSuccess("Foo", Var("Foo"))
 
   "Disjunctions" should "be separated by |" in:
-    parseSuccess("A | B", Or(Var("A"), Var("B")))
-    parseSuccess("some | where", Or(Var("some"), Var("where")))
+    parseSuccess("A | B", "A" | "B")
+    parseSuccess("some | where", "some" | "where")
 
   it should "support chaining" in:
-    parseSuccess("A|B|C", Or(Or(Var("A"), Var("B")), Var("C")))
+    parseSuccess("A|B|C", "A" | "B" | "C")
 
   it should "support parenthesized components" in:
-    parseSuccess("(A | B) | C", Or(Or(Var("A"), Var("B")), Var("C")))
+    assertEqualFormulae("(A | B) | C", "A | B | C")
 
   "Conjunctions" should "be separated by &" in:
-    parseSuccess("A & B", And(Var("A"), Var("B")))
-    parseSuccess("some & where", And(Var("some"), Var("where")))
+    parseSuccess("A & B", "A" & "B")
+    parseSuccess("some & where", "some" & "where")
 
   it should "support chaining" in:
-    parseSuccess("A&B&C", And(And(Var("A"), Var("B")), Var("C")))
+    parseSuccess("A&B&C", "A" & "B" & "C")
 
   it should "support parenthesized components" in:
-    parseSuccess("(A & B) & C", And(And(Var("A"), Var("B")), Var("C")))
+    assertEqualFormulae("(A & B) & C", "A & B & C")
 
   it should "have higher precedence than disjunction" in:
-    parseSuccess("A | B & C", Or(Var("A"), And(Var("B"), Var("C"))))
+    parseSuccess("A | B & C", "A" | ("B" & "C"))
 
   "Implications" should "be connected by =>" in:
-    parseSuccess("A => B", Imply(Var("A"), Var("B")))
+    parseSuccess("A => B","A" ==> "B")
+
+  it should "be right associative" in:
+    parseSuccess("A => B => C", "A" ==> ("B" ==> "C"))
 
   it should "have lower precedence than disjunction" in:
-    parseSuccess("A | B => C | D", Imply(Or(Var("A"), Var("B")), Or(Var("C"), Var("D"))))
+    parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D") )
+    assertEqualFormulae("(A | B) => (C | D)", "A | B => C | D")
 
   "Biconditional" should "be connected by <=>" in:
-    parseSuccess("A <=> B", Iff(Var("A"), Var("B")))
+    parseSuccess("A <=> B", "A" <==> "B")
 
   it should "have lower precedence than implication" in:
-    parseSuccess("A <=> B => C", Iff(Var("A"), Imply(Var("B"), Var("C"))))
+    parseSuccess("A <=> B => C", "A" <==> ("B" ==> "C"))

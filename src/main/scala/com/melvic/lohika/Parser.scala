@@ -12,7 +12,10 @@ object Parser:
 
   def iff[$: P]: P[Formula] = P(P(imply ~ "<=>" ~ imply).map(Iff.apply) | imply)
 
-  def imply[$: P]: P[Formula] = P(P(or ~ "=>" ~ or).map(Imply.apply) | or)
+  def imply[$: P]: P[Formula] =
+    P(or ~ (P("=>") ~ or).rep(min = 0)).map:
+      case (or, Seq()) => or
+      case (p, qs) => Imply.fromSeq(p +: qs)
 
   def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")

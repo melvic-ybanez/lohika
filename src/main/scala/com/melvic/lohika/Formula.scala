@@ -1,5 +1,7 @@
 package com.melvic.lohika
 
+import com.melvic.lohika.Formula.{And, Iff, Imply, Or}
+
 sealed trait Formula
 
 object Formula:
@@ -23,3 +25,21 @@ object Formula:
       components.tail.foldLeft(components.head)(And.apply) match
         case and: And => and
         case _        => And(False, False)
+
+  object Imply:
+    def fromSeq(components: Seq[Formula]): Imply =
+      components.reduceRight(Imply.apply) match
+        case imply: Imply => imply
+
+  given stringToVar: Conversion[String, Var] with
+    override def apply(input: String): Var = Var(input)
+
+  extension (formula: Formula)
+    def &(that: Formula): And = And(formula, that)
+
+    def |(that: Formula): Or = Or(formula, that)
+
+    def ==>(that: Formula): Imply = Imply(formula, that)
+
+    def <==>(that: Formula): Iff = Iff(formula, that)
+
