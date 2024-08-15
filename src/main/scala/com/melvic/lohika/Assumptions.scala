@@ -11,5 +11,5 @@ object Assumptions:
 
   def none: Assumptions = Assumptions(Nil)
 
-  def fromFormula(formula: Formula): Assumptions =
-    Assumptions.fromProofs(Proof(Assumptions.none, formula))
+  def fromFormulae(formula: Formula*): Assumptions =
+    Assumptions.fromProofs(formula.map(Proof(Assumptions.none, _)): _*)

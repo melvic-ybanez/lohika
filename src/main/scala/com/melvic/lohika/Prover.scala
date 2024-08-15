@@ -6,11 +6,9 @@ object Prover:
   type Result = Option[Proof]
 
   def proveProposition(assumptions: Assumptions, proposition: Formula): Result =
-    proposition match
-      case variable: Var => proveVar(assumptions, variable)
-      case _             => None
+    assumptionRule(assumptions, proposition)
 
-  def proveVar(assumptions: Assumptions, variable: Var): Result =
-    if assumptions.hasFormula(variable) then
-      Some(Proof(Assumptions.fromFormula(variable), variable))
+  def assumptionRule(assumptions: Assumptions, formula: Formula): Result =
+    if assumptions.hasFormula(formula) then
+      Some(Proof(Assumptions.fromFormulae(formula), formula))
     else None
