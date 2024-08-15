@@ -6,12 +6,27 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class ProofSpec extends AnyFlatSpec with should.Matchers:
-  "Any proposition" should "be provable if assumed" in:
+  "Assumption rule" should "prove any assumed proposition" in:
     def testProp(prop: Formula): Unit =
-      val assumptions = Assumptions.fromFormulae(prop)
-      Prover.proveProposition(assumptions, prop) should be(
-        Some(Proof(assumptions, prop))
+      given assumptions: Assumptions = Assumptions.fromFormulae(prop)
+      Prover.proveProposition(prop) should be(
+        Some(Proof(assumptions, prop, "Assumption"))
       )
 
     // consider property-based testing
     List[Formula]("A", "A" | "B", "A" & "B", "A" ==> "B", "A" <==> "B").foreach(testProp)
+
+  "&-introduction rule" should "prove any conjunction if all components are proved" in:
+    given assumptions: Assumptions = Assumptions.fromFormulae("A", "B")
+    Prover.proveProposition("A" & "B") should be(
+      Some(
+        Proof(
+          Assumptions.fromProofs(
+            Proof.assume("A"),
+            Proof.assume("B")
+          ),
+          "A" & "B",
+          "&-introduction"
+        )
+      )
+    )

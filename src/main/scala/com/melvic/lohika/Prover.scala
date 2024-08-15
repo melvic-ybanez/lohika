@@ -5,10 +5,22 @@ import Formula._
 object Prover:
   type Result = Option[Proof]
 
-  def proveProposition(assumptions: Assumptions, proposition: Formula): Result =
-    assumptionRule(assumptions, proposition)
+  type Prove = Assumptions ?=> Result
 
-  def assumptionRule(assumptions: Assumptions, formula: Formula): Result =
-    if assumptions.hasFormula(formula) then
-      Some(Proof(Assumptions.fromFormulae(formula), formula))
-    else None
+  def proveProposition(proposition: Formula): Prove =
+    proveByAssumption(proposition).orElse:
+      proposition match
+        case and: And => proveByAndIntroduction(and)
+        case _        => None
+
+  def proveByAssumption(formula: Formula): Prove =
+    Option.when(summon[Assumptions].hasFormula(formula)):
+      Proof(Assumptions.fromFormulae(formula), formula, "Assumption")
+
+  def proveByAndIntroduction(and: And): Prove =
+    and match
+      case And(p, q) =>
+        for
+          pProof <- proveProposition(p)
+          qProof <- proveProposition(q)
+        yield Proof(Assumptions.fromProofs(pProof, qProof), and, "&-introduction")
