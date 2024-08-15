@@ -3,7 +3,7 @@ package com.melvic.lohika
 import Formula._
 
 object Prover:
-  type Result = Option[Proof]
+  type Result = Either[Formula, Proof]
 
   type Prove = Assumptions ?=> Result
 
@@ -11,11 +11,14 @@ object Prover:
     proveByAssumption(proposition).orElse:
       proposition match
         case and: And => proveByAndIntroduction(and)
-        case _        => None
+        case _        => Left(proposition)
 
   def proveByAssumption(formula: Formula): Prove =
-    Option.when(summon[Assumptions].hasFormula(formula)):
-      Proof(Assumptions.fromFormulae(formula), formula, "Assumption")
+    Either.cond(
+      summon[Assumptions].hasFormula(formula),
+      Proof(Assumptions.fromFormulae(formula), formula, "Assumption"),
+      formula
+    )
 
   def proveByAndIntroduction(and: And): Prove =
     and match
