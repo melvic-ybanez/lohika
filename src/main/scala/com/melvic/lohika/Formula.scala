@@ -1,18 +1,18 @@
 package com.melvic.lohika
 
-import com.melvic.lohika.Formula.{And, Iff, Imply, Or}
+import com.melvic.lohika.Formula._
 
-sealed trait Formula
+type Formula = Var | Or | And | Imply | Iff | Not | True.type | False.type
 
 object Formula:
-  final case class Var(name: String) extends Formula
-  final case class Or(p: Formula, q: Formula) extends Formula
-  final case class And(p: Formula, q: Formula) extends Formula
-  final case class Imply(p: Formula, q: Formula) extends Formula
-  final case class Iff(p: Formula, q: Formula) extends Formula
-  final case class Not(p: Formula) extends Formula
-  case object True extends Formula
-  case object False extends Formula
+  final case class Var(name: String)
+  final case class Or(p: Formula, q: Formula)
+  final case class And(p: Formula, q: Formula)
+  final case class Imply(p: Formula, q: Formula)
+  final case class Iff(p: Formula, q: Formula)
+  final case class Not(p: Formula)
+  case object True
+  case object False
 
   object Or:
     def fromSeq(components: Seq[Formula]): Or =
