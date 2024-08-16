@@ -37,4 +37,4 @@ org.scala-ide.sdt.update-site/site.xml
 .bsp
 
 # Project-specific
-!.idea/codeStyles
+!.idea/inspectionProfiles
