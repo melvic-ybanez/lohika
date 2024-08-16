@@ -1,11 +1,23 @@
 package com.melvic.lohika
 
-final case class Proof(assumptions: Assumptions, proposition: Formula, rule: Rule = None):
-  def hasFormula(formula: Formula): Boolean =
-    proposition == formula || assumptions.hasFormula(formula)
+type Proof = Assumption | Derivation
+type Derivations = List[Proof]
 
 object Proof:
   def assume(formula: Formula): Proof =
-    Proof(Assumptions.fromProofs(Proof(Assumptions.none, formula)), formula, "Assumption")
+    Derivation(Assumption(formula) :: Nil, formula)
 
-type Rule = "Assumption" | "&-introduction" | None.type
+  def derive(from: Derivations, conclusion: Formula): Proof =
+    Derivation(from, conclusion)
+
+object Derivations:
+  def hasFormula(proofs: Derivations, formula: Formula): Boolean =
+    proofs.exists:
+      case Assumption(assumedFormula) => assumedFormula == formula
+      case derivation: Derivation     => derivation.hasFormula(formula)
+
+final case class Derivation(from: Derivations, conclusion: Formula):
+  def hasFormula(formula: Formula): Boolean =
+    conclusion == formula || Derivations.hasFormula(from, formula)
+
+final case class Assumption(formula: Formula)

@@ -5,7 +5,7 @@ import Formula._
 object Prover:
   type Result = Either[Formula, Proof]
 
-  type Prove = Assumptions ?=> Result
+  type Prove = Derivations ?=> Result
 
   def proveProposition(proposition: Formula): Prove =
     proveByAssumption(proposition).orElse:
@@ -15,8 +15,8 @@ object Prover:
 
   def proveByAssumption(formula: Formula): Prove =
     Either.cond(
-      summon[Assumptions].hasFormula(formula),
-      Proof(Assumptions.fromFormulae(formula), formula, "Assumption"),
+      Derivations.hasFormula(summon[Derivations], formula),
+      Proof.assume(formula),
       formula
     )
 
@@ -26,4 +26,4 @@ object Prover:
         for
           pProof <- proveProposition(p)
           qProof <- proveProposition(q)
-        yield Proof(Assumptions.fromProofs(pProof, qProof), and, "&-introduction")
+        yield Proof.derive(pProof :: qProof :: Nil, and)
