@@ -29,3 +29,8 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   it should "not derive any formula if at least 1 component is not proved" in:
     given derivations: Derivations = Assumption("A") :: Nil
     Prover.proveProposition("A" & "B") should be(Left(Var("B")))
+
+//  "&-elimination rule" should "produce a proof for each components of a conjunction" in:
+//    given derivations: Derivations = Assumption("A" & "B") :: Nil
+//    Prover.proveProposition("A") should be(Right(Proof.derive("A")))
+//    Prover.proveProposition("B") should be(Right(Proof.derive("B")))

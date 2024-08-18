@@ -12,12 +12,19 @@ object Proof:
 
 object Derivations:
   def hasFormula(proofs: Derivations, formula: Formula): Boolean =
-    proofs.exists:
+    findByFormula(proofs, formula).nonEmpty
+
+  def findByFormula(proofs: Derivations, formula: Formula): Option[Proof] =
+    proofs.find:
       case Assumption(assumedFormula) => assumedFormula == formula
-      case derivation: Derivation     => derivation.hasFormula(formula)
+      case derivation: Derivation => derivation.hasFormula(formula)
 
 final case class Derivation(from: Derivations, conclusion: Formula):
+  def findByFormula(formula: Formula): Option[Proof] =
+    if conclusion == formula then Some(this)
+    else Derivations.findByFormula(from, formula)
+
   def hasFormula(formula: Formula): Boolean =
-    conclusion == formula || Derivations.hasFormula(from, formula)
+    findByFormula(formula).nonEmpty
 
 final case class Assumption(formula: Formula)

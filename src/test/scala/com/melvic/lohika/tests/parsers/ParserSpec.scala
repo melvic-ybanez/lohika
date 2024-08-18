@@ -14,7 +14,7 @@ class ParserSpec extends BaseSpec:
     parseSuccess("some | where", "some" | "where")
 
   it should "support chaining" in:
-    parseSuccess("A|B|C", "A" | "B" | "C")
+    parseSuccess("A|B|C", Or.of("A", "B", "C"))
 
   it should "support parenthesized components" in:
     assertEqualFormulae("(A | B) | C", "A | B | C")
@@ -33,13 +33,13 @@ class ParserSpec extends BaseSpec:
     parseSuccess("A | B & C", "A" | ("B" & "C"))
 
   "Implications" should "be connected by =>" in:
-    parseSuccess("A => B","A" ==> "B")
+    parseSuccess("A => B", "A" ==> "B")
 
   it should "be right associative" in:
     parseSuccess("A => B => C", "A" ==> ("B" ==> "C"))
 
   it should "have lower precedence than disjunction" in:
-    parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D") )
+    parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D"))
     assertEqualFormulae("(A | B) => (C | D)", "A | B => C | D")
 
   "Biconditional" should "be connected by <=>" in:

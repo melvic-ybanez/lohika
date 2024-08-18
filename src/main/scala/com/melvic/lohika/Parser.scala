@@ -20,8 +20,8 @@ object Parser:
   def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")
     .map:
-      case Seq(formula) => formula
-      case or => Or.fromSeq(or)
+      case Seq(p) => p
+      case Seq(p, q, rs*) => Or(p, q, rs.toList)
 
   def and[$: P]: P[Formula] = P(variable | parens)
     .rep(min = 1, sep = "&")
