@@ -24,7 +24,7 @@ class ParserSpec extends BaseSpec:
     parseSuccess("some & where", "some" & "where")
 
   it should "support chaining" in:
-    parseSuccess("A&B&C", "A" & "B" & "C")
+    parseSuccess("A&B&C", And.of("A", "B", "C"))
 
   it should "support parenthesized components" in:
     assertEqualFormulae("(A & B) & C", "A & B & C")

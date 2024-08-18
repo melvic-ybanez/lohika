@@ -15,19 +15,19 @@ object Parser:
   def imply[$: P]: P[Formula] =
     P(or ~ (P("=>") ~ or).rep(min = 0)).map:
       case (or, Seq()) => or
-      case (p, qs) => Imply.fromSeq(p +: qs)
+      case (p, qs)     => Imply.fromSeq(p +: qs)
 
   def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")
     .map:
-      case Seq(p) => p
-      case Seq(p, q, rs*) => Or(p, q, rs.toList)
+      case Seq(p)         => p
+      case Seq(p, q, rs*) => Or.of(p, q, rs*)
 
   def and[$: P]: P[Formula] = P(variable | parens)
     .rep(min = 1, sep = "&")
     .map:
-      case Seq(formula) => formula
-      case and => And.fromSeq(and)
+      case Seq(p)         => p
+      case Seq(p, q, rs*) => And.of(p, q, rs*)
 
   def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!.map(Var.apply))
 
