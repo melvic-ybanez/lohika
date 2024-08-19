@@ -1,6 +1,7 @@
 package com.melvic.lohika
 
-import com.melvic.lohika.Formula._
+import com.melvic.lohika.Formula.*
+
 import scala.util.chaining.*
 
 type Formula = Var | Or | And | Imply | Iff | Not | True.type | False.type
@@ -15,32 +16,37 @@ object Formula:
   case object True
   case object False
 
-  def flatten: Formula => Formula =
-    def flattenContents(fm: Formula, make: (Formula, Formula, List[Formula]) => Formula): Formula =
-      toList(fm).pipe:
-        case h :: t :: rest => make(h, t, rest)
-
-    def contentToList(p: Formula, q: Formula, rs: List[Formula]): List[Formula] =
-      toList(p) ++ toList(q) ++ rs.flatMap(toList)
-
-    def toList: Formula => List[Formula] =
-      case Or(p, q, rs)  => contentToList(p, q, rs)
-      case And(p, q, rs) => contentToList(p, q, rs)
-      case fm            => List(fm)
-
-    {
-      case or: Or   => flattenContents(or, Or.apply)
-      case and: And => flattenContents(and, And.apply)
-      case fm       => fm
-    }
-
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
       Or(p, q, rs.toList)
 
+    def flatten: Formula => Formula =
+      def toList: Formula => List[Formula] =
+        case Or(p, q, rs) => toList(p) ++ toList(q) ++ rs.flatMap(toList)
+        case fm           => List(fm)
+
+      {
+        case or: Or =>
+          toList(or).pipe:
+            case h :: t :: rest => Or(h, t, rest)
+        case fm => fm
+      }
+
   object And:
     def of(p: Formula, q: Formula, rs: Formula*): And =
       And(p, q, rs.toList)
+
+    def flatten: Formula => Formula =
+      def toList: Formula => List[Formula] =
+        case And(p, q, rs) => toList(p) ++ toList(q) ++ rs.flatMap(toList)
+        case fm            => List(fm)
+
+      {
+        case and: And =>
+          toList(and).pipe:
+            case h :: t :: rest => And(h, t, rest)
+        case fm => fm
+      }
 
   object Imply:
     def fromSeq(components: Seq[Formula]): Imply =

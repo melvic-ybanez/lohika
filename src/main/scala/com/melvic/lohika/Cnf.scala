@@ -14,10 +14,12 @@ object Cnf:
     case fm           => fm
 
   def convertDisjunction: ToCnf[Or] =
-    Formula.flatten
+    case Or(p, q, rs) =>
+      Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
 
   def convertConjunction: ToCnf[And] =
-    Formula.flatten
+    case And(p, q, rs) =>
+      And.flatten(And(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
 
   def convertImplication: ToCnf[Imply] =
     case Imply(p, q) => !convertFormula(p) | convertFormula(q)
