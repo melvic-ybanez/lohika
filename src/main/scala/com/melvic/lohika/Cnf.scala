@@ -10,6 +10,7 @@ object Cnf:
     case and: And     => convertConjunction(and)
     case imply: Imply => convertImplication(imply)
     case iff: Iff     => convertBiconditional(iff)
+    case not: Not     => convertNot(not)
     case fm           => fm
 
   def convertDisjunction: ToCnf[Or] =
@@ -23,3 +24,9 @@ object Cnf:
 
   def convertBiconditional: ToCnf[Iff] =
     case Iff(p, q) => convertFormula(p ==> q) & convertFormula(q ==> p)
+
+  def convertNot: ToCnf[Not] =
+    case Not(Or(p, q, rs))  => And(!p, !q, rs.map(!_))
+    case Not(And(p, q, rs)) => Or(!p, !q, rs.map(!_))
+    case Not(Not(p))        => p
+    case fm                 => fm
