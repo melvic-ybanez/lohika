@@ -7,46 +7,50 @@ import scala.util.chaining.*
 type Formula = Var | Or | And | Imply | Iff | Not | True.type | False.type
 
 object Formula:
+  sealed trait Chain {
+    def p: Formula
+    def q: Formula
+    def rs: List[Formula]
+  }
+
   final case class Var(name: String)
-  final case class Or(p: Formula, q: Formula, rs: List[Formula])
-  final case class And(p: Formula, q: Formula, rs: List[Formula])
+  final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends Chain
+  final case class And(p: Formula, q: Formula, rs: List[Formula]) extends Chain
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula)
   final case class Not(p: Formula)
   case object True
   case object False
 
+  def flatten[A <: Chain](make: (Formula, Formula, List[Formula]) => Formula)(
+      filter: PartialFunction[Formula, A]
+  ): Formula => Formula =
+    def toList: Formula => List[Formula] =
+      case fm if filter.isDefinedAt(fm) =>
+        val chain = filter(fm)
+        toList(chain.p) ++ toList(chain.q) ++ chain.rs.flatMap(toList)
+      case fm => List(fm)
+  
+    {
+      case fm if filter.isDefinedAt(fm) =>
+        toList(fm).pipe:
+          case h :: t :: rest => make(h, t, rest)
+      case fm => fm
+    }
+  
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
       Or(p, q, rs.toList)
 
     def flatten: Formula => Formula =
-      def toList: Formula => List[Formula] =
-        case Or(p, q, rs) => toList(p) ++ toList(q) ++ rs.flatMap(toList)
-        case fm           => List(fm)
-
-      {
-        case or: Or =>
-          toList(or).pipe:
-            case h :: t :: rest => Or(h, t, rest)
-        case fm => fm
-      }
+      Formula.flatten(Or.apply) { case or: Or => or }
 
   object And:
     def of(p: Formula, q: Formula, rs: Formula*): And =
       And(p, q, rs.toList)
 
     def flatten: Formula => Formula =
-      def toList: Formula => List[Formula] =
-        case And(p, q, rs) => toList(p) ++ toList(q) ++ rs.flatMap(toList)
-        case fm            => List(fm)
-
-      {
-        case and: And =>
-          toList(and).pipe:
-            case h :: t :: rest => And(h, t, rest)
-        case fm => fm
-      }
+      Formula.flatten(And.apply) { case and: And => and }
 
   object Imply:
     def fromSeq(components: Seq[Formula]): Imply =
