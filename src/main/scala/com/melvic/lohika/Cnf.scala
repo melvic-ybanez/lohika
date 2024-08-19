@@ -20,7 +20,7 @@ object Cnf:
     Formula.flatten
 
   def convertImplication: ToCnf[Imply] =
-    case Imply(p, q) => !p | q
+    case Imply(p, q) => !convertFormula(p) | convertFormula(q)
 
   def convertBiconditional: ToCnf[Iff] =
     case Iff(p, q) => convertFormula(p ==> q) & convertFormula(q ==> p)

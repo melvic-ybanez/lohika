@@ -14,6 +14,7 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
 
   "p => q" should "become !p | q" in:
     Cnf.convertFormula("p" ==> "q") should be(!"p" | "q")
+    Cnf.convertFormula(("a" ==> "b") ==> ("c" ==> "d")) should be(!(!"a" | "b") | (!"c" | "d"))
 
   "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
     Cnf.convertFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
