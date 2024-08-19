@@ -59,6 +59,8 @@ object Formula:
 
     def <==>(that: Formula): Iff = Iff(formula, that)
 
+    def unary_! : Not = Not(formula)
+
     def isIsomorphicTo(that: Formula): Boolean =
       // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)
-      Cnf.convert(formula) == Cnf.convert(that)
+      Cnf.convertFormula(formula) == Cnf.convertFormula(that)

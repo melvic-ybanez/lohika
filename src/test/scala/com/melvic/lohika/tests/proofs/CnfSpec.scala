@@ -7,7 +7,10 @@ import com.melvic.lohika.Formula._
 
 class CnfSpec extends AnyFlatSpec with should.Matchers:
   "Disjunction" should "flatten" in:
-    Cnf.convert(("A" | "B") | ("C" | ("D" | "E"))) should be(Or.of("A", "B", "C", "D", "E"))
+    Cnf.convertFormula(("A" | "B") | ("C" | ("D" | "E"))) should be(Or.of("A", "B", "C", "D", "E"))
 
   "Conjunction" should "flatten" in:
-    Cnf.convert(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
+    Cnf.convertFormula(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
+
+  "p => q" should "become !p | q" in:
+    Cnf.convertFormula("p" ==> "q") should be(!"p" | "q")
