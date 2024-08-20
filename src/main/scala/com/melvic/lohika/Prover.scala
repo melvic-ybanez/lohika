@@ -1,8 +1,6 @@
 package com.melvic.lohika
 
-import Formula.*
-
-import scala.annotation.tailrec
+import com.melvic.lohika.Formula.*
 
 object Prover:
   type Result = Either[Formula, Proof]

@@ -22,10 +22,12 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
     Cnf.convertFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
 
   "!(p & q)" should "become !p | !q" in:
-      Cnf.convertFormula(!("p" & "q")) should be(!"p" | !"q")
+    Cnf.convertFormula(!("p" & "q")) should be(!"p" | !"q")
+    Cnf.convertFormula(!(("p" ==> "q") & "r")) should be(("p" & !"q") | !"r")
 
   "!(p | q)" should "become !p & q" in:
-      Cnf.convertFormula(!("p" | "q")) should be(!"p" & !"q")
+    Cnf.convertFormula(!("p" | "q")) should be(!"p" & !"q")
+    Cnf.convertFormula(!(("p" ==> "q") | "r")) should be(And.of("p", !"q", !"r"))
 
   "Double negation" should "cancel out" in:
     Cnf.convertFormula(Not(Not("p"))) should be(Var("p"))
