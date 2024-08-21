@@ -20,7 +20,7 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
 
   "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
     Cnf.convertFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
-
+  
   "!(p & q)" should "become !p | !q" in:
     Cnf.convertFormula(!("p" & "q")) should be(!"p" | !"q")
     Cnf.convertFormula(!(("p" ==> "q") & "r")) should be(("p" & !"q") | !"r")
@@ -31,3 +31,5 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
 
   "Double negation" should "cancel out" in:
     Cnf.convertFormula(Not(Not("p"))) should be(Var("p"))
+    Cnf.convertFormula(Not(Not(Not("p")))) should be(!"p")
+    Cnf.convertFormula(Not(Not(Not(Not("p"))))) should be(Var("p"))
