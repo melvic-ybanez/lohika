@@ -4,7 +4,7 @@ import com.melvic.lohika.Formula.*
 
 import scala.util.chaining.*
 
-type Formula = Var | Or | And | Imply | Iff | Not | True.type | False.type
+type Formula = Or | And | Imply | Iff | Var | Not
 
 object Formula:
   sealed trait Chain {
@@ -19,8 +19,6 @@ object Formula:
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula)
   final case class Not(p: Formula)
-  case object True
-  case object False
 
   def flatten[A <: Chain](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
@@ -30,14 +28,14 @@ object Formula:
         val chain = filter(fm)
         toList(chain.p) ++ toList(chain.q) ++ chain.rs.flatMap(toList)
       case fm => List(fm)
-  
+
     {
       case fm if filter.isDefinedAt(fm) =>
         toList(fm).pipe:
           case h :: t :: rest => make(h, t, rest)
       case fm => fm
     }
-  
+
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
       Or(p, q, rs.toList)
@@ -70,6 +68,12 @@ object Formula:
     def <==>(that: Formula): Iff = Iff(formula, that)
 
     def unary_! : Not = Not(formula)
+
+    def isLiteral: Boolean =
+      formula match
+        case v: Var      => true
+        case Not(Var(_)) => true
+        case _           => false
 
     def isIsomorphicTo(that: Formula): Boolean =
       // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)

@@ -9,6 +9,9 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
   "Disjunction" should "flatten" in:
     Cnf.convertFormula(("A" | "B") | ("C" | ("D" | "E"))) should be(Or.of("A", "B", "C", "D", "E"))
     Cnf.convertFormula(("a" ==> "b") | "c" | Not(Not("d"))) should be(Or.of(!"a", "b", "c", "d"))
+    Cnf.convertFormula("a" | (!("b" ==> "a") ==> "c") | "c") should be(
+      Or.of("a", !"b", "a", "c", "c")
+    )
 
   "Conjunction" should "flatten" in:
     Cnf.convertFormula(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
@@ -20,7 +23,7 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
 
   "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
     Cnf.convertFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
-  
+
   "!(p & q)" should "become !p | !q" in:
     Cnf.convertFormula(!("p" & "q")) should be(!"p" | !"q")
     Cnf.convertFormula(!(("p" ==> "q") & "r")) should be(("p" & !"q") | !"r")
@@ -28,6 +31,9 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
   "!(p | q)" should "become !p & q" in:
     Cnf.convertFormula(!("p" | "q")) should be(!"p" & !"q")
     Cnf.convertFormula(!(("p" ==> "q") | "r")) should be(And.of("p", !"q", !"r"))
+
+  "!(p => q)" should "become p & !q" in:
+    Cnf.convertFormula(!("p" ==> "q")) should be("p" & !"q")
 
   "Double negation" should "cancel out" in:
     Cnf.convertFormula(Not(Not("p"))) should be(Var("p"))
