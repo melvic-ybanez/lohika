@@ -14,14 +14,29 @@ object Cnf:
     case fm           => fm
 
   def convertDisjunction: ToCnf[Or] =
-    case Or(p, q, Nil) if isCnf(p)     => Or.flatten(Or.of(p, convertFormula(q)))
-    case Or(p, q, r :: rs) if isCnf(p) => Or.flatten(Or.of(p, convertDisjunction(Or(q, r, rs))))
+    case Or(And(ap, aq, _), q, Nil) => convertFormula((ap | q) & (aq | q))
+    case Or(p: And, q, r :: rs)     => convertFormula(Or(convertFormula(p | q), r, rs))
+    case Or(p, q: And, rs)          => convertFormula(Or(q, p, rs))
     case Or(p, q, rs) =>
-      convertFormula(Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula))))
+      rs
+        .find :
+          case _: And => true
+          case _      => false
+        .fold {
+          (isCnf(p), rs) match
+            case (true, Nil)      => Or.flatten(p | convertFormula(q))
+            case (true, r :: rss) => Or.flatten(p | convertDisjunction(Or(q, r, rss)))
+            case (_, _) =>
+              convertFormula(
+                Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
+              )
+        } { and =>
+          convertFormula(Or(and, p, q :: rs.filterNot(_ == and)))
+        }
 
   def convertConjunction: ToCnf[And] =
-    case And(p, q, Nil) if isCnf(p)     => And.flatten(And.of(p, convertFormula(q)))
-    case And(p, q, r :: rs) if isCnf(p) => And.flatten(And.of(p, convertConjunction(And(q, r, rs))))
+    case And(p, q, Nil) if isCnf(p)     => And.flatten(p & convertFormula(q))
+    case And(p, q, r :: rs) if isCnf(p) => And.flatten(p & convertConjunction(And(q, r, rs)))
     case And(p, q, rs) =>
       convertFormula(And.flatten(And(convertFormula(p), convertFormula(q), rs.map(convertFormula))))
 
@@ -35,5 +50,5 @@ object Cnf:
     case Not(Or(p, q, rs))  => convertFormula(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs)) => convertFormula(Or(!p, !q, rs.map(!_)))
     case Not(Not(p))        => convertFormula(p)
-    case Not(p @ Var(_))    => Not(p)
+    case Not(p @ Var(_))    => !p
     case Not(p)             => convertFormula(Not(convertFormula(p)))

@@ -6,15 +6,29 @@ import org.scalatest.matchers.should
 import com.melvic.lohika.Formula.*
 
 class CnfSpec extends AnyFlatSpec with should.Matchers:
-  "Disjunction" should "flatten" in:
+  "Disjunction" should "be flattened" in:
     Cnf.convertFormula(("A" | "B") | ("C" | ("D" | "E"))) should be(Or.of("A", "B", "C", "D", "E"))
+
+  it should "recursively convert its components to CNFs" in:
     Cnf.convertFormula(("a" ==> "b") | "c" | Not(Not("d"))) should be(Or.of(!"a", "b", "c", "d"))
     Cnf.convertFormula("a" | (!("b" ==> "a") ==> "c") | "c") should be(
       Or.of("a", !"b", "a", "c", "c")
     )
 
-  "Conjunction" should "flatten" in:
+  it should "distribute over conjunctions" in:
+    Cnf.convertFormula(("a" & "b") | "c") should be(("a" | "c") & ("b" | "c"))
+    Cnf.convertFormula("a" | ("b" & "c")) should be(("b" | "a") & ("c" | "a"))
+    Cnf.convertFormula(Or.of("a" & "b", "c", "d")) should be(
+      Or.of("a", "c", "d") & Or.of("b", "c", "d")
+    )
+    Cnf.convertFormula(Or.of("a", "b", "c", "d" & "e")) should be(
+      Or.of("d", "a", "b", "c") & Or.of("e", "a", "b", "c")
+    )
+
+  "Conjunction" should "be flattend" in:
     Cnf.convertFormula(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
+
+  it should "recursively convert its components to CNFs" in:
     Cnf.convertFormula(("a" ==> "b") & "c" & Not(Not("d"))) should be(And.of(!"a" | "b", "c", "d"))
     Cnf.convertFormula("a" & (!("b" ==> "a") ==> "c") & "c") should be(
       And.of("a", Or.of(!"b", "a", "c"), "c")
@@ -29,7 +43,7 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
 
   "!(p & q)" should "become !p | !q" in:
     Cnf.convertFormula(!("p" & "q")) should be(!"p" | !"q")
-    Cnf.convertFormula(!(("p" ==> "q") & "r")) should be(("p" & !"q") | !"r")
+    Cnf.convertFormula(!(("p" ==> "q") & "r")) should be(("p" | !"r") & (!"q" | !"r"))
 
   "!(p | q)" should "become !p & q" in:
     Cnf.convertFormula(!("p" | "q")) should be(!"p" & !"q")
