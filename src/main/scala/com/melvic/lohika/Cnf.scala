@@ -14,18 +14,16 @@ object Cnf:
     case fm           => fm
 
   def convertDisjunction: ToCnf[Or] =
-    case Or(l, p, Nil) if l.isLiteral     => Or.flatten(Or.of(l, convertFormula(p)))
-    case Or(l, p, q :: rs) if l.isLiteral => Or.flatten(Or.of(l, convertDisjunction(Or(p, q, rs))))
-    case Or(and: And, p, Nil)             => Or.flatten(Or.of(and, convertFormula(p)))
-    case Or(and: And, p, q :: rs) => Or.flatten(Or.of(and, convertDisjunction(Or(p, q, rs))))
+    case Or(p, q, Nil) if isCnf(p)     => Or.flatten(Or.of(p, convertFormula(q)))
+    case Or(p, q, r :: rs) if isCnf(p) => Or.flatten(Or.of(p, convertDisjunction(Or(q, r, rs))))
     case Or(p, q, rs) =>
-      convertFormula(
-        Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
-      )
+      convertFormula(Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula))))
 
   def convertConjunction: ToCnf[And] =
+    case And(p, q, Nil) if isCnf(p)     => And.flatten(And.of(p, convertFormula(q)))
+    case And(p, q, r :: rs) if isCnf(p) => And.flatten(And.of(p, convertConjunction(And(q, r, rs))))
     case And(p, q, rs) =>
-      And.flatten(And(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
+      convertFormula(And.flatten(And(convertFormula(p), convertFormula(q), rs.map(convertFormula))))
 
   def convertImplication: ToCnf[Imply] =
     case Imply(p, q) => !convertFormula(p) | convertFormula(q)
@@ -39,4 +37,3 @@ object Cnf:
     case Not(Not(p))        => convertFormula(p)
     case Not(p @ Var(_))    => Not(p)
     case Not(p)             => convertFormula(Not(convertFormula(p)))
-    case fm                 => fm

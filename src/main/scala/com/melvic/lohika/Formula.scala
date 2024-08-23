@@ -1,6 +1,6 @@
 package com.melvic.lohika
 
-import com.melvic.lohika.Formula.*
+import com.melvic.lohika.Formula._
 
 import scala.collection.immutable.Nil as And
 import scala.util.chaining.*
@@ -20,6 +20,20 @@ object Formula:
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula)
   final case class Not(p: Formula)
+
+  def isCnf: Formula => Boolean =
+    case Var(_)        => true
+    case Not(v: Var)   => isCnf(v)
+    case And(p, q, rs) => isCnf(p) && isCnf(q) && rs.forall(isCnf)
+    case Or(p, q, rs)  => isLiteral(p) && isLiteral(q) && rs.forall(isLiteral)
+    case Not(_)        => false
+    case Imply(_, _)   => false
+    case Iff(_, _)     => false
+
+  def isLiteral: Formula => Boolean =
+    case v: Var      => true
+    case Not(Var(_)) => true
+    case _           => false
 
   def flatten[A <: Assoc](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
@@ -97,11 +111,6 @@ object Formula:
     def <==>(that: Formula): Iff = Iff(formula, that)
 
     def unary_! : Not = Not(formula)
-
-    def isLiteral: Boolean = formula match
-      case v: Var      => true
-      case Not(Var(_)) => true
-      case _           => false
 
     def ===(that: Formula): Boolean =
       // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)

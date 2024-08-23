@@ -1,9 +1,9 @@
 package com.melvic.lohika.tests.proofs
 
-import com.melvic.lohika.Cnf
+import com.melvic.lohika.{Cnf, Formula}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import com.melvic.lohika.Formula._
+import com.melvic.lohika.Formula.*
 
 class CnfSpec extends AnyFlatSpec with should.Matchers:
   "Disjunction" should "flatten" in:
@@ -16,6 +16,9 @@ class CnfSpec extends AnyFlatSpec with should.Matchers:
   "Conjunction" should "flatten" in:
     Cnf.convertFormula(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
     Cnf.convertFormula(("a" ==> "b") & "c" & Not(Not("d"))) should be(And.of(!"a" | "b", "c", "d"))
+    Cnf.convertFormula("a" & (!("b" ==> "a") ==> "c") & "c") should be(
+      And.of("a", Or.of(!"b", "a", "c"), "c")
+    )
 
   "p => q" should "become !p | q" in:
     Cnf.convertFormula("p" ==> "q") should be(!"p" | "q")
