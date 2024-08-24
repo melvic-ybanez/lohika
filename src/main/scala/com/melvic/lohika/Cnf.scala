@@ -16,23 +16,17 @@ object Cnf:
   def convertDisjunction: ToCnf[Or] =
     case Or(And(ap, aq, _), q, Nil) => convertFormula((ap | q) & (aq | q))
     case Or(p: And, q, r :: rs)     => convertFormula(Or(convertFormula(p | q), r, rs))
-    case Or(p, q: And, rs)          => convertFormula(Or(q, p, rs))
+    case or if or.components.exists(isAnd) =>
+      or.components
+        .find(isAnd)
+        .fold(or): and =>
+          convertFormula(Or.fromList(and :: or.components.filterNot(_ == and)))
+    case Or(p, q, Nil) if isInCnf(p)     => Or.flatten(p | convertFormula(q))
+    case Or(p, q, r :: rs) if isInCnf(p) => Or.flatten(p | convertDisjunction(Or(q, r, rs)))
     case Or(p, q, rs) =>
-      rs
-        .find :
-          case _: And => true
-          case _      => false
-        .fold {
-          (isInCnf(p), rs) match
-            case (true, Nil)      => Or.flatten(p | convertFormula(q))
-            case (true, r :: rss) => Or.flatten(p | convertDisjunction(Or(q, r, rss)))
-            case (_, _) =>
-              convertFormula(
-                Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
-              )
-        } { and =>
-          convertFormula(Or(and, p, q :: rs.filterNot(_ == and)))
-        }
+      convertFormula(
+        Or.flatten(Or(convertFormula(p), convertFormula(q), rs.map(convertFormula)))
+      )
 
   def convertConjunction: ToCnf[And] =
     case And(p, q, Nil) if isInCnf(p)     => And.flatten(p & convertFormula(q))
@@ -50,5 +44,7 @@ object Cnf:
     case Not(Or(p, q, rs))  => convertFormula(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs)) => convertFormula(Or(!p, !q, rs.map(!_)))
     case Not(Not(p))        => convertFormula(p)
+    case Not(True)          => False
+    case Not(False)         => True
     case Not(p @ Var(_))    => !p
     case Not(p)             => convertFormula(Not(convertFormula(p)))

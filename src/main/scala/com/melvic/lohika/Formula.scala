@@ -8,12 +8,6 @@ import scala.util.chaining.*
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
 object Formula:
-  sealed trait Assoc {
-    def p: Formula
-    def q: Formula
-    def rs: List[Formula]
-  }
-
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends Assoc
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends Assoc
@@ -22,6 +16,16 @@ object Formula:
   final case class Not(p: Formula)
   case object True
   case object False
+
+  sealed trait Assoc {
+    def p: Formula
+
+    def q: Formula
+
+    def rs: List[Formula]
+
+    def components: List[Formula] = p :: q :: rs
+  }
 
   def isInCnf: Formula => Boolean =
     case fm if isLiteral(fm) => true
@@ -34,6 +38,14 @@ object Formula:
     case Not(Var(_))  => true
     case True | False => true
     case _            => false
+
+  def isAnd: Formula => Boolean =
+    case _: And => true
+    case _      => false
+
+  def isOr: Formula => Boolean =
+    case _: Or => true
+    case _     => false
 
   def flatten[A <: Assoc](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
@@ -65,20 +77,28 @@ object Formula:
       case Imply(p, q)   => s"${prettyPrint(p)(using currentPrecedence + 1)} => ${prettyPrint(q)}"
       case Iff(p, q)     => s"${prettyPrint(p)} <=> ${prettyPrint(q)}"
       case Not(p)        => s"!${prettyPrint(p)}"
+      case True          => "T"
+      case False         => "F"
 
     if parentPrecedence > currentPrecedence then s"(${pretty})" else pretty
 
   def precedence: Formula => Int =
-    case _: Iff   => Precedence.Iff
-    case _: Imply => Precedence.Imply
-    case _: Or    => Precedence.Or
-    case _: And   => Precedence.And
-    case _: Not   => Precedence.Not
-    case _: Var   => Precedence.Var
+    case _: Iff       => Precedence.Iff
+    case _: Imply     => Precedence.Imply
+    case _: Or        => Precedence.Or
+    case _: And       => Precedence.And
+    case _: Not       => Precedence.Not
+    case _: Var       => Precedence.Var
+    case True | False => Precedence.Var
 
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
       Or(p, q, rs.toList)
+
+    def fromList: List[Formula] => Formula =
+      case Nil          => False
+      case p :: Nil     => p
+      case p :: q :: rs => Or(p, q, rs)
 
     def flatten: Formula => Formula =
       Formula.flatten(Or.apply) { case or: Or => or }
@@ -86,6 +106,11 @@ object Formula:
   object And:
     def of(p: Formula, q: Formula, rs: Formula*): And =
       And(p, q, rs.toList)
+
+    def fromList: List[Formula] => Formula =
+      case Nil          => True
+      case p :: Nil     => p
+      case p :: q :: rs => And(p, q, rs)
 
     def flatten: Formula => Formula =
       Formula.flatten(And.apply) { case and: And => and }

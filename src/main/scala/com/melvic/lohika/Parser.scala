@@ -2,7 +2,7 @@ package com.melvic.lohika
 
 import fastparse.*
 import MultiLineWhitespace.*
-import com.melvic.lohika.Formula.{And, Iff, Imply, Or, Var}
+import com.melvic.lohika.Formula.*
 
 object Parser:
   def parseFormula(input: String): Parsed[Formula] =
