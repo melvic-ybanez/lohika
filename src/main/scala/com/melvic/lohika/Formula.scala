@@ -29,13 +29,17 @@ object Formula:
 
   def isInCnf: Formula => Boolean =
     case fm if isLiteral(fm) => true
-    case And(p, q, rs)       => isInCnf(p) && isInCnf(q) && rs.forall(isInCnf)
-    case Or(p, q, rs)        => isLiteral(p) && isLiteral(q) && rs.forall(isLiteral)
+    case and: And            => and.components.forall(and => isInCnf(and) && !isAnd(and))
+    case or: Or              => or.components.forall(isLiteral)
     case _                   => false
 
   def isLiteral: Formula => Boolean =
-    case v: Var       => true
-    case Not(Var(_))  => true
+    case v: Var               => true
+    case Not(Var(_))          => true
+    case fm if isConstant(fm) => true
+    case _                    => false
+
+  def isConstant: Formula => Boolean =
     case True | False => true
     case _            => false
 
@@ -139,7 +143,7 @@ object Formula:
 
     def ===(that: Formula): Boolean =
       // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)
-      Cnf.convertFormula(formula) == Cnf.convertFormula(that)
+      Cnf.fromFormula(formula) == Cnf.fromFormula(that)
 
   object Precedence:
     val Iff: Int = 1
