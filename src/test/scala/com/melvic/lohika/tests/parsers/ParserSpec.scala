@@ -3,6 +3,12 @@ package com.melvic.lohika.tests.parsers
 import com.melvic.lohika.Formula._
 
 class ParserSpec extends BaseSpec:
+  "True" should "be written as T" in:
+    parseSuccess("T", True)
+    
+  "False" should "be written as F" in:
+    parseSuccess("F", False)
+    
   "A single alphanumeric string" should "map to a variable" in:
     parseSuccess("A", Var("A"))
 

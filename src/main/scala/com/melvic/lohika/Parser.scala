@@ -29,6 +29,9 @@ object Parser:
       case Seq(p)         => p
       case Seq(p, q, rs*) => And.of(p, q, rs*)
 
-  def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!.map(Var.apply))
+  def variable[$: P]: P[Formula] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map:
+    case "T"  => True
+    case "F"  => False
+    case name => Var(name)
 
   def parens[$: P]: P[Formula] = P("(" ~ (and | variable) ~ ")")
