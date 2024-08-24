@@ -16,6 +16,7 @@ object Cnf:
   def fromDisjunction: ToCnf[Or] =
     // Identity Law: True (P | T === T)
     case or if or.components.contains(True) => True
+
     // Identity Law: Neutral Element (P | F === P)
     case or if or.components.contains(False) => Or.fromList(or.components.filterNot(_ == False))
 
@@ -35,6 +36,7 @@ object Cnf:
   def fromConjunction: ToCnf[And] =
     // Identity Law: False (P & F === F)
     case and if and.components.contains(False) => False
+    
     // Identity Law: Neutral Element (P & T === P)
     case and if and.components.contains(True) => And.fromList(and.components.filterNot(_ == True))
 

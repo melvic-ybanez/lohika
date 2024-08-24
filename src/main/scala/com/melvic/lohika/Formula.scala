@@ -1,7 +1,8 @@
 package com.melvic.lohika
 
-import com.melvic.lohika.Formula._
+import com.melvic.lohika.Formula.*
 
+import scala.annotation.targetName
 import scala.collection.immutable.Nil as And
 import scala.util.chaining.*
 
@@ -17,7 +18,7 @@ object Formula:
   case object True
   case object False
 
-  sealed trait Assoc {
+  sealed trait Assoc:
     def p: Formula
 
     def q: Formula
@@ -25,7 +26,6 @@ object Formula:
     def rs: List[Formula]
 
     def components: List[Formula] = p :: q :: rs
-  }
 
   def isInCnf: Formula => Boolean =
     case fm if isLiteral(fm) => true
@@ -131,16 +131,22 @@ object Formula:
     override def apply(input: String): Var = Var(input)
 
   extension (formula: Formula)
+    @targetName("and")
     def &(that: Formula): And = And.of(formula, that)
 
+    @targetName("or")
     def |(that: Formula): Or = Or.of(formula, that)
 
+    @targetName("implies")
     def ==>(that: Formula): Imply = Imply(formula, that)
 
+    @targetName("ifAndOnlyIf")
     def <==>(that: Formula): Iff = Iff(formula, that)
 
+    @targetName("not")
     def unary_! : Not = Not(formula)
 
+    @targetName("entails")
     def ===(that: Formula): Boolean =
       // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)
       Cnf.fromFormula(formula) == Cnf.fromFormula(that)
