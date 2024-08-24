@@ -5,7 +5,7 @@ import com.melvic.lohika.Formula._
 import scala.collection.immutable.Nil as And
 import scala.util.chaining.*
 
-type Formula = Or | And | Imply | Iff | Var | Not
+type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
 object Formula:
   sealed trait Assoc {
@@ -20,20 +20,20 @@ object Formula:
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula)
   final case class Not(p: Formula)
+  case object True
+  case object False
 
-  def isCnf: Formula => Boolean =
-    case Var(_)        => true
-    case Not(v: Var)   => isCnf(v)
-    case And(p, q, rs) => isCnf(p) && isCnf(q) && rs.forall(isCnf)
-    case Or(p, q, rs)  => isLiteral(p) && isLiteral(q) && rs.forall(isLiteral)
-    case Not(_)        => false
-    case Imply(_, _)   => false
-    case Iff(_, _)     => false
+  def isInCnf: Formula => Boolean =
+    case fm if isLiteral(fm) => true
+    case And(p, q, rs)       => isInCnf(p) && isInCnf(q) && rs.forall(isInCnf)
+    case Or(p, q, rs)        => isLiteral(p) && isLiteral(q) && rs.forall(isLiteral)
+    case _                   => false
 
   def isLiteral: Formula => Boolean =
-    case v: Var      => true
-    case Not(Var(_)) => true
-    case _           => false
+    case v: Var       => true
+    case Not(Var(_))  => true
+    case True | False => true
+    case _            => false
 
   def flatten[A <: Assoc](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]

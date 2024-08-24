@@ -23,7 +23,7 @@ object Cnf:
           case _: And => true
           case _      => false
         .fold {
-          (isCnf(p), rs) match
+          (isInCnf(p), rs) match
             case (true, Nil)      => Or.flatten(p | convertFormula(q))
             case (true, r :: rss) => Or.flatten(p | convertDisjunction(Or(q, r, rss)))
             case (_, _) =>
@@ -35,8 +35,8 @@ object Cnf:
         }
 
   def convertConjunction: ToCnf[And] =
-    case And(p, q, Nil) if isCnf(p)     => And.flatten(p & convertFormula(q))
-    case And(p, q, r :: rs) if isCnf(p) => And.flatten(p & convertConjunction(And(q, r, rs)))
+    case And(p, q, Nil) if isInCnf(p)     => And.flatten(p & convertFormula(q))
+    case And(p, q, r :: rs) if isInCnf(p) => And.flatten(p & convertConjunction(And(q, r, rs)))
     case And(p, q, rs) =>
       convertFormula(And.flatten(And(convertFormula(p), convertFormula(q), rs.map(convertFormula))))
 
