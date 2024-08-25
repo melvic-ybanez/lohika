@@ -121,9 +121,9 @@ object Formula:
 
   object Imply:
     def of(p: Formula, qs: Formula*): Imply =
-      Imply.fromSeq(p +: qs)
+      Imply.fromList(p :: qs.toList)
 
-    def fromSeq(components: Seq[Formula]): Imply =
+    def fromList(components: List[Formula]): Imply =
       (components.reduceRight(Imply.apply): @unchecked) match
         case imply: Imply => imply
 

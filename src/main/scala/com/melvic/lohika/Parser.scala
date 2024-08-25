@@ -16,19 +16,15 @@ object Parser:
     .rep(min = 1, sep = "=>")
     .map:
       case Seq(p) => p
-      case ps     => Imply.fromSeq(ps)
+      case ps     => Imply.fromList(ps.toList)
 
   def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
     .rep(min = 1, sep = "|")
-    .map:
-      case Seq(p)         => p
-      case Seq(p, q, rs*) => Or.of(p, q, rs*)
+    .map(ps => Or.fromList(ps.toList))
 
   def and[$: P]: P[Formula] = P(variable | parens)
     .rep(min = 1, sep = "&")
-    .map:
-      case Seq(p)         => p
-      case Seq(p, q, rs*) => And.of(p, q, rs*)
+    .map(ps => And.fromList(ps.toList))
 
   def variable[$: P]: P[Formula] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map:
     case "T"  => True
