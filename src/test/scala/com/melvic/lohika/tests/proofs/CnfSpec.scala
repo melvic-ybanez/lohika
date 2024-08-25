@@ -4,10 +4,12 @@ import com.melvic.lohika.{Cnf, Formula}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import com.melvic.lohika.Formula.*
+import com.melvic.lohika.tests.BaseSpec
+import BaseSpec.*
 
-class CnfSpec extends AnyFlatSpec with should.Matchers:
+class CnfSpec extends BaseSpec:
   "Disjunction" should "be flattened" in:
-    Cnf.fromFormula(("A" | "B") | ("C" | ("D" | "E"))) should be(Or.of("A", "B", "C", "D", "E"))
+    "(A | B) | (C | (D | E))" ====> "A | B | C | D | E"
 
   it should "recursively convert its components to CNFs" in:
     Cnf.fromFormula(("a" ==> "b") | "c" | Not(Not("d"))) should be(Or.of(!"a", "b", "c", "d"))

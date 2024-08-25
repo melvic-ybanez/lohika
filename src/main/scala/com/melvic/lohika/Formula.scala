@@ -130,25 +130,25 @@ object Formula:
   given stringToVar: Conversion[String, Var] with
     override def apply(input: String): Var = Var(input)
 
-  extension (formula: Formula)
+  extension (self: Formula)
     @targetName("and")
-    def &(that: Formula): And = And.of(formula, that)
+    def &(other: Formula): And = And.of(self, other)
 
     @targetName("or")
-    def |(that: Formula): Or = Or.of(formula, that)
+    def |(other: Formula): Or = Or.of(self, other)
 
     @targetName("implies")
-    def ==>(that: Formula): Imply = Imply(formula, that)
+    def ==>(other: Formula): Imply = Imply(self, other)
 
     @targetName("ifAndOnlyIf")
-    def <==>(that: Formula): Iff = Iff(formula, that)
+    def <==>(other: Formula): Iff = Iff(self, other)
 
     @targetName("not")
-    def unary_! : Not = Not(formula)
+    def unary_! : Not = Not(self)
 
     @targetName("entails")
-    def ===(that: Formula): Boolean =
-      (Cnf.fromFormula(formula), Cnf.fromFormula(that)) match
+    def ===(other: Formula): Boolean =
+      (Cnf.fromFormula(self), Cnf.fromFormula(other)) match
         case (thisAssoc: Assoc, thatAssoc: Assoc) =>
           thisAssoc.components.toSet == thatAssoc.components.toSet
         case (thisCnf, thatCnf) => thisCnf == thatCnf
