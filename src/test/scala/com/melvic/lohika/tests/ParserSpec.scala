@@ -35,11 +35,16 @@ class ParserSpec extends BaseSpec:
   it should "have higher precedence than disjunction" in:
     parseSuccess("A | B & C", "A" | ("B" & "C"))
 
-  "Implications" should "be connected by =>" in:
+  "Implication" should "be connected by =>" in:
     parseSuccess("A => B", "A" ==> "B")
+
+  it should "support grouping by parenthesis" in:
+    parseSuccess("(A => B) => C", ("A" ==> "B") ==> "C")
+    parseSuccess("A => (B => C) => D", "A" ==> (("B" ==> "C") ==> "D"))
 
   it should "be right associative" in:
     parseSuccess("A => B => C", "A" ==> ("B" ==> "C"))
+    "A => (B => C)" === "A => B => C"
 
   it should "have lower precedence than disjunction" in:
     parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D"))
