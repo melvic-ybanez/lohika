@@ -148,8 +148,10 @@ object Formula:
 
     @targetName("entails")
     def ===(that: Formula): Boolean =
-      // TODO: Ignore the order of the elements (e.g. A | B | C === A | C | B)
-      Cnf.fromFormula(formula) == Cnf.fromFormula(that)
+      (Cnf.fromFormula(formula), Cnf.fromFormula(that)) match
+        case (thisAssoc: Assoc, thatAssoc: Assoc) =>
+          thisAssoc.components.toSet == thatAssoc.components.toSet
+        case (thisCnf, thatCnf) => thisCnf == thatCnf
 
   object Precedence:
     val Iff: Int = 1
