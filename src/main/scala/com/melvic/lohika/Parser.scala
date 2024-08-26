@@ -10,21 +10,20 @@ object Parser:
 
   def formula[$: P]: P[Formula] = P(iff)
 
-  def iff[$: P]: P[Formula] = P(imply | ("(" ~ iff ~ ")"))
-    .rep(min = 1, sep = "<=>")
-    .map(ps => Iff.fromList(ps.toList).getOrElse(False))
+  def iff[$: P]: P[Formula] =
+    imply.rep(min = 1, sep = "<=>").map(ps => Iff.fromList(ps.toList).getOrElse(False))
 
-  def imply[$: P]: P[Formula] = P(or | ("(" ~ imply ~ ")"))
+  def imply[$: P]: P[Formula] = or
     .rep(min = 1, sep = "=>")
     .map:
       case Seq(p) => p
       case ps     => Imply.fromList(ps.toList)
 
-  def or[$: P]: P[Formula] = P(and | ("(" ~ or ~ ")"))
+  def or[$: P]: P[Formula] = and
     .rep(min = 1, sep = "|")
     .map(ps => Or.fromList(ps.toList))
 
-  def and[$: P]: P[Formula] = P(variable | parens)
+  def and[$: P]: P[Formula] = P(variable | P("(" ~ (formula | variable) ~ ")"))
     .rep(min = 1, sep = "&")
     .map(ps => And.fromList(ps.toList))
 
@@ -32,5 +31,3 @@ object Parser:
     case "T"  => True
     case "F"  => False
     case name => Var(name)
-
-  def parens[$: P]: P[Formula] = P("(" ~ (or | and | variable) ~ ")")

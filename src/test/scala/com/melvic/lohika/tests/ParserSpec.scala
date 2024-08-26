@@ -25,6 +25,10 @@ class ParserSpec extends BaseSpec:
   it should "support chaining" in:
     parseSuccess("A|B|C", Or.of("A", "B", "C"))
 
+  it should "accept lower precedence components if they are inside parens" in:
+    parseSuccess("(A => B) | C", ("A" ==> "B") | "C")
+    parseSuccess("(A <=> B) | C", ("A" <==> "B") | "C")
+
   "Conjunctions" should "be separated by &" in:
     parseSuccess("A & B", "A" & "B")
     parseSuccess("some & where", "some" & "where")
@@ -34,7 +38,11 @@ class ParserSpec extends BaseSpec:
 
   it should "have higher precedence than disjunction" in:
     parseSuccess("A | B & C", "A" | ("B" & "C"))
+
+  it should "accept lower precedence components if they are inside parens" in:
     parseSuccess("(A | B) & C", ("A" | "B") & "C")
+    parseSuccess("(A => B) & C", ("A" ==> "B") & "C")
+    parseSuccess("(A <=> B) & C", ("A" <==> "B") & "C")
 
   "Implication" should "be connected by =>" in:
     parseSuccess("A => B", "A" ==> "B")
@@ -49,6 +57,9 @@ class ParserSpec extends BaseSpec:
 
   it should "have lower precedence than disjunction" in:
     parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D"))
+
+  it should "accept lower precedence components if they are inside parens" in:
+    parseSuccess("(A <=> B) => C", ("A" <==> "B") ==> "C")
 
   "Biconditional" should "be connected by <=>" in:
     parseSuccess("A <=> B", "A" <==> "B")
