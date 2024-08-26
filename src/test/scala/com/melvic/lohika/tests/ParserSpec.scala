@@ -34,6 +34,7 @@ class ParserSpec extends BaseSpec:
 
   it should "have higher precedence than disjunction" in:
     parseSuccess("A | B & C", "A" | ("B" & "C"))
+    parseSuccess("(A | B) & C", ("A" | "B") & "C")
 
   "Implication" should "be connected by =>" in:
     parseSuccess("A => B", "A" ==> "B")
@@ -54,7 +55,7 @@ class ParserSpec extends BaseSpec:
 
   it should "have lower precedence than implication" in:
     parseSuccess("A <=> B => C", "A" <==> ("B" ==> "C"))
-    
+
   it should "support chaining" in:
     parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 

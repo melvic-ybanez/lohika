@@ -33,4 +33,4 @@ object Parser:
     case "F"  => False
     case name => Var(name)
 
-  def parens[$: P]: P[Formula] = P("(" ~ (and | variable) ~ ")")
+  def parens[$: P]: P[Formula] = P("(" ~ (or | and | variable) ~ ")")
