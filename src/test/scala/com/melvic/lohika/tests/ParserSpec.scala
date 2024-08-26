@@ -54,6 +54,9 @@ class ParserSpec extends BaseSpec:
 
   it should "have lower precedence than implication" in:
     parseSuccess("A <=> B => C", "A" <==> ("B" ==> "C"))
+    
+  it should "support chaining" in:
+    parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 
   def parseSuccess(input: String, expected: Formula): Unit =
     Parser.parseFormula(input) should matchPattern:

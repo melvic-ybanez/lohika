@@ -61,6 +61,11 @@ class CnfSpec extends BaseSpec:
   "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
     Cnf.fromFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
 
+  "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
+    Cnf.fromFormula(Iff.of("p", "q", "r")) should be(
+      And.of(!"p" | "q", !"q" | "p", !"q" | "r", !"r" | "q")
+    )
+
   "!(p & q)" should "become !p | !q" in:
     Cnf.fromFormula(!("p" & "q")) should be(!"p" | !"q")
     Cnf.fromFormula(!(("p" ==> "q") & "r")) should be(("p" | !"r") & (!"q" | !"r"))

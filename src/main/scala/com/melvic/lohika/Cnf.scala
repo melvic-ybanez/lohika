@@ -49,11 +49,10 @@ object Cnf:
 
   def fromBiconditional: ToCnf[Iff] =
     case Iff(p, q, Nil) => fromFormula(p ==> q) & fromFormula(q ==> p)
-    case Iff(p, q, r :: rs) =>
-      val And(ap, aq, ars) = rs.foldLeft((p ==> q) & (q ==> r)):
-        case (And(pq, qr @ Imply(q, r), Nil), s)       => And(pq, qr, (r ==> s) :: Nil)
-        case (And(pq, qr, ss @ (Imply(r, s) :: _)), t) => And(pq, qr, (s ==> t) :: ss)
-      fromConjunction(And(ap, aq, ars.reverse))
+    case Iff(p, q, rs) =>
+      val iffs = rs.foldLeft(List(p <==> q)):
+        case (iffs @ (Iff(p, q, _) :: _), r) => (q <==> r) :: iffs
+      fromFormula(And.fromList(iffs.reverse))
 
   def fromNot: ToCnf[Not] =
     case Not(Or(p, q, rs))  => fromFormula(And(!p, !q, rs.map(!_)))

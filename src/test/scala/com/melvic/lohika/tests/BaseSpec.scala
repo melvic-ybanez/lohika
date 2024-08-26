@@ -16,7 +16,10 @@ object BaseSpec:
     (Parser.parseFormula(input1), Parser.parseFormula(input2)) match
       case (Parsed.Success(formula1, _), Parsed.Success(formula2, _)) =>
         f(formula1, formula2)
-      case _ => assert(false)
+      case (Parsed.Failure(label, _, _), _) =>
+        assert(false, s"Unable to parse $input1. Details: $label")
+      case (_, Parsed.Failure(label, _, _)) =>
+        assert(false, s"Unable to parse $input2. Details: $label")
 
   extension (self: String)
     @targetName("assertEqualFormulae")
