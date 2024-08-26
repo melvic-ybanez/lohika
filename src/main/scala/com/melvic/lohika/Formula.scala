@@ -10,15 +10,15 @@ type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
 object Formula:
   final case class Var(name: String)
-  final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends Assoc
-  final case class And(p: Formula, q: Formula, rs: List[Formula]) extends Assoc
+  final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
+  final case class And(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
   final case class Imply(p: Formula, q: Formula)
-  final case class Iff(p: Formula, q: Formula)
+  final case class Iff(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
   final case class Not(p: Formula)
   case object True
   case object False
 
-  sealed trait Assoc:
+  sealed trait HasComps:
     def p: Formula
 
     def q: Formula
@@ -51,7 +51,7 @@ object Formula:
     case _: Or => true
     case _     => false
 
-  def flatten[A <: Assoc](make: (Formula, Formula, List[Formula]) => Formula)(
+  def flatten[A <: HasComps](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
   ): Formula => Formula =
     def toList: Formula => List[Formula] =
@@ -79,7 +79,7 @@ object Formula:
       case Or(p, q, rs)  => prettyAssoc(p, q, rs, "|")
       case And(p, q, rs) => prettyAssoc(p, q, rs, "&")
       case Imply(p, q)   => s"${prettyPrint(p)(using currentPrecedence + 1)} => ${prettyPrint(q)}"
-      case Iff(p, q)     => s"${prettyPrint(p)} <=> ${prettyPrint(q)}"
+      case Iff(p, q, rs) => prettyAssoc(p, q, rs, "<=>")
       case Not(p)        => s"!${prettyPrint(p)}"
       case True          => "T"
       case False         => "F"
@@ -119,6 +119,18 @@ object Formula:
     def flatten: Formula => Formula =
       Formula.flatten(And.apply) { case and: And => and }
 
+  object Iff:
+    def of(p: Formula, q: Formula, rs: Formula*): Iff =
+      Iff(p, q, rs.toList)
+
+    def fromList: List[Formula] => Option[Formula] =
+      case p :: Nil     => Some(p)
+      case p :: q :: rs => Some(Iff(p, q, rs))
+      case _            => None
+
+    def flatten: Formula => Formula =
+      Formula.flatten(Iff.apply) { case iff: Iff => iff }
+
   object Imply:
     def of(p: Formula, qs: Formula*): Imply =
       Imply.fromList(p :: qs.toList)
@@ -141,7 +153,7 @@ object Formula:
     def ==>(other: Formula): Imply = Imply(self, other)
 
     @targetName("ifAndOnlyIf")
-    def <==>(other: Formula): Iff = Iff(self, other)
+    def <==>(other: Formula): Iff = Iff.of(self, other)
 
     @targetName("not")
     def unary_! : Not = Not(self)
@@ -149,8 +161,8 @@ object Formula:
     @targetName("entails")
     def ===(other: Formula): Boolean =
       (Cnf.fromFormula(self), Cnf.fromFormula(other)) match
-        case (thisAssoc: Assoc, thatAssoc: Assoc) =>
-          thisAssoc.components.toSet == thatAssoc.components.toSet
+        case (hasComps: HasComps, thatAssoc: HasComps) =>
+          hasComps.components.toSet == thatAssoc.components.toSet
         case (thisCnf, thatCnf) => thisCnf == thatCnf
 
   object Precedence:

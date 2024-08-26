@@ -36,7 +36,7 @@ object Cnf:
   def fromConjunction: ToCnf[And] =
     // Identity Law: False (P & F === F)
     case and if and.components.contains(False) => False
-    
+
     // Identity Law: Neutral Element (P & T === P)
     case and if and.components.contains(True) => And.fromList(and.components.filterNot(_ == True))
 
@@ -48,7 +48,12 @@ object Cnf:
     case Imply(p, q) => !fromFormula(p) | fromFormula(q)
 
   def fromBiconditional: ToCnf[Iff] =
-    case Iff(p, q) => fromFormula(p ==> q) & fromFormula(q ==> p)
+    case Iff(p, q, Nil) => fromFormula(p ==> q) & fromFormula(q ==> p)
+    case Iff(p, q, r :: rs) =>
+      val And(ap, aq, ars) = rs.foldLeft((p ==> q) & (q ==> r)):
+        case (And(pq, qr @ Imply(q, r), Nil), s)       => And(pq, qr, (r ==> s) :: Nil)
+        case (And(pq, qr, ss @ (Imply(r, s) :: _)), t) => And(pq, qr, (s ==> t) :: ss)
+      fromConjunction(And(ap, aq, ars.reverse))
 
   def fromNot: ToCnf[Not] =
     case Not(Or(p, q, rs))  => fromFormula(And(!p, !q, rs.map(!_)))

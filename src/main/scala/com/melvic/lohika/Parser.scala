@@ -10,7 +10,9 @@ object Parser:
 
   def formula[$: P]: P[Formula] = P(iff)
 
-  def iff[$: P]: P[Formula] = P(P(imply ~ "<=>" ~ imply).map(Iff.apply) | imply)
+  def iff[$: P]: P[Formula] = P(imply | ("(" ~ iff ~ ")"))
+    .rep(min = 1, sep = "<=>")
+    .map(ps => Iff.fromList(ps.toList).getOrElse(False))
 
   def imply[$: P]: P[Formula] = P(or | ("(" ~ imply ~ ")"))
     .rep(min = 1, sep = "=>")
