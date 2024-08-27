@@ -18,6 +18,14 @@ class ParserSpec extends BaseSpec:
   it should "support multiple characters" in:
     parseSuccess("Foo", Var("Foo"))
 
+  "Negation" should "start with !" in:
+    parseSuccess("!P", !"P")
+    parseSuccess("!!A", Not(Not("A")))
+
+  it should "have higher precedence than Conjunction" in:
+    parseSuccess("!A & !B", !"A" & !"B")
+    parseSuccess("!(A & B)", !("A" & "B"))
+
   "Disjunctions" should "be separated by |" in:
     parseSuccess("A | B", "A" | "B")
     parseSuccess("some | where", "some" | "where")
