@@ -12,10 +12,8 @@ class CnfSpec extends BaseSpec:
     "(A | B) | (C | (D | E))" ====> "A | B | C | D | E"
 
   it should "recursively convert its components to CNFs" in:
-    Cnf.fromFormula(("a" ==> "b") | "c" | Not(Not("d"))) should be(Or.of(!"a", "b", "c", "d"))
-    Cnf.fromFormula("a" | (!("b" ==> "a") ==> "c") | "c") should be(
-      Or.of("a", !"b", "a", "c", "c")
-    )
+    "(A => B) | C | !!D" ====> "!A | B | C | D"
+    "A | (!(B => A) => C) | C" ====> "A | !B | A | C | C"
 
   it should "distribute over conjunctions" in:
     Cnf.fromFormula(("a" & "b") | "c") should be(("a" | "c") & ("b" | "c"))
@@ -62,9 +60,7 @@ class CnfSpec extends BaseSpec:
     Cnf.fromFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
 
   "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
-    Cnf.fromFormula(Iff.of("p", "q", "r")) should be(
-      And.of(!"p" | "q", !"q" | "p", !"q" | "r", !"r" | "q")
-    )
+    "p <=> q <=> r" ====> "(!p | q) & (!q | p) & (!q | r) & (!r | q)"
 
   "!(p & q)" should "become !p | !q" in:
     Cnf.fromFormula(!("p" & "q")) should be(!"p" | !"q")

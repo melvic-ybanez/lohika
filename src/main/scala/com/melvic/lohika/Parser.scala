@@ -23,11 +23,13 @@ object Parser:
     .rep(min = 1, sep = "|")
     .map(ps => Or.fromList(ps.toList))
 
-  def and[$: P]: P[Formula] = P(("(" ~ formula ~ ")") | not | variable)
+  def and[$: P]: P[Formula] = P(inParens | not | variable)
     .rep(min = 1, sep = "&")
     .map(ps => And.fromList(ps.toList))
 
-  def not[$: P]: P[Formula] = P("!" ~ (variable | not | formula)).map(Not.apply)
+  def not[$: P]: P[Formula] = P("!" ~ (variable | not | inParens)).map(Not.apply)
+
+  def inParens[$: P]: P[Formula] = P("(" ~ formula ~ ")")
 
   def variable[$: P]: P[Formula] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map:
     case "T"  => True

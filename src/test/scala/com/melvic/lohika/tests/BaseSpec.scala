@@ -40,9 +40,10 @@ object BaseSpec:
 
     @targetName("assertEqualToCnf")
     def ====>(other: String): Unit =
-      assertFromInputStrings(self, other): (formula1, formula2) =>
+      assertFromInputStrings(self, other): (formula1, expectedCnf) =>
         val cnf = Cnf.fromFormula(formula1)
         assert(
-          cnf === formula2,
-          s"${prettyPrint(formula1)} has the expected CNF: $cnf. Got: ${prettyPrint(formula2)}"
+          cnf === expectedCnf,
+          s"${prettyPrint(formula1)} has the expected CNF: ${prettyPrint(expectedCnf)}. " +
+            s"Got: ${prettyPrint(cnf)}"
         )
