@@ -16,64 +16,57 @@ class CnfSpec extends BaseSpec:
     "A | (!(B => A) => C) | C" ====> "A | !B | A | C | C"
 
   it should "distribute over conjunctions" in:
-    Cnf.fromFormula(("a" & "b") | "c") should be(("a" | "c") & ("b" | "c"))
-    Cnf.fromFormula("a" | ("b" & "c")) should be(("b" | "a") & ("c" | "a"))
-    Cnf.fromFormula(Or.of("a" & "b", "c", "d")) should be(
-      Or.of("a", "c", "d") & Or.of("b", "c", "d")
-    )
-    Cnf.fromFormula(Or.of("a", "b", "c", "d" & "e")) should be(
-      Or.of("d", "a", "b", "c") & Or.of("e", "a", "b", "c")
-    )
+    "(A & B) | C" ====> "(A | C) & (B | C)"
+    "A & B | C" ====> "(A | C) & (B | C)"
+    "A | (B & C)" ====> "(B | A) & (C | A)"
+    "(A & B) | C | D" ====> "(A | C | D) & (B | C | D)"
+    "A | B | C | D & E" ====> "(D | A | B | C) & (E | A | B | C)"
 
   it should "return True if at least one component is True" in:
-    Cnf.fromFormula(Or.of(True, False, "p")) should be(True)
-    Cnf.fromFormula(Or.of(False | "c", "a", "b" | ("d" | True))) should be(True)
+    "T | F | P" ====> "T"
+    "(F | C) | A | B | (D | T)" ====> "T"
 
   it should "ignore any False component" in:
-    Cnf.fromFormula(Or.of("a", False, "b")) should be("a" | "b")
-    Cnf.fromFormula(Or.of(False | "c", "a", "b" | ("d" | False))) should be(
-      Or.of("c", "a", "b", "d")
-    )
+    "A | F | B" ====> "A | B"
+    "(F | C) | A | B | (D | F)" ====> "C | A | B | D"
 
-  "Conjunction" should "be flattend" in:
-    Cnf.fromFormula(("A" & "B") & ("C" & ("D" & "E"))) should be(And.of("A", "B", "C", "D", "E"))
+  "Conjunction" should "be flattened" in:
+    "(A & B) & (C & (D & E))" ====> "A | B | C | D | E"
 
   it should "recursively convert its components to CNFs" in:
-    Cnf.fromFormula(("a" ==> "b") & "c" & Not(Not("d"))) should be(And.of(!"a" | "b", "c", "d"))
-    Cnf.fromFormula("a" & (!("b" ==> "a") ==> "c") & "c") should be(
-      And.of("a", Or.of(!"b", "a", "c"), "c")
-    )
+    "(A => B) & C & !!D" ====> "(!A | B) & C & D"
+    "A & (!(B => A) => C) & C" ====> "A & (!B | A | C) & C"
 
   it should "return False if at least one component is False" in:
-    Cnf.fromFormula(And.of(True, False, "p")) should be(False)
-    Cnf.fromFormula(And.of(True | "c", "a", "b" & ("d" & False))) should be(False)
+    "T & F & P" ====> "F"
+    "(T | C) & A & (B & (D & F))" ====> "F"
 
   it should "ignore any True component" in:
-    Cnf.fromFormula(And.of("a", True, "b")) should be("a" & "b")
-    Cnf.fromFormula(And.of(True | "c", "a", "b" | ("d" | True))) should be(Var("a"))
+    "A & T & B" ====> "A & B"
+    "(T | C) & A & (B | (D | T))" ====> "A"
 
   "p => q" should "become !p | q" in:
-    Cnf.fromFormula("p" ==> "q") should be(!"p" | "q")
-    Cnf.fromFormula(("a" ==> "b") ==> ("c" ==> "d")) should be(!(!"a" | "b") | (!"c" | "d"))
+    "P => Q" ====> "!P | Q"
+    "(A => B) => (C => D)" ====> "!(!A | B) | (!C | D)"
 
   "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
-    Cnf.fromFormula("p" <==> "q") should be((!"p" | "q") & (!"q" | "p"))
+    "P <=> Q" ====> "(!P | Q) & (!Q | P)"
 
   "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
     "p <=> q <=> r" ====> "(!p | q) & (!q | p) & (!q | r) & (!r | q)"
 
   "!(p & q)" should "become !p | !q" in:
-    Cnf.fromFormula(!("p" & "q")) should be(!"p" | !"q")
-    Cnf.fromFormula(!(("p" ==> "q") & "r")) should be(("p" | !"r") & (!"q" | !"r"))
+    "!(P & Q)" ====> "!P | !Q"
+    "!((P => Q) & R)" ====> "(P | !R) & (!Q | !R)"
 
   "!(p | q)" should "become !p & q" in:
-    Cnf.fromFormula(!("p" | "q")) should be(!"p" & !"q")
-    Cnf.fromFormula(!(("p" ==> "q") | "r")) should be(And.of("p", !"q", !"r"))
+    "!(P | Q)" ====> "!P & !Q"
+    "!((P => Q) | R)" ====> "P & !Q & !R"
 
   "!(p => q)" should "become p & !q" in:
-    Cnf.fromFormula(!("p" ==> "q")) should be("p" & !"q")
+    "!(P => Q)" ====> "P & !Q"
 
   "Double negation" should "cancel out" in:
-    Cnf.fromFormula(Not(Not("p"))) should be(Var("p"))
-    Cnf.fromFormula(Not(Not(Not("p")))) should be(!"p")
-    Cnf.fromFormula(Not(Not(Not(Not("p"))))) should be(Var("p"))
+    "!!P" ====> "P"
+    "!!!P" ====> "!P"
+    "!!!!P" ====> "P"
