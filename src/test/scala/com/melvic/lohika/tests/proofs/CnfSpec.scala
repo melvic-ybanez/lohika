@@ -22,28 +22,12 @@ class CnfSpec extends BaseSpec:
     "(A & B) | C | D" ====> "(A | C | D) & (B | C | D)"
     "A | B | C | D & E" ====> "(D | A | B | C) & (E | A | B | C)"
 
-  it should "return True if at least one component is True" in:
-    "T | F | P" ====> "T"
-    "(F | C) | A | B | (D | T)" ====> "T"
-
-  it should "ignore any False component" in:
-    "A | F | B" ====> "A | B"
-    "(F | C) | A | B | (D | F)" ====> "C | A | B | D"
-
   "Conjunction" should "be flattened" in:
     "(A & B) & (C & (D & E))" ====> "A & B & C & D & E"
 
   it should "recursively convert its components to CNFs" in:
     "(A => B) & C & !!D" ====> "(!A | B) & C & D"
     "A & (!(B => A) => C) & C" ====> "A & (!B | A | C) & C"
-
-  it should "return False if at least one component is False" in:
-    "T & F & P" ====> "F"
-    "(T | C) & A & (B & (D & F))" ====> "F"
-
-  it should "ignore any True component" in:
-    "A & T & B" ====> "A & B"
-    "(T | C) & A & (B | (D | T))" ====> "A"
 
   "p => q" should "become !p | q" in:
     "P => Q" ====> "!P | Q"

@@ -14,12 +14,6 @@ object Cnf:
     case fm           => fm
 
   def fromDisjunction: ToCnf[Or] =
-    // Identity Law: True (P | T === T)
-    case or if or.components.contains(True) => True
-
-    // Identity Law: Neutral Element (P | F === P)
-    case or if or.components.contains(False) => Or.fromList(or.components.filterNot(_ == False))
-
     case or if isInCnf(or)          => or
     case Or(And(ap, aq, _), q, Nil) => fromFormula((ap | q) & (aq | q))
     case Or(p: And, q, r :: rs)     => fromFormula(Or(fromFormula(p | q), r, rs))
@@ -34,12 +28,6 @@ object Cnf:
       )
 
   def fromConjunction: ToCnf[And] =
-    // Identity Law: False (P & F === F)
-    case and if and.components.contains(False) => False
-
-    // Identity Law: Neutral Element (P & T === P)
-    case and if and.components.contains(True) => And.fromList(and.components.filterNot(_ == True))
-
     case and if isInCnf(and) => and
     case And(p, q, rs) =>
       fromFormula(And.flatten(And(fromFormula(p), fromFormula(q), rs.map(fromFormula))))
