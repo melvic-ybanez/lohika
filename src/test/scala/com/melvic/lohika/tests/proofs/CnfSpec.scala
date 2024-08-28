@@ -52,10 +52,10 @@ class CnfSpec extends BaseSpec:
     "P <=> Q" ====> "(!P | Q) & (!Q | P)"
 
   "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
-    "p <=> q <=> r" ====> "(!p | q) & (!q | p) & (!q | r) & (!r | q)"
+    "P <=> Q <=> R" ====> "(!P | Q) & (!Q | P) & (!Q | R) & (!R | Q)"
 
   "Implication" should "recursively convert its components to CNFs" in:
-    "P => (Q & R)" ====> "(!P | Q) & (!P | R)"
+    "P => (Q & R)" ====> "(Q | !P) & (R | !P)"
     "(A => B) => (C => D)" ====> "(A | !C | D) & (!B | !C | D)"
     "P => (Q | R)" ====> "!P | Q | R"
 
@@ -69,6 +69,9 @@ class CnfSpec extends BaseSpec:
 
   "!(p => q)" should "become p & !q" in:
     "!(P => Q)" ====> "P & !Q"
+
+  "Biconditional" should "recursively convert its components to CNFs" in:
+    "P <=> (Q & R)" ====> "(Q | !P) & (R | !P) & (!Q | !R | P)"
 
   "Double negation" should "cancel out" in:
     "!!P" ====> "P"

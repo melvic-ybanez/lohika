@@ -13,7 +13,7 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers:
     Formula.prettyPrint(Or.of("A", "B", "C")) should be("A | B | C")
 
   it should "wrapped components with lower or equal precedence levels in parens" in:
-    Formula.prettyPrint(Or.of("A", "B" | "C", "D")) should be("A | B | C | D")
+    Formula.prettyPrint(Or.of("A", "B" | "C", "D")) should be("A | (B | C) | D")
     Formula.prettyPrint(Or.of("A", "B" ==> "C", "D", "E" <==> "F")) should be(
       "A | (B => C) | D | (E <=> F)"
     )
@@ -26,7 +26,7 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers:
     Formula.prettyPrint(And.of("A", "B", "C")) should be("A & B & C")
 
   it should "wrapped components with lower or equal precedence levels in parens" in:
-    Formula.prettyPrint(And.of("A", "B" & "C", "D")) should be("A & B & C & D")
+    Formula.prettyPrint(And.of("A", "B" & "C", "D")) should be("A & (B & C) & D")
     Formula.prettyPrint(And.of("A", "B", "C" | "D")) should be("A & B & (C | D)")
     Formula.prettyPrint(And.of("A", "B" ==> "C", "D", "E" <==> "F")) should be(
       "A & (B => C) & D & (E <=> F)"

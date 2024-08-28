@@ -78,13 +78,15 @@ object Formula:
       case Var(name)     => name
       case Or(p, q, rs)  => prettyAssoc(p, q, rs, "|")
       case And(p, q, rs) => prettyAssoc(p, q, rs, "&")
-      case Imply(p, q)   => s"${prettyPrint(p)(using currentPrecedence + 1)} => ${prettyPrint(q)}"
+      case Imply(p, q: Imply) =>
+        s"${prettyPrint(p)} => ${prettyPrint(q)(using currentPrecedence - 1)}"
+      case Imply(p, q)   => s"${prettyPrint(p)} => ${prettyPrint(q)}"
       case Iff(p, q, rs) => prettyAssoc(p, q, rs, "<=>")
       case Not(p)        => s"!${prettyPrint(p)}"
       case True          => "T"
       case False         => "F"
 
-    if parentPrecedence > currentPrecedence then s"(${pretty})" else pretty
+    if parentPrecedence >= currentPrecedence then s"(${pretty})" else pretty
 
   def precedence: Formula => Int =
     case _: Iff       => Precedence.Iff
@@ -160,7 +162,11 @@ object Formula:
 
     @targetName("entails")
     def ===(other: Formula): Boolean =
-      def hasSameComps(selfFList: Formula, otherFList: Formula, flatten: Formula => Formula): Boolean =
+      def hasSameComps(
+          selfFList: Formula,
+          otherFList: Formula,
+          flatten: Formula => Formula
+      ): Boolean =
         def flattenComponents(fList: Formula): List[Formula] = (flatten(fList): @unchecked) match
           case flatFList: FList => flatFList.components
 

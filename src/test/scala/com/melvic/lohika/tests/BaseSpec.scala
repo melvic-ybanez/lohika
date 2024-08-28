@@ -43,7 +43,7 @@ object BaseSpec:
       assertFromInputStrings(self, other): (formula1, expectedCnf) =>
         val cnf = Cnf.fromFormula(formula1)
         assert(
-          cnf === expectedCnf,
+          cnf == expectedCnf,
           s"${prettyPrint(formula1)} has the expected CNF: ${prettyPrint(expectedCnf)}. " +
             s"Got: ${prettyPrint(cnf)}"
         )

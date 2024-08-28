@@ -48,7 +48,7 @@ object Cnf:
     case Imply(p, q) => fromFormula(!fromFormula(p) | fromFormula(q))
 
   def fromBiconditional: ToCnf[Iff] =
-    case Iff(p, q, Nil) => fromFormula(p ==> q) & fromFormula(q ==> p)
+    case Iff(p, q, Nil) => fromFormula(fromFormula(p ==> q) & fromFormula(q ==> p))
     case Iff(p, q, rs) =>
       val iffs = rs.foldLeft(List(p <==> q)):
         case (iffs @ (Iff(p, q, _) :: _), r) => (q <==> r) :: iffs
