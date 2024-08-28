@@ -10,15 +10,15 @@ type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
 object Formula:
   final case class Var(name: String)
-  final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
-  final case class And(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
+  final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
+  final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Imply(p: Formula, q: Formula)
-  final case class Iff(p: Formula, q: Formula, rs: List[Formula]) extends HasComps
+  final case class Iff(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Not(p: Formula)
   case object True
   case object False
 
-  sealed trait HasComps:
+  sealed trait FList:
     def p: Formula
 
     def q: Formula
@@ -51,7 +51,7 @@ object Formula:
     case _: Or => true
     case _     => false
 
-  def flatten[A <: HasComps](make: (Formula, Formula, List[Formula]) => Formula)(
+  def flatten[A <: FList](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
   ): Formula => Formula =
     def toList: Formula => List[Formula] =
@@ -160,9 +160,12 @@ object Formula:
 
     @targetName("entails")
     def ===(other: Formula): Boolean =
-      def hasSameComps(selfHasComps: HasComps, otherHasComps: HasComps): Boolean =
-        val selfComps = selfHasComps.components
-        val otherComps = otherHasComps.components
+      def hasSameComps(selfFList: Formula, otherFList: Formula, flatten: Formula => Formula): Boolean =
+        def flattenComponents(fList: Formula): List[Formula] = (flatten(fList): @unchecked) match
+          case flatFList: FList => flatFList.components
+
+        val selfComps = flattenComponents(selfFList)
+        val otherComps = flattenComponents(otherFList)
 
         def containsAll(comps1: List[Formula], comps2: List[Formula]): Boolean =
           comps2.forall(fm => comps1.exists(_ === fm))
@@ -172,10 +175,10 @@ object Formula:
           selfComps
         )
 
-      (Cnf.fromFormula(self), Cnf.fromFormula(other)) match
-        case (or1: Or, or2: Or)     => hasSameComps(or1, or2)
-        case (and1: And, and2: And) => hasSameComps(and1, and2)
-        case (iff1: Iff, iff2: Iff) => hasSameComps(iff1, iff2)
+      (self, other) match
+        case (or1: Or, or2: Or)     => hasSameComps(or1, or2, Or.flatten)
+        case (and1: And, and2: And) => hasSameComps(and1, and2, And.flatten)
+        case (iff1: Iff, iff2: Iff) => hasSameComps(iff1, iff2, Iff.flatten)
         case (thisCnf, thatCnf)     => thisCnf == thatCnf
 
   object Precedence:

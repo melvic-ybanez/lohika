@@ -45,7 +45,7 @@ object Cnf:
       fromFormula(And.flatten(And(fromFormula(p), fromFormula(q), rs.map(fromFormula))))
 
   def fromImplication: ToCnf[Imply] =
-    case Imply(p, q) => !fromFormula(p) | fromFormula(q)
+    case Imply(p, q) => fromFormula(!fromFormula(p) | fromFormula(q))
 
   def fromBiconditional: ToCnf[Iff] =
     case Iff(p, q, Nil) => fromFormula(p ==> q) & fromFormula(q ==> p)
