@@ -31,7 +31,7 @@ class CnfSpec extends BaseSpec:
     "(F | C) | A | B | (D | F)" ====> "C | A | B | D"
 
   "Conjunction" should "be flattened" in:
-    "(A & B) & (C & (D & E))" ====> "A | B | C | D | E"
+    "(A & B) & (C & (D & E))" ====> "A & B & C & D & E"
 
   it should "recursively convert its components to CNFs" in:
     "(A => B) & C & !!D" ====> "(!A | B) & C & D"
@@ -57,6 +57,7 @@ class CnfSpec extends BaseSpec:
 
   "Implication" should "recursively convert its components to CNFs" in:
     "P => (Q & R)" ====> "(!P | Q) & (!P | R)"
+    "P => (Q | R)" ====> "!P | Q | R"
 
   "!(p & q)" should "become !p | !q" in:
     "!(P & Q)" ====> "!P | !Q"
