@@ -55,6 +55,9 @@ class CnfSpec extends BaseSpec:
   "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
     "p <=> q <=> r" ====> "(!p | q) & (!q | p) & (!q | r) & (!r | q)"
 
+  "Implication" should "recursively convert its components to CNFs" in:
+    "P => (Q & R)" ====> "(!P | Q) & (!P | R)"
+
   "!(p & q)" should "become !p | !q" in:
     "!(P & Q)" ====> "!P | !Q"
     "!((P => Q) & R)" ====> "(P | !R) & (!Q | !R)"

@@ -161,8 +161,17 @@ object Formula:
     @targetName("entails")
     def ===(other: Formula): Boolean =
       (Cnf.fromFormula(self), Cnf.fromFormula(other)) match
-        case (hasComps: HasComps, thatAssoc: HasComps) =>
-          hasComps.components.toSet == thatAssoc.components.toSet
+        case (selfHasComps: HasComps, otherHasComps: HasComps) =>
+          val selfComps = selfHasComps.components
+          val otherComps = otherHasComps.components
+
+          def containsAll(comps: List[Formula], comps1: List[Formula]): Boolean =
+            comps1.forall(fm => comps.exists(_ === fm))
+
+          (selfComps.size == otherComps.size) && containsAll(selfComps, otherComps) && containsAll(
+            otherComps,
+            selfComps
+          )
         case (thisCnf, thatCnf) => thisCnf == thatCnf
 
   object Precedence:
