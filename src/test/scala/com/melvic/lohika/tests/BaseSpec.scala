@@ -1,7 +1,7 @@
 package com.melvic.lohika.tests
 
 import com.melvic.lohika.Formula.*
-import com.melvic.lohika.{Cnf, Formula, Parser}
+import com.melvic.lohika.{Clauses, Cnf, Formula, Parser}
 import fastparse.*
 import org.scalactic.Prettifier
 import org.scalatest.Assertions.*
@@ -17,7 +17,8 @@ class BaseSpec extends AnyFlatSpec with should.Matchers:
         case fm: Formula => prettyPrint(fm)
         case Parsed.Success(fm: Formula, index) =>
           Parsed.Success(prettyPrint(fm), index).toString()
-        case _ => obj.toString
+        case clauses: Clauses => Clauses.prettyPrint(clauses)
+        case _                => obj.toString
 
 object BaseSpec:
   def assertFromInputStrings(input1: String, input2: String)(f: (Formula, Formula) => Unit): Unit =

@@ -10,7 +10,7 @@ object Cnf:
     case and: And     => fromConjunction(and)
     case imply: Imply => fromImplication(imply)
     case iff: Iff     => fromBiconditional(iff)
-    case not: Not     => fromNot(not)
+    case not: Not     => fromNegation(not)
     case fm           => fm
 
   def fromDisjunction: ToCnf[Or] =
@@ -42,7 +42,7 @@ object Cnf:
         case (iffs @ (Iff(p, q, _) :: _), r) => (q <==> r) :: iffs
       fromFormula(And.fromList(iffs.reverse))
 
-  def fromNot: ToCnf[Not] =
+  def fromNegation: ToCnf[Not] =
     case Not(Or(p, q, rs))  => fromFormula(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs)) => fromFormula(Or(!p, !q, rs.map(!_)))
     case Not(Not(p))        => fromFormula(p)

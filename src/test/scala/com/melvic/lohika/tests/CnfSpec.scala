@@ -1,11 +1,11 @@
-package com.melvic.lohika.tests.proofs
+package com.melvic.lohika.tests
 
+import com.melvic.lohika.Formula.*
+import com.melvic.lohika.tests.BaseSpec
+import com.melvic.lohika.tests.BaseSpec.*
 import com.melvic.lohika.{Cnf, Formula}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import com.melvic.lohika.Formula.*
-import com.melvic.lohika.tests.BaseSpec
-import BaseSpec.*
 
 class CnfSpec extends BaseSpec:
   "Disjunction" should "be flattened" in:

@@ -18,6 +18,8 @@ object Formula:
   case object True
   case object False
 
+  type Property = Formula => Boolean
+
   sealed trait FList:
     def p: Formula
 
@@ -27,29 +29,31 @@ object Formula:
 
     def components: List[Formula] = p :: q :: rs
 
-  def isInCnf: Formula => Boolean =
+  def isInCnf: Property =
     case fm if isLiteral(fm) => true
     case and: And            => and.components.forall(and => isInCnf(and) && !isAnd(and))
     case or: Or              => or.components.forall(isLiteral)
     case _                   => false
 
-  def isLiteral: Formula => Boolean =
+  def isLiteral: Property =
     case v: Var               => true
     case Not(Var(_))          => true
     case fm if isConstant(fm) => true
     case _                    => false
 
-  def isConstant: Formula => Boolean =
+  def isConstant: Property =
     case True | False => true
     case _            => false
 
-  def isAnd: Formula => Boolean =
+  def isAnd: Property =
     case _: And => true
     case _      => false
 
-  def isOr: Formula => Boolean =
+  def isOr: Property =
     case _: Or => true
     case _     => false
+
+  def isClause: Property = fm => isOr(fm) || isLiteral(fm)
 
   def flatten[A <: FList](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
