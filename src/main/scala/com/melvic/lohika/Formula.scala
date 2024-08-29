@@ -1,6 +1,7 @@
 package com.melvic.lohika
 
 import com.melvic.lohika.Formula.*
+import fastparse.Parsed
 
 import scala.annotation.targetName
 import scala.collection.immutable.Nil as And
@@ -145,8 +146,10 @@ object Formula:
       (components.reduceRight(Imply.apply): @unchecked) match
         case imply: Imply => imply
 
-  given stringToVar: Conversion[String, Var] with
-    override def apply(input: String): Var = Var(input)
+  given stringToFormula: Conversion[String, Formula] with
+    override def apply(input: String): Formula = Parser.parseFormula(input) match
+      case Parsed.Success(fm: Formula, _) => fm
+      case _                              => throw new Error(s"Unable to parse $input")
 
   extension (self: Formula)
     @targetName("and")

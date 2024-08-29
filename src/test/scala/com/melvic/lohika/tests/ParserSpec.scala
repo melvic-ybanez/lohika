@@ -51,6 +51,7 @@ class ParserSpec extends BaseSpec:
     parseSuccess("(A | B) & C", ("A" | "B") & "C")
     parseSuccess("(A => B) & C", ("A" ==> "B") & "C")
     parseSuccess("(A <=> B) & C", ("A" <==> "B") & "C")
+    parseSuccess("(A | B) & (C | D)", ("A" | "B") & ("C" | "D"))
 
   "Implication" should "be connected by =>" in:
     parseSuccess("A => B", "A" ==> "B")
