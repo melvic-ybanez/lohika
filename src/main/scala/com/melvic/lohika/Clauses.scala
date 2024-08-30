@@ -9,7 +9,7 @@ final case class Clauses(underlying: List[Formula]):
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)
 
-object Clauses:
+object Clauses extends Implicits:
   def one(formula: Formula): Clauses =
     Clauses(formula :: Nil)
 
@@ -29,6 +29,7 @@ object Clauses:
       val negatedPropositionCnf = Cnf.fromFormula(!proposition)
       assumptionClauses ++ Clauses.fromFormula(negatedPropositionCnf)
 
-  def prettyPrint: Clauses => String =
+trait Implicits:
+  given show: Show[Clauses] = Show.show:
     case Clauses(underlying) =>
       s"Clauses(${underlying.map(_.show).mkString(", ")})"

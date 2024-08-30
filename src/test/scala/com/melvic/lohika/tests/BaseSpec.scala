@@ -20,7 +20,7 @@ class BaseSpec extends AnyFlatSpec with should.Matchers:
         case fm: Formula => fm.show
         case Parsed.Success(fm: Formula, index) =>
           Parsed.Success(fm.show, index).toString()
-        case clauses: Clauses => Clauses.prettyPrint(clauses)
+        case clauses: Clauses => clauses.show
         case _                => obj.toString
 
 object BaseSpec:
