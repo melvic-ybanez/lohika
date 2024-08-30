@@ -1,6 +1,9 @@
 package com.melvic.lohika
 
-import Formula._
+import cats.*
+import cats.implicits.*
+import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.*
 
 final case class Clauses(underlying: List[Formula]):
   def ++(that: Clauses): Clauses =
@@ -28,4 +31,4 @@ object Clauses:
 
   def prettyPrint: Clauses => String =
     case Clauses(underlying) =>
-      s"Clauses(${underlying.map(Formula.prettyPrint).mkString(", ")})"
+      s"Clauses(${underlying.map(_.show).mkString(", ")})"

@@ -1,6 +1,7 @@
 package com.melvic.lohika
 
-import com.melvic.lohika.Formula._
+import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.*
 
 object Cnf:
   type ToCnf[A <: Formula] = A => Formula

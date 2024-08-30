@@ -1,7 +1,8 @@
 package com.melvic.lohika.tests
 
-import com.melvic.lohika.{Formula, Parser}
-import com.melvic.lohika.Formula.*
+import com.melvic.lohika.{Parser}
+import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.tests.BaseSpec
 import fastparse.Parsed
 

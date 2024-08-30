@@ -1,15 +1,13 @@
-package com.melvic.lohika
+package com.melvic.lohika.formula
 
-import com.melvic.lohika.Formula.*
-import fastparse.Parsed
+import com.melvic.lohika.formula.Formula.*
 
 import scala.annotation.targetName
-import scala.collection.immutable.Nil as And
 import scala.util.chaining.*
 
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
-object Formula:
+object Formula extends Implicits:
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
@@ -72,36 +70,6 @@ object Formula:
       case fm => fm
     }
 
-  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Iff): String =
-    given currentPrecedence: Int = precedence(formula)
-
-    def prettyAssoc(p: Formula, q: Formula, rs: List[Formula], sep: String): String =
-      val pqString = s"${prettyPrint(p)} $sep ${prettyPrint(q)}"
-      if rs.isEmpty then pqString else s"$pqString $sep ${rs.map(prettyPrint).mkString(s" $sep ")}"
-
-    val pretty = formula match
-      case Var(name)     => name
-      case Or(p, q, rs)  => prettyAssoc(p, q, rs, "|")
-      case And(p, q, rs) => prettyAssoc(p, q, rs, "&")
-      case Imply(p, q: Imply) =>
-        s"${prettyPrint(p)} => ${prettyPrint(q)(using currentPrecedence - 1)}"
-      case Imply(p, q)   => s"${prettyPrint(p)} => ${prettyPrint(q)}"
-      case Iff(p, q, rs) => prettyAssoc(p, q, rs, "<=>")
-      case Not(p)        => s"!${prettyPrint(p)}"
-      case True          => "T"
-      case False         => "F"
-
-    if parentPrecedence >= currentPrecedence then s"(${pretty})" else pretty
-
-  def precedence: Formula => Int =
-    case _: Iff       => Precedence.Iff
-    case _: Imply     => Precedence.Imply
-    case _: Or        => Precedence.Or
-    case _: And       => Precedence.And
-    case _: Not       => Precedence.Not
-    case _: Var       => Precedence.Var
-    case True | False => Precedence.Var
-
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
       Or(p, q, rs.toList)
@@ -146,11 +114,6 @@ object Formula:
       (components.reduceRight(Imply.apply): @unchecked) match
         case imply: Imply => imply
 
-  given stringToFormula: Conversion[String, Formula] with
-    override def apply(input: String): Formula = Parser.parseFormula(input) match
-      case Parsed.Success(fm: Formula, _) => fm
-      case _                              => throw new Error(s"Unable to parse $input")
-
   extension (self: Formula)
     @targetName("and")
     def &(other: Formula): And = And.of(self, other)
@@ -193,11 +156,3 @@ object Formula:
         case (and1: And, and2: And) => hasSameComps(and1, and2, And.flatten)
         case (iff1: Iff, iff2: Iff) => hasSameComps(iff1, iff2, Iff.flatten)
         case (thisCnf, thatCnf)     => thisCnf == thatCnf
-
-  object Precedence:
-    val Iff: Int = 1
-    val Imply: Int = Iff + 1
-    val Or: Int = Imply + 1
-    val And: Int = Or + 1
-    val Not: Int = And + 1
-    val Var: Int = Not + 1

@@ -1,9 +1,10 @@
 package com.melvic.lohika.tests
 
-import com.melvic.lohika.Formula.*
+import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.tests.BaseSpec
 import com.melvic.lohika.tests.BaseSpec.*
-import com.melvic.lohika.{Cnf, Formula}
+import com.melvic.lohika.Cnf
+import com.melvic.lohika.formula.Formula
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 

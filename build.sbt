@@ -7,9 +7,12 @@ val scalaTest = Seq(
   "org.scalactic" %% "scalactic" % "3.2.19",
   "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 )
+val cats = Seq(
+  "org.typelevel" %% "cats-core" % "2.12.0"
+)
 
 lazy val root = (project in file("."))
   .settings(
     name := "lohika",
-    libraryDependencies ++= fastParse ++ scalaTest
+    libraryDependencies ++= fastParse ++ scalaTest ++ cats
   )

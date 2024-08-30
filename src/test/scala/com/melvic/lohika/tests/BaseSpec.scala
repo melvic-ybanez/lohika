@@ -1,12 +1,14 @@
 package com.melvic.lohika.tests
 
-import com.melvic.lohika.Formula.*
-import com.melvic.lohika.{Clauses, Cnf, Formula, Parser}
+import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.{Clauses, Cnf, Parser}
 import fastparse.*
 import org.scalactic.Prettifier
 import org.scalatest.Assertions.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import cats.implicits.*
 
 import scala.annotation.targetName
 
@@ -14,9 +16,9 @@ class BaseSpec extends AnyFlatSpec with should.Matchers:
   given prettifier: Prettifier with
     def apply(obj: Any): String =
       obj match
-        case fm: Formula => prettyPrint(fm)
+        case fm: Formula => fm.show
         case Parsed.Success(fm: Formula, index) =>
-          Parsed.Success(prettyPrint(fm), index).toString()
+          Parsed.Success(fm.show, index).toString()
         case clauses: Clauses => Clauses.prettyPrint(clauses)
         case _                => obj.toString
 
@@ -36,7 +38,7 @@ object BaseSpec:
       assertFromInputStrings(self, other): (formula1, formula2) =>
         assert(
           formula1 === formula2,
-          s"${prettyPrint(formula1)} is not equal to ${prettyPrint(formula2)}"
+          s"${formula1.show} is not equal to ${formula2.show}"
         )
 
     @targetName("assertEqualToCnf")
@@ -45,6 +47,6 @@ object BaseSpec:
         val cnf = Cnf.fromFormula(formula1)
         assert(
           cnf == expectedCnf,
-          s"${prettyPrint(formula1)} has the expected CNF: ${prettyPrint(expectedCnf)}. " +
-            s"Got: ${prettyPrint(cnf)}"
+          s"${formula1.show} has the expected CNF: ${expectedCnf.show}. " +
+            s"Got: ${cnf.show}"
         )

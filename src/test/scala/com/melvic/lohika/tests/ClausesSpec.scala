@@ -1,7 +1,7 @@
 package com.melvic.lohika.tests
 
 import com.melvic.lohika.{Clauses, Problem}
-import com.melvic.lohika.Formula.*
+import com.melvic.lohika.formula.Formula.*
 
 class ClausesSpec extends BaseSpec:
   "A formula in CNF" should "be split into multiple clauses" in:
