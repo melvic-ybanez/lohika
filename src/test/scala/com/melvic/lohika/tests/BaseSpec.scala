@@ -8,6 +8,7 @@ import org.scalactic.Prettifier
 import org.scalatest.Assertions.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import cats.*
 import cats.implicits.*
 
 import scala.annotation.targetName
@@ -35,6 +36,9 @@ object BaseSpec:
   extension (self: String)
     @targetName("assertEqualFormulae")
     def ====(other: String): Unit =
+      // we need to import this locally to shadow `convertToEqualizer` from scala-test
+      import cats.syntax.eq._
+
       assertFromInputStrings(self, other): (formula1, formula2) =>
         assert(
           formula1 === formula2,

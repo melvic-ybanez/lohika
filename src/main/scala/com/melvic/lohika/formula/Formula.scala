@@ -129,30 +129,3 @@ object Formula extends Implicits:
 
     @targetName("not")
     def unary_! : Not = Not(self)
-
-    @targetName("entails")
-    def ===(other: Formula): Boolean =
-      def hasSameComps(
-          selfFList: Formula,
-          otherFList: Formula,
-          flatten: Formula => Formula
-      ): Boolean =
-        def flattenComponents(fList: Formula): List[Formula] = (flatten(fList): @unchecked) match
-          case flatFList: FList => flatFList.components
-
-        val selfComps = flattenComponents(selfFList)
-        val otherComps = flattenComponents(otherFList)
-
-        def containsAll(comps1: List[Formula], comps2: List[Formula]): Boolean =
-          comps2.forall(fm => comps1.exists(_ === fm))
-
-        (selfComps.size == otherComps.size) && containsAll(selfComps, otherComps) && containsAll(
-          otherComps,
-          selfComps
-        )
-
-      (self, other) match
-        case (or1: Or, or2: Or)     => hasSameComps(or1, or2, Or.flatten)
-        case (and1: And, and2: And) => hasSameComps(and1, and2, And.flatten)
-        case (iff1: Iff, iff2: Iff) => hasSameComps(iff1, iff2, Iff.flatten)
-        case (thisCnf, thatCnf)     => thisCnf == thatCnf
