@@ -3,8 +3,8 @@ package com.melvic.lohika.tests
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.tests.BaseSpec
 import com.melvic.lohika.tests.BaseSpec.*
-import com.melvic.lohika.Cnf
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.proof.Cnf
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 

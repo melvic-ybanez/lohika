@@ -6,14 +6,14 @@ import com.melvic.lohika.formula.Formula.*
 import fastparse.*
 
 trait Implicits:
-  given stringToFormula: Conversion[String, Formula] with
-    override def apply(input: String): Formula = Parser.parseFormula(input) match
+  given stringToFormula: Conversion[String, Formula] = input =>
+    Parser.parseFormula(input) match
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 
-  given show[A <: Formula]: Show[A] = Show.show(PrettyPrinter.prettyPrint)
+  given show[F <: Formula]: Show[F] = Show.show(PrettyPrinter.prettyPrint)
 
-  given eq[A <: Formula]: Eq[A] = Eq.instance: (fm1, fm2) =>
+  given eq[F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>
     def compare(fm1: Formula, fm2: Formula): Boolean =
       def hasSameComps(
           selfFList: Formula,

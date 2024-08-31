@@ -2,7 +2,7 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.{Clauses, Cnf, Parser}
+import com.melvic.lohika.Parser
 import fastparse.*
 import org.scalactic.Prettifier
 import org.scalatest.Assertions.*
@@ -10,6 +10,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
+import com.melvic.lohika.proof.{Clauses, Cnf}
 
 import scala.annotation.targetName
 
@@ -48,7 +49,7 @@ object BaseSpec:
     @targetName("assertEqualToCnf")
     def ====>(other: String): Unit =
       assertFromInputStrings(self, other): (formula1, expectedCnf) =>
-        val cnf = Cnf.fromFormula(formula1)
+        val cnf = Cnf.fromFormulaUntyped(formula1)
         assert(
           cnf == expectedCnf,
           s"${formula1.show} has the expected CNF: ${expectedCnf.show}. " +
