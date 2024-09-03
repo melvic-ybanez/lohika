@@ -14,7 +14,7 @@ final case class Clauses(underlying: List[Clause]):
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)
 
-object Clauses extends ClauseImplicits:
+object Clauses extends ClausesImplicits:
   def apply(clause: Clause*): Clauses =
     Clauses(clause.toList)
 
@@ -27,18 +27,17 @@ object Clauses extends ClauseImplicits:
     case CAnd(clauses)  => Clauses(clauses)
     case clause: Clause => one(clause)
 
+  def fromCnfs: List[Cnf] => Clauses =
+    _.map(fromCnf).foldLeft(Clauses.empty): (acc, clause) =>
+      acc ++ clause
+
   def fromFormula: Formula => Clauses =
     Cnf.fromFormula andThen fromCnf
 
-  def fromProblem: Problem => Clauses =
-    case Problem(assumptions, proposition) =>
-      val assumptionClauses = assumptions
-        .map(fromFormula)
-        .foldLeft(Clauses.empty): (acc, clause) =>
-          acc ++ clause
-      assumptionClauses ++ Clauses.fromFormula(!proposition)
+  def fromAllFormulae: List[Formula] => Clauses =
+    fms => fromCnfs(fms.map(Cnf.fromFormula))
 
-sealed trait ClauseImplicits:
+sealed trait ClausesImplicits:
   given showClauses: Show[Clauses] = Show.show:
     case Clauses(underlying) =>
       s"Clauses(${underlying.map(_.show).mkString(", ")})"
