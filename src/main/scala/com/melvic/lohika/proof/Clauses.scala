@@ -13,6 +13,8 @@ final case class Clauses(underlying: List[Clause]):
   @targetName("concat")
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)
+    
+  def isEmpty: Boolean = underlying.isEmpty
 
 object Clauses extends ClausesImplicits:
   def apply(clause: Clause*): Clauses =

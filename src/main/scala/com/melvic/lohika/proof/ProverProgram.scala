@@ -5,11 +5,23 @@ import cats.implicits.*
 import com.melvic.lohika.Problem
 
 object ProverProgram:
-  def prove[F[_]: Prover: Monad]: Problem => F[Unit] =
+  def prove[F[_]: Prover: Monad]: Problem => F[Boolean] =
     case Problem(assumptions, proposition) =>
       for
-        (_, assumptionCnfs) <- Prover[F].convertToCnfs(assumptions)
-        clauses     <- Prover[F].updateClauses(Clauses.empty, Clauses.fromCnfs(assumptionCnfs))
-        negatedProp <- Prover[F].negateProposition(proposition)
-        clauses     <- Prover[F].updateClauses(clauses, Clauses.fromFormula(negatedProp))
-      yield ()
+        assumptionCnfs     <- Prover[F].convertAllToCnfs(assumptions)
+        assumptionClauses  <- Prover[F].splitAllIntoClauses(assumptionCnfs)
+        clauses            <- Prover[F].updateClauses(Clauses.empty, assumptionClauses)
+        negatedProp        <- Prover[F].negateProposition(proposition)
+        negatedPropCnf     <- Prover[F].convertToCnf(negatedProp)
+        negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
+        clauses            <- Prover[F].updateClauses(clauses, negatedPropClauses)
+        result             <- applyResolution(clauses)
+      yield result
+
+  def applyResolution[F[_]: Prover: Monad](clauses: Clauses): F[Boolean] =
+    for {
+      updatedClauses <- Prover[F].applyResolution(clauses)
+      result <-
+        if updatedClauses.isEmpty then true.pure
+        else applyResolution(updatedClauses)
+    } yield result
