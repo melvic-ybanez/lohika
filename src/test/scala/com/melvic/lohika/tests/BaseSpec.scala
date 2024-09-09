@@ -2,7 +2,7 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.Parser
+import com.melvic.lohika.{Clauses, Cnf, Parser}
 import fastparse.*
 import org.scalactic.Prettifier
 import org.scalatest.Assertions.*
@@ -10,7 +10,6 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.proof.{Clauses, Cnf}
 
 import scala.annotation.targetName
 

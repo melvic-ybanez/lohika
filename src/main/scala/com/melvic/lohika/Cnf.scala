@@ -1,10 +1,10 @@
-package com.melvic.lohika.proof
+package com.melvic.lohika
 
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.proof.Cnf.*
+import Cnf.*
 
 type Cnf = CAnd | Clause
 

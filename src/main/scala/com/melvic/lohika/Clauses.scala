@@ -1,32 +1,32 @@
-package com.melvic.lohika.proof
+package com.melvic.lohika
 
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Problem
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.proof.Cnf.*
+import Cnf.*
 
 import scala.annotation.targetName
 
-final case class Clauses(underlying: List[Clause]):
+final case class Clauses(underlying: Set[Clause]):
   @targetName("concat")
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)
-    
+
   def isEmpty: Boolean = underlying.isEmpty
 
-object Clauses extends ClausesImplicits:
+object Clauses extends ClausesGivens:
   def apply(clause: Clause*): Clauses =
-    Clauses(clause.toList)
+    Clauses(clause.toSet)
 
   def one(clause: Clause): Clauses =
-    Clauses(clause :: Nil)
+    Clauses(Set(clause))
 
-  def empty: Clauses = Clauses(Nil)
+  def empty: Clauses = Clauses(Set())
 
   def fromCnf: Cnf => Clauses =
-    case CAnd(clauses)  => Clauses(clauses)
+    case CAnd(clauses)  => Clauses(clauses.toSet)
     case clause: Clause => one(clause)
 
   def fromCnfs: List[Cnf] => Clauses =
@@ -39,7 +39,7 @@ object Clauses extends ClausesImplicits:
   def fromAllFormulae: List[Formula] => Clauses =
     fms => fromCnfs(fms.map(Cnf.fromFormula))
 
-sealed trait ClausesImplicits:
+sealed trait ClausesGivens:
   given showClauses: Show[Clauses] = Show.show:
     case Clauses(underlying) =>
-      s"Clauses(${underlying.map(_.show).mkString(", ")})"
+      s"Clauses(${underlying.show})"
