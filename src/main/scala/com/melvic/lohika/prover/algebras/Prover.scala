@@ -3,11 +3,13 @@ package com.melvic.lohika.prover.algebras
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Cnf.Clause
-import com.melvic.lohika.{Clauses, Cnf}
+import com.melvic.lohika.{Clauses, Cnf, Problem}
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.prover.algebras.Prover.ResolutionResult
 
 trait Prover[F[_]]:
+  def parseProblem(assumptions: String, propsosition: String): F[Problem]
+
   def splitAllIntoClauses(cnfs: List[Cnf]): F[Clauses]
 
   def splitIntoClauses(cnf: Cnf): F[Clauses] =

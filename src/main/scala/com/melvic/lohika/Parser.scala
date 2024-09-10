@@ -2,12 +2,17 @@ package com.melvic.lohika
 
 import fastparse.*
 import MultiLineWhitespace.*
+import cats.Applicative
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+import cats.implicits.*
 
 object Parser:
   def parseFormula(input: String): Parsed[Formula] =
     parse(input, formula(using _))
+
+  def parseFormulae(input: String): Parsed[List[Formula]] =
+    input.split(",").toList.traverse(fm => parseFormula(fm.trim))
 
   def formula[$: P]: P[Formula] = P(iff)
 
@@ -36,3 +41,16 @@ object Parser:
     case "T"  => True
     case "F"  => False
     case name => Var(name)
+
+  /**
+   * WARNING: Applicative Laws were not verified
+   */
+  given parserApp: Applicative[Parsed] with
+    override def pure[A](x: A): Parsed[A] =
+      Parsed.Success(x, 0)
+
+    override def ap[A, B](ff: Parsed[A => B])(fa: Parsed[A]): Parsed[B] =
+      (fa, ff) match
+        case (Parsed.Success(a, index), Parsed.Success(f, _)) => Parsed.Success(f(a), index)
+        case (failure: Parsed.Failure, _)                     => failure
+        case (_, failure: Parsed.Failure)                     => failure

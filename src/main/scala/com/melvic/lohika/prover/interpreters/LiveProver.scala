@@ -1,9 +1,9 @@
 package com.melvic.lohika.prover.interpreters
 
 import cats.implicits.*
-import cats.data.Writer
+import cats.data.{Writer, WriterT}
 import com.melvic.lohika.Cnf.*
-import com.melvic.lohika.{Clauses, Cnf, Equivalence}
+import com.melvic.lohika.{Clauses, Cnf, Equivalence, Parser, Problem}
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.algebras.Prover.{
@@ -12,22 +12,27 @@ import com.melvic.lohika.prover.algebras.Prover.{
   NewClause,
   ResolutionResult
 }
+import fastparse.Parsed
 
 object LiveProver:
   import com.melvic.lohika.Givens.given
+  import com.melvic.lohika.Clauses.given
 
-  type Step[X] = Writer[List[String], X]
+  type Step[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 
   given liveProver: Prover[Step] with
     override def splitAllIntoClauses(cnfs: List[Cnf]): Step[Clauses] =
       step(s"Split all the clauses from ${cnfs.show}.", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula]): Step[List[Cnf]] =
-      formulae.foldLeft(Writer(List(s"Convert ${formulae.show} to CNFs"), List.empty[Cnf])):
-        (step, formula) =>
-          step.flatMap: cnfs =>
-            val cnf = Cnf.fromFormula(formula)
-            Writer("* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+      val cnfs =
+        formulae.foldLeft(List(s"Convert ${formulae.show} to CNFs"), List.empty[Cnf]):
+          (step, formula) =>
+            step.flatMap: cnfs =>
+              val cnf = Cnf.fromFormula(formula)
+              ("* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+
+      WriterT(cnfs.asRight)
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Step[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
@@ -53,10 +58,20 @@ object LiveProver:
     override def describe(description: String): Step[Unit] =
       step(description, ())
 
-  def step[A](description: String, value: A): Step[A] =
-    Writer(description :: Nil, value)
+    override def parseProblem(rawAssumptions: String, rawProposition: String): Step[Problem] =
+      Parser.parseFormulae(rawAssumptions) match
+        case Parsed.Success(assumptions, _) =>
+          Parser.parseFormula(rawProposition) match
+            case Parsed.Success(proposition, _) => step(Problem(assumptions, proposition))
+            case Parsed.Failure(label, _, _) =>
+              WriterT(s"Unable to parse proposition. Message: $label".asLeft)
+        case Parsed.Failure(label, _, _) =>
+          WriterT(s"Unable to parse assumptions. Message: $label".asLeft)
 
-  def step[A](value: A): Step[A] = Writer(Nil, value)
+  def step[A](description: String, value: A): Step[A] =
+    WriterT((description :: Nil, value).asRight)
+
+  def step[A](value: A): Step[A] = WriterT((Nil, value).asRight)
 
   def resolvePair: (Clause, Clause) => Option[NewClause | Contradiction] =
     case (lit1: Literal, lit2: Literal) => complementary(lit1, lit2).map(Contradiction(_, _))
