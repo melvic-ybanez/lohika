@@ -5,6 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.Cnf.Clause
 import com.melvic.lohika.{Clauses, Cnf}
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.prover.algebras.Prover.ResolutionResult
 
 trait Prover[F[_]]:
   def splitAllIntoClauses(cnfs: List[Cnf]): F[Clauses]
@@ -21,11 +22,15 @@ trait Prover[F[_]]:
 
   def transform(lhs: Formula, rhs: Formula): F[Formula]
 
-  def applyResolution(clauseSet: Clauses): F[Clauses]
-
-  def applyResolutionOnPair(clause1: Clause, clause2: Clause): F[Option[Clauses]]
+  def resolve(clauseSet: Clauses): F[ResolutionResult]
 
   def describe(description: String): F[Unit]
 
 object Prover:
+  type ResolutionResult = NewClause | Contradiction | Exhaustion.type
+
+  final case class NewClause(clause: Clause)
+  final case class Contradiction(clause1: Clause, clause2: Clause)
+  case object Exhaustion
+
   def apply[F[_]](using prover: Prover[F]): Prover[F] = prover

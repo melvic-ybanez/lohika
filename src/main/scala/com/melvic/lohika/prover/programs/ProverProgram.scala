@@ -2,8 +2,10 @@ package com.melvic.lohika.prover.programs
 
 import cats.*
 import cats.implicits.*
+import com.melvic.lohika.Cnf.Clause
 import com.melvic.lohika.{Clauses, Problem}
 import com.melvic.lohika.prover.algebras.Prover
+import com.melvic.lohika.prover.algebras.Prover.*
 
 object ProverProgram:
   def prove[F[_]: Prover: Monad]: Problem => F[Boolean] =
@@ -19,8 +21,14 @@ object ProverProgram:
         negatedPropCnf     <- Prover[F].convertToCnf(negatedProp)
         negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
         clauses            <- Prover[F].updateClauseSet(clauses, negatedPropClauses)
-        result             <- applyResolution(clauses)
+        result             <- resolveRecursively(clauses)
       yield result
 
-  def applyResolution[F[_]: Prover: Monad](clauseSet: Clauses): F[Boolean] = ???
-
+  def resolveRecursively[F[_]: Prover: Monad](clauseSet: Clauses): F[Boolean] =
+    for
+      resolutionResult <- Prover[F].resolve(clauseSet)
+      result <- resolutionResult match
+        case Exhaustion          => false.pure
+        case Contradiction(_, _) => false.pure
+        case NewClause(clause)   => resolveRecursively(clauseSet + clause)
+    yield result

@@ -13,6 +13,10 @@ final case class Clauses(underlying: Set[Clause]):
   @targetName("concat")
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)
+    
+  @targetName("add")
+  def +(clause: Clause): Clauses =
+    Clauses(underlying + clause)
 
   def isEmpty: Boolean = underlying.isEmpty
 
