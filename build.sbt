@@ -10,9 +10,15 @@ val scalaTest = Seq(
 val cats = Seq(
   "org.typelevel" %% "cats-core" % "2.12.0"
 )
+val scalaFx = Seq("org.scalafx" %% "scalafx" % "21.0.0-R32")
 
 lazy val root = (project in file("."))
-  .settings(
-    name := "lohika",
-    libraryDependencies ++= fastParse ++ scalaTest ++ cats
-  )
+  .settings(name := "lohika")
+  .aggregate(core, ui)
+
+lazy val core = (project in file("core"))
+  .settings(name := "core", libraryDependencies ++= fastParse ++ scalaTest ++ cats)
+
+lazy val ui = (project in file("ui"))
+  .settings(name := "ui", libraryDependencies ++= scalaFx)
+  .dependsOn(core)
