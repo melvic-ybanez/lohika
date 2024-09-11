@@ -42,7 +42,7 @@ object BaseSpec:
       assertFromInputStrings(self, other): (formula1, formula2) =>
         assert(
           formula1 === formula2,
-          s"${formula1.show} is not equal to ${formula2.show}"
+          show"formula1 is not equal to $formula2"
         )
 
     @targetName("assertEqualToCnf")

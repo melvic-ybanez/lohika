@@ -87,7 +87,10 @@ object LiveProver:
         .map: (lit1, lit2) =>
           val newLiterals1 = literals1.filterNot(_ == lit1)
           val newLiterals2 = literals2.filterNot(_ == lit2)
-          Derive(cor1, cor2, COr(newLiterals1 ++ newLiterals2))
+          val cOrLiterals = newLiterals1 ++ newLiterals2
+
+          if cOrLiterals.isEmpty then Contradiction(lit1, lit2)
+          else Derive(cor1, cor2, COr(cOrLiterals))
 
   def complementary: (Literal, Literal) => Option[(Literal, Literal)] =
     case (c1 @ CVar(p1), c2 @ CNot(CVar(p2))) if p1 == p2 => Some(c1, c2)
