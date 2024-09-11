@@ -2,10 +2,9 @@ package com.melvic.lohika
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.Problem
+import com.melvic.lohika.Cnf.*
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.formula.Formula.*
-import Cnf.*
+import Formula.given
 
 import scala.annotation.targetName
 
@@ -44,6 +43,7 @@ object Clauses extends ClausesGivens:
     fms => fromCnfs(fms.map(Cnf.fromFormula))
 
 sealed trait ClausesGivens:
+  import Givens.given
+
   given showClauses: Show[Clauses] = Show.show:
-    case Clauses(underlying) =>
-      s"Clauses(${underlying.show})"
+    case Clauses(underlying) => underlying.toList.show

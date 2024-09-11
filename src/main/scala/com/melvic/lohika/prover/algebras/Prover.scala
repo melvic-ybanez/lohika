@@ -26,12 +26,12 @@ trait Prover[F[_]]:
 
   def resolve(clauseSet: Clauses): F[ResolutionResult]
 
-  def describe(description: String): F[Unit]
+  def write(description: String): F[Unit]
 
 object Prover:
-  type ResolutionResult = NewClause | Contradiction | Exhaustion.type
+  type ResolutionResult = Derive | Contradiction | Exhaustion.type
 
-  final case class NewClause(clause: Clause)
+  final case class Derive(left: Clause, right: Clause, result: Clause)
   final case class Contradiction(clause1: Clause, clause2: Clause)
   case object Exhaustion
 

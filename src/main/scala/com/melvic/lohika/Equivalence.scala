@@ -16,4 +16,4 @@ trait EquivalenceImplicits:
     case cnf: Cnf    => cnf.show
 
   given equivalenceShow: Show[Equivalence] = Show.show:
-    case Equivalence(lhs, rhs) => s"${lhs.show} = ${rhs.show}"
+    case Equivalence(lhs, rhs) => show"$lhs = $rhs"
