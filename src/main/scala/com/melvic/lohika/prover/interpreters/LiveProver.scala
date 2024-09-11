@@ -50,7 +50,11 @@ object LiveProver:
         case clause :: rest =>
           rest
             .map(clause -> _)
-            .collectFirstSome(resolvePair(_, _))
+            .collectFirstSome(resolvePair(_, _).flatMap:
+              case Derive(_, _, clause) if clauseSet.contains(clause) =>
+                None
+              case result => Some(result)
+            )
             .getOrElse(recurse(Clauses(rest*)))
 
       step(recurse(clauseSet))

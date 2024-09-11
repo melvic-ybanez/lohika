@@ -4,9 +4,9 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Cnf.Clause
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.{Clauses, Problem}
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.algebras.Prover.*
+import com.melvic.lohika.{Clauses, Problem}
 
 object ProverProgram:
   def prove[F[_]: Prover: Monad](
