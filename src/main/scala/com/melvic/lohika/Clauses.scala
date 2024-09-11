@@ -4,12 +4,11 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Cnf.*
 import com.melvic.lohika.formula.Formula
+import Formula.given
 
 import scala.annotation.targetName
 
 final case class Clauses(underlying: Set[Clause]):
-  import Formula.{given, *}
-  
   @targetName("concat")
   def ++(that: Clauses): Clauses =
     Clauses(this.underlying ++ that.underlying)

@@ -12,7 +12,8 @@ object Parser:
     parse(input, formula(using _))
 
   def parseFormulae(input: String): Parsed[List[Formula]] =
-    input.split(",").toList.traverse(fm => parseFormula(fm.trim))
+    (if input.trim.isEmpty then List.empty[String] else input.split(",").toList)
+      .traverse(fm => parseFormula(fm.trim))
 
   def formula[$: P]: P[Formula] = P(iff)
 
