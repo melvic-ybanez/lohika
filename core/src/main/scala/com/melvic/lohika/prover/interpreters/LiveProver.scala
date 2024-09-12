@@ -23,20 +23,24 @@ object LiveProver:
       step(show"1. Split all the clauses from $cnfs.", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
-      val cnfs =
-        formulae.foldLeft(List(show"$indent* Convert $formulae to CNFs:"), List.empty[Cnf]):
-          (step, formula) =>
-            step.flatMap: cnfs =>
-              val cnf = Cnf.fromFormula(formula)
-              (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+      formulae match
+        case Nil => substep("_No formulae to convert_", Nil)
+        case _ =>
+          val cnfs =
+            formulae.foldLeft(List(show"$indent* Convert $formulae to CNFs:"), List.empty[Cnf]):
+              (step, formula) =>
+                step.flatMap: cnfs =>
+                  val cnf = Cnf.fromFormula(formula)
+                  (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
 
-      WriterT(cnfs.asRight)
+          WriterT(cnfs.asRight)
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Steps[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
-      write(show"Add $newClauses to the clause set. Here's the new clause set:").flatMap(_ =>
-        substep(newClauseSet.show, newClauseSet)
-      )
+      if newClauseSet.isEmpty then substep("_Empty clause set_", newClauseSet)
+      else
+        write(show"Add $newClauses to the clause set. Here's the new clause set:")
+          .flatMap(_ => substep(newClauseSet.show, newClauseSet))
 
     override def transform(lhs: Formula, rhs: Formula): Steps[Formula] =
       substep(show"$lhs becomes $rhs", rhs)
