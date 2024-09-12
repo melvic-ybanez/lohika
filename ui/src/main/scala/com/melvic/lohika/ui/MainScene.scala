@@ -18,11 +18,14 @@ class MainScene extends Scene:
     top = new VBox:
       children = Seq(
         new TextField:
-          promptText =
-            s"""Assumptions (e.g. "P & Q, A, B -> C" to mean "P $And Q, A, B $Imply C")"""
+          promptText = s"""Assumptions (e.g. "P & Q, A, B => C" to mean "${Symbols.applyToText(
+              "P & Q, A, B => C"
+            )}")"""
           styleClass ++= Seq("main-io-text-field", "main-io-input-text-field")
+          text.onChange: (_, _, newValue) =>
+            text = Symbols.applyToText(text.value)
         ,
         new TextField:
-          promptText = s"""Proposition (e.g. "A | C" to mean "A $Or C")"""
+          promptText = s"""Proposition (e.g. "A | C" to mean "${Symbols.applyToText("A | C")}")"""
           styleClass ++= Seq("main-io-text-field", "main-io-input-text-field")
       )
