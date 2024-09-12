@@ -10,7 +10,10 @@ val scalaTest = Seq(
 val cats = Seq(
   "org.typelevel" %% "cats-core" % "2.12.0"
 )
-val scalaFx = Seq("org.scalafx" %% "scalafx" % "21.0.0-R32")
+val scalaFx = Seq(
+  "org.scalafx" %% "scalafx" % "21.0.0-R32",
+  "io.github.mkpaz" % "atlantafx-base" % "2.0.1"
+)
 
 lazy val root = (project in file("."))
   .settings(name := "lohika")
