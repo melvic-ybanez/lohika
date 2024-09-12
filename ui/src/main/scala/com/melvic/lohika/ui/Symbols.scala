@@ -7,13 +7,18 @@ object Symbols:
   val Imply: Char = '\u2192'
   val Iff: Char = '\u2194'
 
+  val TextToCodeMap: List[(String, Char)] = List(
+    "&"   -> And,
+    "|"   -> Or,
+    "!"   -> Not,
+    "=>"  -> Imply,
+    "<=>" -> Iff
+  )
+
   def applyToText(text: String): String =
-    val pairs = List(
-      "&"   -> And,
-      "|"   -> Or,
-      "!"   -> Not,
-      "=>"  -> Imply,
-      "<=>" -> Iff
-    )
-    pairs.foldLeft(text):
+    TextToCodeMap.foldLeft(text):
       case (text, (symbol, code)) => text.replace(symbol, code.toString)
+
+  def removeFromText(text: String): String =
+    TextToCodeMap.foldLeft(text):
+      case (text, (symbol, code)) => text.replace(code.toString, symbol)
