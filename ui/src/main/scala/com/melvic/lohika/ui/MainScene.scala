@@ -22,7 +22,7 @@ class MainScene extends Scene:
     top = new VBox:
       children = Seq(
         new InputText:
-          promptText = s"""Assumptions (e.g. "P & Q, A, B => C" to mean "${Symbols.applyToText(
+          promptText = s"""Optional Assumptions (e.g. "P & Q, A, B => C" to mean "${Symbols.applyToText(
               "P & Q, A, B => C"
             )}")"""
           text <==> assumptionsProp
