@@ -1,11 +1,11 @@
 package com.melvic.lohika.ui
 
-import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import scalafx.beans.property.StringProperty
+import scalafx.geometry.Insets
 import scalafx.scene.Scene
-import scalafx.scene.control.{TextArea, TextField}
+import scalafx.scene.control.TextField
 import scalafx.scene.layout.{BorderPane, VBox}
 
 class MainScene extends Scene:
@@ -13,16 +13,12 @@ class MainScene extends Scene:
 
   val assumptionsProp = new StringProperty("")
   val propositionProp = new StringProperty("")
-  val solutionsProp = new StringProperty("")
+  val solutionsView = SolutionsView()
 
   root = new BorderPane:
-    center = new TextArea:
-      styleClass += "main-io-text-field"
-      editable = false
-      style = "-fx-background-color: white"
-      minWidth = 600
-      minHeight = 600
-      text <== solutionsProp
+    center = new BorderPane:
+      center = solutionsView
+      padding = Insets(20)
     top = new VBox:
       children = Seq(
         new InputText:
@@ -39,9 +35,9 @@ class MainScene extends Scene:
             val assumptions = Symbols.removeFromText(assumptionsProp.value)
             val proposition = Symbols.removeFromText(propositionProp.value)
             ProverProgram.prove[Steps](assumptions, proposition).run match
-              case Left(error) => solutionsProp.value = error
+              case Left(error) => solutionsView.setSolutionContent(error)
               case Right(steps, _) =>
-                solutionsProp.value = Symbols.applyToText(steps.mkString("\n"))
+                solutionsView.setSolutionContent(Symbols.applyToText(steps.mkString("\n\n")))
       )
 
 class InputText extends TextField:

@@ -12,7 +12,8 @@ val cats = Seq(
 )
 val scalaFx = Seq(
   "org.scalafx" %% "scalafx" % "21.0.0-R32",
-  "io.github.mkpaz" % "atlantafx-base" % "2.0.1"
+  "io.github.mkpaz" % "atlantafx-base" % "2.0.1",
+  "org.commonmark" % "commonmark" % "0.21.0"
 )
 
 lazy val root = (project in file("."))
