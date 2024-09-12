@@ -8,7 +8,7 @@ class SolutionsView extends WebView:
   val parser: Parser = Parser.builder().build()
   val renderer: HtmlRenderer = HtmlRenderer.builder().build()
 
-  fontScale = 1.2
+  fontScale = 1.1
 
   def setSolutionContent(content: String): Unit =
     engine.loadContent:

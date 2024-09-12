@@ -16,29 +16,30 @@ object LiveProver:
 
   type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 
+  val indent: String = " " * 4
+
   given liveProver: Prover[Steps] with
     override def splitAllIntoClauses(cnfs: List[Cnf]): Steps[Clauses] =
-      step(show"Split all the clauses from $cnfs.", Clauses.fromCnfs(cnfs))
+      step(show"1. Split all the clauses from $cnfs.", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
       val cnfs =
-        formulae.foldLeft(List(show"Convert $formulae to CNFs"), List.empty[Cnf]):
+        formulae.foldLeft(List(show"$indent* Convert $formulae to CNFs:"), List.empty[Cnf]):
           (step, formula) =>
             step.flatMap: cnfs =>
               val cnf = Cnf.fromFormula(formula)
-              ("* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+              (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
 
       WriterT(cnfs.asRight)
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Steps[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
-      step(
-        show"Add $newClauses to the clause set. Here's the updated clause set: $newClauseSet",
-        newClauseSet
+      write(show"Add $newClauses to the clause set. Here's the new clause set:").flatMap(_ =>
+        substep(newClauseSet.show, newClauseSet)
       )
 
     override def transform(lhs: Formula, rhs: Formula): Steps[Formula] =
-      step(show"$lhs becomes $rhs", rhs)
+      substep(show"$lhs becomes $rhs", rhs)
 
     override def resolve(clauseSet: Clauses): Steps[ResolutionResult] =
       def recurse(clauses: Clauses): ResolutionResult = clauses.underlying.toList match
@@ -56,7 +57,7 @@ object LiveProver:
       step(recurse(clauseSet))
 
     override def write(description: String): Steps[Unit] =
-      step(s"#### $description", ())
+      step(s"1. $description", ())
 
     override def parseProblem(rawAssumptions: String, rawProposition: String): Steps[Problem] =
       Parser.parseFormulae(rawAssumptions) match
@@ -70,6 +71,9 @@ object LiveProver:
 
   def step[A](description: String, value: A): Steps[A] =
     WriterT((description :: Nil, value).asRight)
+
+  def substep[A](description: String, value: A): Steps[A] =
+    step(s"$indent* $description", value)
 
   def step[A](value: A): Steps[A] = WriterT((Nil, value).asRight)
 

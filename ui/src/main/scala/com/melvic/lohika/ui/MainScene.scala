@@ -37,7 +37,11 @@ class MainScene extends Scene:
             ProverProgram.prove[Steps](assumptions, proposition).run match
               case Left(error) => solutionsView.setSolutionContent(error)
               case Right(steps, _) =>
-                solutionsView.setSolutionContent(Symbols.applyToText(steps.mkString("\n\n")))
+                val mdSteps = steps.map: step =>
+                  if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then
+                    step
+                  else step + "."
+                solutionsView.setSolutionContent(Symbols.applyToText(mdSteps.mkString("\n\n")))
       )
 
 class InputText extends TextField:
