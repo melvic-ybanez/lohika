@@ -11,7 +11,7 @@ import fastparse.Parsed
 
 import scala.annotation.targetName
 
-class BaseSpec extends AnyFlatSpec with should.Matchers:
+class BaseSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
   given prettifier: Prettifier with
     def apply(obj: Any): String =
       obj match
@@ -21,7 +21,7 @@ class BaseSpec extends AnyFlatSpec with should.Matchers:
         case clauses: Clauses => clauses.show
         case _                => obj.toString
 
-object BaseSpec:
+object BaseSpec extends BaseSpec:
   def assertFromInputStrings(input1: String, input2: String)(f: (Formula, Formula) => Unit): Unit =
     (Parser.parseFormula(input1), Parser.parseFormula(input2)) match
       case (Parsed.Success(formula1, _), Parsed.Success(formula2, _)) =>

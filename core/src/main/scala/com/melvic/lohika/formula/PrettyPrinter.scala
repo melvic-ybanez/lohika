@@ -3,6 +3,8 @@ package com.melvic.lohika.formula
 import Formula._
 
 object PrettyPrinter:
+  final case class Style(apply: String => String)
+
   def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Iff): String =
     given currentPrecedence: Int = precedence(formula)
 

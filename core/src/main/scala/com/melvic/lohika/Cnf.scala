@@ -5,6 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.formula.Formula.*
 import Cnf.*
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.PrettyPrinter.Style
 
 type Cnf = CAnd | Clause
 
@@ -96,7 +97,7 @@ object Cnf extends CnfImplicits:
     case Not(p)             => fromFormulaUntyped(Not(fromFormulaUntyped(p)))
 
 sealed trait CnfImplicits:
-  given showCnf[C <: Cnf]: Show[C] = Show.show(toFormula(_).show)
+  given showCnf[C <: Cnf](using style: Style): Show[C] = Show.show(toFormula(_).show)
 
   given stringToClause: Conversion[String, Clause] = fromFormula(_) match
     case clause: Clause => clause

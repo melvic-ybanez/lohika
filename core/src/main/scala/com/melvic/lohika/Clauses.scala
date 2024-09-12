@@ -5,6 +5,7 @@ import cats.implicits.*
 import Cnf.*
 import com.melvic.lohika.formula.Formula
 import Formula.given
+import com.melvic.lohika.formula.PrettyPrinter.Style
 
 import scala.annotation.targetName
 
@@ -44,5 +45,5 @@ object Clauses extends ClausesGivens:
 sealed trait ClausesGivens:
   import Givens.given
 
-  given showClauses: Show[Clauses] = Show.show:
+  given showClauses(using showStyler: Style): Show[Clauses] = Show.show:
     case Clauses(underlying) => underlying.toList.show

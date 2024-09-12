@@ -3,15 +3,17 @@ package com.melvic.lohika.formula
 import cats.{Eq, Show}
 import Formula.*
 import com.melvic.lohika.Parser
+import com.melvic.lohika.formula.PrettyPrinter.Style
 import fastparse.*
 
-trait Implicits:
+trait Givens:
   given stringToFormula: Conversion[String, Formula] = input =>
     Parser.parseFormula(input) match
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 
-  given show[F <: Formula]: Show[F] = Show.show(PrettyPrinter.prettyPrint)
+  given show[F <: Formula](using style: Style): Show[F] =
+    Show.show(PrettyPrinter.prettyPrint andThen style.apply)
 
   given eq[F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>
     def compare(fm1: Formula, fm2: Formula): Boolean =

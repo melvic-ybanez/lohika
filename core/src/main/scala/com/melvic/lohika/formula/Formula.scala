@@ -7,7 +7,7 @@ import scala.util.chaining.*
 
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
-object Formula extends Implicits:
+object Formula extends Givens:
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList

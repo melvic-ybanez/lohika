@@ -5,8 +5,9 @@ import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.PrettyPrinter.Style
 
-class PrettyPrintSpec extends AnyFlatSpec with should.Matchers:
+class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
   "A variable" should "print its name" in:
     Var("A").show should be("A")
 
@@ -52,3 +53,6 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers:
     (("A" | "B") ==> "C").show should be("A | B => C")
     ("A" ==> ("B" & "C")).show should be("A => B & C")
     Imply.of("A", !"B", "D", !"E").show should be("A => !B => D => !E")
+
+trait PrettyPrintGivens:
+  given style: Style = Style(identity)

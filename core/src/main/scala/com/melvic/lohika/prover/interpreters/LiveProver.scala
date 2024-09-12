@@ -4,14 +4,10 @@ import cats.implicits.*
 import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
-import Prover.{
-  Contradiction,
-  Exhaustion,
-  Derive,
-  ResolutionResult
-}
+import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
 import com.melvic.lohika.{Clauses, Cnf, Equivalence, Parser, Problem}
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.PrettyPrinter.Style
 import fastparse.Parsed
 
 object LiveProver:
@@ -60,7 +56,7 @@ object LiveProver:
       step(recurse(clauseSet))
 
     override def write(description: String): Steps[Unit] =
-      step(description, ())
+      step(s"#### $description", ())
 
     override def parseProblem(rawAssumptions: String, rawProposition: String): Steps[Problem] =
       Parser.parseFormulae(rawAssumptions) match
@@ -96,3 +92,5 @@ object LiveProver:
     case (c1 @ CVar(p1), c2 @ CNot(CVar(p2))) if p1 == p2 => Some(c1, c2)
     case (c1 @ CNot(CVar(p1)), c2 @ CVar(p2)) if p1 == p2 => Some(c1, c2)
     case _                                                => None
+
+  given style: Style = Style(show => "_" + show + "_")
