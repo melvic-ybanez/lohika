@@ -38,10 +38,10 @@ class MainScene extends Scene:
               case Left(error) => solutionsView.setSolutionContent(error)
               case Right(steps, _) =>
                 val mdSteps = steps.map: step =>
-                  if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then
-                    step
+                  if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
                   else step + "."
-                solutionsView.setSolutionContent(Symbols.applyToText(mdSteps.mkString("\n\n")))
+                val content =s"### Solution:\n\n${mdSteps.mkString("\n\n")}"
+                solutionsView.setSolutionContent(Symbols.applyToText(content))
       )
 
 class InputText extends TextField:
