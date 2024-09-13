@@ -2,6 +2,7 @@ package com.melvic.lohika.ui
 
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
+import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
