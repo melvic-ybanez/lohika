@@ -20,7 +20,7 @@ object ProverProgram:
     for
       Problem(assumptions, proposition) <- Prover[F].parseProblem(rawAssumptions, rawProposition)
       _ <- Prover[F].write(
-        s"Convert all assumptions into their ${"conjunctive normal forms (CNF)".link(Links.Cnf)}:"
+        s"Convert all assumptions into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
       assumptionCnfs     <- Prover[F].convertAllToCnfs(assumptions)
       assumptionClauses  <- Prover[F].splitAllIntoClauses(assumptionCnfs)

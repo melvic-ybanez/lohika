@@ -21,16 +21,25 @@ class SolutionsView extends WebView:
          |  <style>
          |    body {
          |      font-size: 1.2em;
+         |      font-family: "Open Sans";
+         |      color: #4B2E2A;
+         |    }
+         |    h3 {
+         |      color: #4B2E2A
          |    }
          |    a {
-         |      text-decoration: none;
          |      font-style: italic;
-         |      color: #007BFF;
+         |      text-decoration: none;
+         |      color: #008080;
          |    }
          |    a:hover {
-         |      color: #0056b3;
+         |      color: #CC5500;
+         |    }
+         |    .formula {
+         |      color: #4A5D23
          |    }
          |  </style>
+         |  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
          |</head>
          |<body>
          |  $htmlContent

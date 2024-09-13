@@ -13,7 +13,7 @@ trait Givens:
       case _                              => throw new Error(s"Unable to parse $input")
 
   given [F <: Formula](using Formatter): Show[F] =
-    Show.show(PrettyPrinter.prettyPrint(_).emphasize)
+    Show.show(PrettyPrinter.prettyPrint(_).formula)
 
   given [F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>
     def compare(fm1: Formula, fm2: Formula): Boolean =

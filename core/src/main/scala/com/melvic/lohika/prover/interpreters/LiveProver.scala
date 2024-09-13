@@ -110,3 +110,5 @@ object LiveProver:
     override def link(target: String): Format = text => s"[$text]($target)"
 
     override def itemNumber: String = "1. "
+
+    override def formula: Format = text => s"<span class='formula'>\\\\($text\\\\)</span>"

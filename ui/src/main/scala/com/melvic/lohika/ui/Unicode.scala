@@ -1,6 +1,6 @@
 package com.melvic.lohika.ui
 
-object Symbols:
+object Unicode:
   val And: Char = '\u2227'
   val Or: Char = '\u2228'
   val Not: Char = '\u00AC'

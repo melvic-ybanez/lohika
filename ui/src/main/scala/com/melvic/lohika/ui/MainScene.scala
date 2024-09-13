@@ -18,22 +18,22 @@ class MainScene extends Scene:
   root = new BorderPane:
     center = new BorderPane:
       center = solutionsView
-      padding = Insets(20)
+      padding = Insets(30)
     top = new VBox:
       children = Seq(
         new InputText:
-          promptText = s"""Optional Assumptions (e.g. "P & Q, A, B => C" to mean "${Symbols.applyToText(
+          promptText = s"""Optional Assumptions (e.g. "P & Q, A, B => C" to mean "${Unicode.applyToText(
               "P & Q, A, B => C"
             )}")"""
           text <==> assumptionsProp
         ,
         new InputText:
-          promptText = s"""Proposition (e.g. "A | C" to mean "${Symbols.applyToText("A | C")}")"""
+          promptText = s"""Proposition (e.g. "A | C" to mean "${Unicode.applyToText("A | C")}")"""
           text <==> propositionProp
 
           onAction = event =>
-            val assumptions = Symbols.removeFromText(assumptionsProp.value)
-            val proposition = Symbols.removeFromText(propositionProp.value)
+            val assumptions = Unicode.removeFromText(assumptionsProp.value)
+            val proposition = Unicode.removeFromText(propositionProp.value)
             ProverProgram.prove[Steps](assumptions, proposition).run match
               case Left(error) => solutionsView.setSolutionContent(error)
               case Right(steps, _) =>
@@ -41,10 +41,10 @@ class MainScene extends Scene:
                   if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
                   else step + "."
                 val content =s"### Solution:\n\n${mdSteps.mkString("\n\n")}"
-                solutionsView.setSolutionContent(Symbols.applyToText(content))
+                solutionsView.setSolutionContent(MathJax.applyToText(content))
       )
 
 class InputText extends TextField:
   styleClass += "main-io-text-field"
   text.onChange: (_, _, newValue) =>
-    text = Symbols.applyToText(text.value)
+    text = Unicode.applyToText(text.value)
