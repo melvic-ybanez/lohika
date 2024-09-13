@@ -2,9 +2,9 @@ package com.melvic.lohika.formula
 
 import cats.{Eq, Show}
 import Formula.*
-import com.melvic.lohika.{Emphasis, Parser}
+import com.melvic.lohika.{Formatter, Parser}
 import fastparse.*
-import Emphasis.*
+import Formatter.*
 
 trait Givens:
   given Conversion[String, Formula] = input =>
@@ -12,8 +12,8 @@ trait Givens:
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 
-  given [F <: Formula](using Emphasis): Show[F] =
-    Show.show(PrettyPrinter.prettyPrint(_).weak)
+  given [F <: Formula](using Formatter): Show[F] =
+    Show.show(PrettyPrinter.prettyPrint(_).emphasize)
 
   given [F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>
     def compare(fm1: Formula, fm2: Formula): Boolean =

@@ -4,7 +4,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.Emphasis
+import com.melvic.lohika.Formatter
+import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
 
 class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
@@ -55,7 +56,11 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     Imply.of("A", !"B", "D", !"E").show should be("A => !B => D => !E")
 
 trait PrettyPrintGivens:
-  given Emphasis with
-    override def weak(text: String): String = text
+  given Formatter with
+    override def emphasize: Format = identity
 
-    override def strong(text: String): String = text
+    override def strong: Format = identity
+
+    override def link(target: String): Format = identity
+
+    override def itemNumber: String = ""

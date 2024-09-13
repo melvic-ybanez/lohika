@@ -5,10 +5,10 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Emphasis, Equivalence, Parser, Problem}
+import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Parser, Problem}
 import com.melvic.lohika.formula.Formula
 import fastparse.Parsed
-import Emphasis.*
+import Formatter.*
 
 object LiveProver:
   import com.melvic.lohika.Givens.given
@@ -16,35 +16,35 @@ object LiveProver:
 
   type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 
-  val indent: String = " " * 4
-
   given liveProver: Prover[Steps] with
     override def splitAllIntoClauses(cnfs: List[Cnf]): Steps[Clauses] =
       if cnfs.isEmpty then WriterT((Nil, Clauses.empty).asRight)
-      else step(show"1. Split all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
+      else step(show"${itemNumber}Split all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
       formulae match
-        case Nil => substep("No formulae to convert".weak, Nil)
+        case Nil => subStep("No formulae to convert".emphasize, Nil)
         case _ =>
-          val cnfs =
-            formulae.foldLeft(List(show"$indent* Convert $formulae to CNFs:"), List.empty[Cnf]):
-              (step, formula) =>
-                step.flatMap: cnfs =>
-                  val cnf = Cnf.fromFormula(formula)
-                  (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+          val cnfsString = if formulae.size > 1 then "their CNFs" else "its CNF"
+          val cnfs = formulae.foldLeft(
+            List(show"$indent* Convert $formulae into $cnfsString:"),
+            List.empty[Cnf]
+          ): (step, formula) =>
+            step.flatMap: cnfs =>
+              val cnf = Cnf.fromFormula(formula)
+              (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
 
           WriterT(cnfs.asRight)
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Steps[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
-      if newClauseSet.isEmpty then substep("Empty clause set".weak, newClauseSet)
+      if newClauseSet.isEmpty then subStep("Empty clause set".emphasize, newClauseSet)
       else
         write(show"Add $newClauses to the clause set. Here's the new clause set:")
-          .flatMap(_ => substep(newClauseSet.show, newClauseSet))
+          .flatMap(_ => subStep(newClauseSet.show, newClauseSet))
 
     override def transform(lhs: Formula, rhs: Formula): Steps[Formula] =
-      substep(show"$lhs becomes $rhs", rhs)
+      subStep(show"$lhs becomes $rhs", rhs)
 
     override def resolve(clauseSet: Clauses): Steps[ResolutionResult] =
       def recurse(clauses: Clauses): ResolutionResult = clauses.underlying.toList match
@@ -62,7 +62,7 @@ object LiveProver:
       step(recurse(clauseSet))
 
     override def write(description: String): Steps[Unit] =
-      step(s"1. $description", ())
+      step(s"${itemNumber}$description", ())
 
     override def parseProblem(rawAssumptions: String, rawProposition: String): Steps[Problem] =
       Parser.parseFormulae(rawAssumptions) match
@@ -77,7 +77,7 @@ object LiveProver:
   def step[A](description: String, value: A): Steps[A] =
     WriterT((description :: Nil, value).asRight)
 
-  def substep[A](description: String, value: A): Steps[A] =
+  def subStep[A](description: String, value: A): Steps[A] =
     step(s"$indent* $description", value)
 
   def step[A](value: A): Steps[A] = WriterT((Nil, value).asRight)
@@ -102,7 +102,11 @@ object LiveProver:
     case (c1 @ CNot(CVar(p1)), c2 @ CVar(p2)) if p1 == p2 => Some(c1, c2)
     case _                                                => None
 
-  given Emphasis with
-    override def weak(text: String): String = s"_${text}_"
+  given Formatter with
+    override def emphasize: Format = text => s"_${text}_"
 
-    override def strong(text: String): String = s"**$text**"
+    override def strong: Format = text => s"**$text**"
+
+    override def link(target: String): Format = text => s"[$text]($target)"
+
+    override def itemNumber: String = "1. "

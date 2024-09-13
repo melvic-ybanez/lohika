@@ -44,5 +44,5 @@ object Clauses extends ClausesGivens:
 sealed trait ClausesGivens:
   import Givens.given
 
-  given (using Emphasis): Show[Clauses] = Show.show:
+  given (using Formatter): Show[Clauses] = Show.show:
     case Clauses(underlying) => underlying.toList.show

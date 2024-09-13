@@ -45,6 +45,6 @@ class MainScene extends Scene:
       )
 
 class InputText extends TextField:
-  styleClass ++= Seq("main-io-text-field", "main-io-input-text-field")
+  styleClass += "main-io-text-field"
   text.onChange: (_, _, newValue) =>
     text = Symbols.applyToText(text.value)

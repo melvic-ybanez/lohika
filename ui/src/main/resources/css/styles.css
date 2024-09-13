@@ -5,13 +5,13 @@
     -fx-border-width: 0.1px;
 
     -fx-font-family: Helvetica;
-    -fx-font-size: 16px;
-    -fx-padding: 10px;
+    -fx-font-size: 1.2em;
+    -fx-padding: 15px;
 
     -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
 }
 
-.main-io-input-text-field:focused {
+.main-io-text-field:focused {
     /* Remove focus border. See https://stackoverflow.com/a/28853294 */
     -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
 }

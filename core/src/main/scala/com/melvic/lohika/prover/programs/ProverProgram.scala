@@ -4,9 +4,9 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.prover.algebras.Prover
 import Prover.*
-import com.melvic.lohika.{Clauses, Emphasis, Problem}
+import com.melvic.lohika.{Clauses, Formatter, Links, Problem}
 import com.melvic.lohika.formula.Formula
-import Emphasis.*
+import Formatter.*
 
 import java.text.NumberFormat.Style
 
@@ -16,12 +16,14 @@ object ProverProgram:
   def prove[F[_]: Prover: Monad](
       rawAssumptions: String,
       rawProposition: String
-  )(using Emphasis): F[ResolutionResult] =
+  )(using Formatter): F[ResolutionResult] =
     for
       Problem(assumptions, proposition) <- Prover[F].parseProblem(rawAssumptions, rawProposition)
-      _                                 <- Prover[F].write("Convert all assumptions into CNFs:")
-      assumptionCnfs                    <- Prover[F].convertAllToCnfs(assumptions)
-      assumptionClauses                 <- Prover[F].splitAllIntoClauses(assumptionCnfs)
+      _ <- Prover[F].write(
+        s"Convert all assumptions into their ${"conjunctive normal forms (CNF)".link(Links.Cnf)}:"
+      )
+      assumptionCnfs     <- Prover[F].convertAllToCnfs(assumptions)
+      assumptionClauses  <- Prover[F].splitAllIntoClauses(assumptionCnfs)
       clauses            <- Prover[F].updateClauseSet(Clauses.empty, assumptionClauses)
       _                  <- Prover[F].write("Negate the proposition:")
       negatedProp        <- Prover[F].transform(proposition, !proposition)
@@ -36,19 +38,19 @@ object ProverProgram:
       assumptions: List[Formula],
       proposition: Formula,
       clauseSet: Clauses
-  )(using Emphasis): F[ResolutionResult] =
+  )(using Formatter): F[ResolutionResult] =
     for
       resolutionResult <- Prover[F].resolve(clauseSet)
       result <- resolutionResult match
         case Exhaustion =>
           for
-            _ <- Prover[F].write(s"Resolution options ${"exhausted".weak}.")
+            _ <- Prover[F].write(s"Resolution options ${"exhausted".emphasize}.")
             _ <- conclusion(assumptions, proposition, false)
           yield Exhaustion
         case contradiction @ Contradiction(clause1, clause2) =>
           for
             _ <- Prover[F].write(
-              show"A ${"contradiction".weak} is found: $clause1 and $clause2"
+              show"A ${"contradiction".emphasize} is found: $clause1 and $clause2"
             )
             _ <- conclusion(assumptions, proposition, true)
           yield contradiction
@@ -64,9 +66,11 @@ object ProverProgram:
       assumptions: List[Formula],
       proposition: Formula,
       provable: Boolean
-  )(using Emphasis): F[Unit] =
+  )(using Formatter): F[Unit] =
     val not = if provable then "" else " not"
     val conclusionPrefix = "Conclusion".strong + ": "
     if assumptions.isEmpty then
-      Prover[F].write(show"$conclusionPrefix$proposition is$not a tautology.")
+      Prover[F].write(
+        show"$conclusionPrefix$proposition is$not a ${"tautology".link(Links.Tautology)}."
+      )
     else Prover[F].write(show"$conclusionPrefix$proposition is$not provable from $assumptions")
