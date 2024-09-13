@@ -4,8 +4,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
+import com.melvic.lohika.Emphasis
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.PrettyPrinter.Style
 
 class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
   "A variable" should "print its name" in:
@@ -55,4 +55,7 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     Imply.of("A", !"B", "D", !"E").show should be("A => !B => D => !E")
 
 trait PrettyPrintGivens:
-  given style: Style = Style(identity)
+  given Emphasis with
+    override def weak(text: String): String = text
+
+    override def strong(text: String): String = text

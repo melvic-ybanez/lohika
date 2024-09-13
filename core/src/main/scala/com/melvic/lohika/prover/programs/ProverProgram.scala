@@ -4,9 +4,11 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.prover.algebras.Prover
 import Prover.*
-import com.melvic.lohika.{Clauses, Problem}
+import com.melvic.lohika.{Clauses, Emphasis, Problem}
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.formula.PrettyPrinter.Style
+import Emphasis.*
+
+import java.text.NumberFormat.Style
 
 object ProverProgram:
   import com.melvic.lohika.Givens.given
@@ -14,7 +16,7 @@ object ProverProgram:
   def prove[F[_]: Prover: Monad](
       rawAssumptions: String,
       rawProposition: String
-  )(using style: Style): F[ResolutionResult] =
+  )(using Emphasis): F[ResolutionResult] =
     for
       Problem(assumptions, proposition) <- Prover[F].parseProblem(rawAssumptions, rawProposition)
       _                                 <- Prover[F].write("Convert all assumptions into CNFs:")
@@ -34,19 +36,19 @@ object ProverProgram:
       assumptions: List[Formula],
       proposition: Formula,
       clauseSet: Clauses
-  )(using style: Style): F[ResolutionResult] =
+  )(using Emphasis): F[ResolutionResult] =
     for
       resolutionResult <- Prover[F].resolve(clauseSet)
       result <- resolutionResult match
         case Exhaustion =>
           for
-            _ <- Prover[F].write(s"Resolution options ${style.apply("exhausted")}.")
+            _ <- Prover[F].write(s"Resolution options ${"exhausted".weak}.")
             _ <- conclusion(assumptions, proposition, false)
           yield Exhaustion
         case contradiction @ Contradiction(clause1, clause2) =>
           for
             _ <- Prover[F].write(
-              show"A ${style.apply("contradiction")} is found: ${clause1.show} and $clause2"
+              show"A ${"contradiction".weak} is found: $clause1 and $clause2"
             )
             _ <- conclusion(assumptions, proposition, true)
           yield contradiction
@@ -62,7 +64,9 @@ object ProverProgram:
       assumptions: List[Formula],
       proposition: Formula,
       provable: Boolean
-  )(using style: Style): F[Unit] =
+  )(using Emphasis): F[Unit] =
     val not = if provable then "" else " not"
-    if assumptions.isEmpty then Prover[F].write(show"**Conclusion**: $proposition is$not a tautology.")
-    else Prover[F].write(show"**Conclusion**: $proposition is$not provable from $assumptions")
+    val conclusionPrefix = "Conclusion".strong + ": "
+    if assumptions.isEmpty then
+      Prover[F].write(show"$conclusionPrefix$proposition is$not a tautology.")
+    else Prover[F].write(show"$conclusionPrefix$proposition is$not provable from $assumptions")

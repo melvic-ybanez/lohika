@@ -5,10 +5,10 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Equivalence, Parser, Problem}
+import com.melvic.lohika.{Clauses, Cnf, Emphasis, Equivalence, Parser, Problem}
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.formula.PrettyPrinter.Style
 import fastparse.Parsed
+import Emphasis.*
 
 object LiveProver:
   import com.melvic.lohika.Givens.given
@@ -25,7 +25,7 @@ object LiveProver:
 
     override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
       formulae match
-        case Nil => substep("_No formulae to convert_", Nil)
+        case Nil => substep("No formulae to convert".weak, Nil)
         case _ =>
           val cnfs =
             formulae.foldLeft(List(show"$indent* Convert $formulae to CNFs:"), List.empty[Cnf]):
@@ -38,7 +38,7 @@ object LiveProver:
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Steps[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
-      if newClauseSet.isEmpty then substep("_Empty clause set_", newClauseSet)
+      if newClauseSet.isEmpty then substep("Empty clause set".weak, newClauseSet)
       else
         write(show"Add $newClauses to the clause set. Here's the new clause set:")
           .flatMap(_ => substep(newClauseSet.show, newClauseSet))
@@ -102,4 +102,7 @@ object LiveProver:
     case (c1 @ CNot(CVar(p1)), c2 @ CVar(p2)) if p1 == p2 => Some(c1, c2)
     case _                                                => None
 
-  given style: Style = Style(show => "_" + show + "_")
+  given Emphasis with
+    override def weak(text: String): String = s"_${text}_"
+
+    override def strong(text: String): String = s"**$text**"
