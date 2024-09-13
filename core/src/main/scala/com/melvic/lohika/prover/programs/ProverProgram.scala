@@ -64,5 +64,5 @@ object ProverProgram:
       provable: Boolean
   )(using style: Style): F[Unit] =
     val not = if provable then "" else " not"
-    if assumptions.isEmpty then Prover[F].write(show"Conclusion: $proposition is$not a tautology.")
+    if assumptions.isEmpty then Prover[F].write(show"**Conclusion**: $proposition is$not a tautology.")
     else Prover[F].write(show"**Conclusion**: $proposition is$not provable from $assumptions")
