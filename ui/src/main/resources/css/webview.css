@@ -1,0 +1,30 @@
+body {
+  font-size: 1.3em;
+  font-family: "Open Sans";
+  color: #4B2E2A;
+}
+
+h3 {
+  color: #4B2E2A
+}
+
+a {
+  font-style: italic;
+  text-decoration: none;
+  color: #008080;
+}
+
+a:hover {
+  color: #CC5500;
+}
+
+.formula {
+  color: #4A5D23
+}
+
+.two-column {
+    column-count: 2;
+    column-gap: 20px;
+    padding: 10px
+    column-span: all;
+}

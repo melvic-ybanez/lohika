@@ -23,3 +23,5 @@ object Main extends JFXApp3:
     stage = new JFXApp3.PrimaryStage:
       title = "Lohika"
       scene = new MainScene
+
+    stage.maximized = true

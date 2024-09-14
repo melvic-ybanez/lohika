@@ -8,41 +8,32 @@ class SolutionsView extends WebView:
   val parser: Parser = Parser.builder().build()
   val renderer: HtmlRenderer = HtmlRenderer.builder().build()
 
-  prefWidth = 600
-  prefHeight = 600
+  minWidth = 600
+  minHeight = 600
 
   def setSolutionContent(content: String): Unit =
     engine.loadContent:
       val document = parser.parse(content)
       val htmlContent = renderer.render(document)
       s"""
+         |<!DOCTYPE html>
          |<html>
          |<head>
-         |  <style>
-         |    body {
-         |      font-size: 1.2em;
-         |      font-family: "Open Sans";
-         |      color: #4B2E2A;
-         |    }
-         |    h3 {
-         |      color: #4B2E2A
-         |    }
-         |    a {
-         |      font-style: italic;
-         |      text-decoration: none;
-         |      color: #008080;
-         |    }
-         |    a:hover {
-         |      color: #CC5500;
-         |    }
-         |    .formula {
-         |      color: #4A5D23
-         |    }
-         |  </style>
-         |  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+         |  <meta charset="UTF-8">
+         |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         |  <script id="MathJax-script" async
+         |      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
          |</head>
          |<body>
-         |  $htmlContent
+         |  <h3>Solution:</h3>
+         |  <div class="two-column">
+         |    $htmlContent
+         |  </div>
          |</body>
          |</html>
          |""".stripMargin
+
+  def init(): Unit =
+    engine.setUserStyleSheetLocation(
+      getClass.getResource("/css/webview.css").toExternalForm
+    )
