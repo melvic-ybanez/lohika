@@ -6,6 +6,6 @@ assumptions are present, Lohika will check if the proposition is a tautology.
 
 Here's what it currently looks like:
 
-https://github.com/user-attachments/assets/85b9b72f-7528-4923-8744-b72479b9a909
+https://github.com/user-attachments/assets/fbe1a2b5-63f2-47d5-9b63-c5a174c792d3
 
 **Note**: More details will be added here soon.
