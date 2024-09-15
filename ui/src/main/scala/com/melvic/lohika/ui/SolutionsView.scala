@@ -11,10 +11,22 @@ class SolutionsView extends WebView:
   minWidth = 600
   minHeight = 600
 
-  def setSolutionContent(entailment: String, content: String): Unit =
+  def setSolutionContent(content: Either[String, (String, String)]): Unit =
+    val htmlBody = content match
+      case Left(errorMessage) => s"""<div class="centered">$errorMessage<div>"""
+      case Right(entailment, solution) =>
+        val document = parser.parse(solution)
+        val htmlContent = renderer.render(document)
+        s"""
+           |<div class="centered"><strong>Prove:</strong> $entailment</div>
+           |
+           |<h3>Solution:</h3>
+           |<div class="two-column">
+           |  $htmlContent
+           |</div>
+           |""".stripMargin
+
     engine.loadContent:
-      val document = parser.parse(content)
-      val htmlContent = renderer.render(document)
       s"""
          |<!DOCTYPE html>
          |<html>
@@ -24,14 +36,7 @@ class SolutionsView extends WebView:
          |  <script id="MathJax-script" async
          |      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
          |</head>
-         |<body>
-         |  <div class="centered"><strong>Prove:</strong> $entailment</div>
-         |
-         |  <h3>Solution:</h3>
-         |  <div class="two-column">
-         |    $htmlContent
-         |  </div>
-         |</body>
+         |<body>$htmlBody</body>
          |</html>
          |""".stripMargin
 
