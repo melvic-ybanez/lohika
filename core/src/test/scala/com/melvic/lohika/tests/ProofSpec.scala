@@ -45,6 +45,9 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "(P & Q) => P" should "be a tautology" in:
     result("", "P | !P") should be(Right(Contradiction(CNot(CVar("P")), CVar("P"))))
 
+  "(P | Q) & (!Q => R) => (P => R)" should "not be provable from P | Q and !Q => R" in:
+    result("P | Q, !Q => R", "(P | Q) & (!Q => R) => (P => R)") should be(Right(Exhaustion))
+
 object ProofSpec:
   def result(assumptions: String, proposition: String): Either[String, ResolutionResult] =
     ProverProgram.prove[Steps](assumptions, proposition).run.map(_._2)

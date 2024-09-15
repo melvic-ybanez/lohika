@@ -9,7 +9,8 @@ import com.melvic.lohika.formula.Formula
 type Cnf = CAnd | Clause
 
 object Cnf extends CnfImplicits:
-  type ToCnfUntyped[A <: Formula] = A => Formula
+  type ToCnfUntyped[F <: Formula] = F => Formula
+  type ConvertWithFrom[F <: Formula] = (Formula => Formula) => ToCnfUntyped[F]
 
   final case class CAnd(clauses: List[Clause])
   final case class COr(literals: List[Literal])
@@ -46,54 +47,104 @@ object Cnf extends CnfImplicits:
     case CTrue              => True
     case CFalse             => False
 
-  def fromFormulaUntyped: ToCnfUntyped[Formula] =
-    case or: Or       => fromDisjunctionUntyped(or)
-    case and: And     => fromConjunctionUntyped(and)
-    case imply: Imply => fromImplicationUntyped(imply)
-    case iff: Iff     => fromBiconditionalUntyped(iff)
-    case not: Not     => fromNegationUntyped(not)
-    case fm           => fm
-
-  def fromDisjunctionUntyped: ToCnfUntyped[Or] =
-    case or if isInCnf(or)          => or
-    case Or(And(ap, aq, _), q, Nil) => fromFormulaUntyped((ap | q) & (aq | q))
-    case Or(p: And, q, r :: rs)     => fromFormulaUntyped(Or(fromFormulaUntyped(p | q), r, rs))
-    case or if or.components.exists(isAnd) =>
-      or.components
-        .find(isAnd)
-        .fold(or): and =>
-          fromFormulaUntyped(Or.fromList(and :: or.components.filterNot(_ == and)))
-    case Or(p, q, rs) =>
-      fromFormulaUntyped(
-        Or.flatten(Or(fromFormulaUntyped(p), fromFormulaUntyped(q), rs.map(fromFormulaUntyped)))
-      )
-
-  def fromConjunctionUntyped: ToCnfUntyped[And] =
-    case and if isInCnf(and) => and
-    case And(p, q, rs) =>
-      fromFormulaUntyped(
-        And.flatten(And(fromFormulaUntyped(p), fromFormulaUntyped(q), rs.map(fromFormulaUntyped)))
-      )
-
-  def fromImplicationUntyped: ToCnfUntyped[Imply] =
-    case Imply(p, q) => fromFormulaUntyped(!fromFormulaUntyped(p) | fromFormulaUntyped(q))
-
-  def fromBiconditionalUntyped: ToCnfUntyped[Iff] =
-    case Iff(p, q, Nil) =>
-      fromFormulaUntyped(fromFormulaUntyped(p ==> q) & fromFormulaUntyped(q ==> p))
+  def eliminateBiconditionals: Formula => Formula =
+    case Iff(p, q, Nil) => eliminateBiconditionals((p ==> q) & (q ==> p))
     case Iff(p, q, rs) =>
       val iffs = rs.foldLeft(List(p <==> q)):
-        case (iffs @ (Iff(p, q, _) :: _), r) => (q <==> r) :: iffs
-      fromFormulaUntyped(And.fromList(iffs.reverse))
+        case (iffs @ (Iff(_, q, _) :: _), r) => (q <==> r) :: iffs
+      eliminateBiconditionals(And.fromList(iffs.reverse))
+    case imply: Imply => fromImplyWith(eliminateBiconditionals)(imply)
+    case or: Or       => fromOrWith(eliminateBiconditionals)(or)
+    case and: And     => fromAndWith(eliminateBiconditionals)(and)
+    case not: Not     => fromNotWith(eliminateBiconditionals)(not)
+    case fm           => fm
 
-  def fromNegationUntyped: ToCnfUntyped[Not] =
-    case Not(Or(p, q, rs))  => fromFormulaUntyped(And(!p, !q, rs.map(!_)))
-    case Not(And(p, q, rs)) => fromFormulaUntyped(Or(!p, !q, rs.map(!_)))
-    case Not(Not(p))        => fromFormulaUntyped(p)
-    case Not(True)          => False
-    case Not(False)         => True
-    case Not(p @ Var(_))    => !p
-    case Not(p)             => fromFormulaUntyped(Not(fromFormulaUntyped(p)))
+  def eliminateImplications: Formula => Formula =
+    case Imply(p, q) => eliminateImplications(!p | q)
+    case or: Or      => fromOrWith(eliminateImplications)(or)
+    case and: And    => fromAndWith(eliminateImplications)(and)
+    case not: Not    => fromNotWith(eliminateImplications)(not)
+    case fm          => fm
+
+  def moveNegationsInside: Formula => Formula =
+    case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
+    case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
+    case notNot @ Not(Not(_)) => moveNegationsInside(simplifyNegations(notNot))
+    case not: Not             => fromNotWith(moveNegationsInside)(not)
+    case or: Or               => fromOrWith(moveNegationsInside)(or)
+    case and: And             => fromAndWith(moveNegationsInside)(and)
+    case fm                   => fm
+
+  def distributeOrOverAnds: Formula => Formula =
+    case Or(p, And(ap, aq, ars), Nil) =>
+      fromAndWith(distributeOrOverAnds)(And(p | ap, p | aq, ars.map(p | _)))
+    case Or(And(ap, aq, ars), q, Nil) =>
+      fromAndWith(distributeOrOverAnds)(And(ap | q, aq | q, ars.map(_ | q)))
+    case Or(p, and: And, r :: rs) => distributeOrOverAnds(Or(distributeOrOverAnds(p | and), r, rs))
+    case Or(and: And, q, r :: rs) => distributeOrOverAnds(Or(distributeOrOverAnds(and | q), r, rs))
+    case Or(p, q, (and: And) :: rs) =>
+      distributeOrOverAnds(Or(p, distributeOrOverAnds(q | and), rs))
+    case Or(p, q, r :: rs) => distributeOrOverAnds(p | distributeOrOverAnds(Or(q, r, rs)))
+    case and: And          => fromAndWith(distributeOrOverAnds)(and)
+    case not: Not          => fromNotWith(distributeOrOverAnds)(not)
+    case fm                => fm
+
+  def simplifyNegations: Formula => Formula =
+    case Not(Not(p))     => simplifyNegations(p)
+    case Not(True)       => False
+    case Not(False)      => True
+    case Not(p @ Var(_)) => !p
+    case not: Not        => not
+    case or: Or          => fromOrWith(simplifyNegations)(or)
+    case and: And        => fromAndWith(simplifyNegations)(and)
+    case fm              => fm
+
+  def flattenConjunctions: Formula => Formula =
+    case and: And =>
+      val flattened = and.components.map(flattenOrsAndAnds)
+      flattened.tail.foldLeft(flattened.head):
+        case (And(p, q, rs), and: And) => And(p, q, rs ++ and.components)
+        case (And(p, q, rs), fm)       => And(p, q, rs ++ List(fm))
+        case (fm, And(p, q, rs))       => And(fm, p, q :: rs)
+        case (fm1, fm2)                => fm1 & fm2
+    case or: Or => fromOrWith(flattenConjunctions)(or)
+    case fm     => fm
+
+  def flattenDisjunctions: Formula => Formula =
+    case or: Or =>
+      val flattened = or.components.map(flattenOrsAndAnds)
+      flattened.tail.foldLeft(flattened.head):
+        case (Or(p, q, rs), or: Or) => Or(p, q, rs ++ or.components)
+        case (Or(p, q, rs), fm)     => Or(p, q, rs ++ List(fm))
+        case (fm, Or(p, q, rs))     => Or(fm, p, q :: rs)
+        case (fm1, fm2)             => fm1 | fm2
+    case and: And => fromAndWith(flattenDisjunctions)(and)
+    case fm       => fm
+
+  def flattenOrsAndAnds: Formula => Formula =
+    case and: And => flattenConjunctions(and)
+    case or: Or   => flattenDisjunctions(or)
+    case fm       => fm
+
+  def fromImplyWith: ConvertWithFrom[Imply] = f =>
+    case Imply(p, q) => f(p) ==> f(q)
+
+  def fromOrWith: ConvertWithFrom[Or] = f =>
+    case Or(p, q, rs) => Or(f(p), f(q), rs.map(f))
+
+  def fromAndWith: ConvertWithFrom[And] = f =>
+    case And(p, q, rs) => And(f(p), f(q), rs.map(f))
+
+  def fromNotWith: ConvertWithFrom[Not] = f =>
+    case Not(p) => Not(f(p))
+
+  def fromFormulaUntyped: ToCnfUntyped[Formula] =
+    eliminateBiconditionals andThen
+      eliminateImplications andThen
+      moveNegationsInside andThen
+      distributeOrOverAnds andThen
+      simplifyNegations andThen
+      flattenOrsAndAnds
 
 sealed trait CnfImplicits:
   given [C <: Cnf](using Formatter): Show[C] = Show.show(toFormula(_).show)

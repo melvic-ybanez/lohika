@@ -49,5 +49,5 @@ object BaseSpec extends BaseSpec:
         val cnf = Cnf.fromFormulaUntyped(formula1)
         assert(
           cnf == expectedCnf,
-          show"$formula1 has the expected CNF: $expectedCnf. Got: $cnf"
+          show"\n$formula1 has the expected CNF: $expectedCnf. Got: $cnf"
         )

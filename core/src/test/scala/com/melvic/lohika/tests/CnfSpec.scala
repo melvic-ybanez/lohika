@@ -1,10 +1,13 @@
 package com.melvic.lohika.tests
 
 import BaseSpec.*
+import com.melvic.lohika.Cnf
 
 class CnfSpec extends BaseSpec:
   "Disjunction" should "be flattened" in:
     "(A | B) | (C | (D | E))" ====> "A | B | C | D | E"
+    "(A | C) | D" ====> "A | C | D"
+    "(B | C) | D" ====> "B | C | D"
 
   it should "recursively convert its components to CNFs" in:
     "(A => B) | C | !!D" ====> "!A | B | C | D"
@@ -13,9 +16,10 @@ class CnfSpec extends BaseSpec:
   it should "distribute over conjunctions" in:
     "(A & B) | C" ====> "(A | C) & (B | C)"
     "A & B | C" ====> "(A | C) & (B | C)"
-    "A | (B & C)" ====> "(B | A) & (C | A)"
+    "A | (B & C)" ====> "(A | B) & (A | C)"
     "(A & B) | C | D" ====> "(A | C | D) & (B | C | D)"
-    "A | B | C | D & E" ====> "(D | A | B | C) & (E | A | B | C)"
+    "A | B | C | D & E" ====> "(A | B | C | D) & (A | B | C | E)"
+    "P | (A & B & C)" ====> "(P | A) & (P | B) & (P | C)"
 
   "Conjunction" should "be flattened" in:
     "(A & B) & (C & (D & E))" ====> "A & B & C & D & E"
@@ -34,7 +38,7 @@ class CnfSpec extends BaseSpec:
     "P <=> Q <=> R" ====> "(!P | Q) & (!Q | P) & (!Q | R) & (!R | Q)"
 
   "Implication" should "recursively convert its components to CNFs" in:
-    "P => (Q & R)" ====> "(Q | !P) & (R | !P)"
+    "P => (Q & R)" ====> "(!P | Q) & (!P | R)"
     "(A => B) => (C => D)" ====> "(A | !C | D) & (!B | !C | D)"
     "P => (Q | R)" ====> "!P | Q | R"
 
@@ -49,10 +53,30 @@ class CnfSpec extends BaseSpec:
   "!(p => q)" should "become p & !q" in:
     "!(P => Q)" ====> "P & !Q"
 
+  "!((p | q) & (!q => r) => p => r)" should "become (p | q) & (q | r) & p & !r" in:
+    "!((p | q) & (!q => r) => p => r)" ====> "(p | q) & (q | r) & p & !r"
+
   "Biconditional" should "recursively convert its components to CNFs" in:
-    "P <=> (Q & R)" ====> "(Q | !P) & (R | !P) & (!Q | !R | P)"
+    "P <=> (Q & R)" ====> "(!P | Q) & (!P | R) & (!Q | !R | P)"
 
   "Double negation" should "cancel out" in:
     "!!P" ====> "P"
     "!!!P" ====> "!P"
     "!!!!P" ====> "P"
+
+  "All implications" should "be eliminated" in:
+    assertFromInputStrings(
+      "!((p | q) & (!q => r) => p => r)",
+      "!(!((p | q) & (!(!q) | r)) | (!p | r))"
+    ): (input, output) =>
+      Cnf.eliminateImplications(input) should be(output)
+
+    assertFromInputStrings("!(B => A) => C", "!(!(!B | A)) | C"): (input, output) =>
+      Cnf.eliminateImplications(input) should be(output)
+
+  "Negations" should "be moved inside" in:
+    assertFromInputStrings("!(!(!B) & !A)", "!B | A"): (input, output) =>
+      Cnf.moveNegationsInside(input) should be(output)
+
+    assertFromInputStrings("A | !(!(!B) & !A) | C | C", "A | (!B | A) | C | C"):
+      (input, output) => Cnf.moveNegationsInside(input) should be(output)
