@@ -4,11 +4,11 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Cnf.Clause
 import Prover.ResolutionResult
-import com.melvic.lohika.{Clauses, Cnf, Problem}
+import com.melvic.lohika.{Clauses, Cnf, Entailment}
 import com.melvic.lohika.formula.Formula
 
 trait Prover[F[_]]:
-  def parseProblem(assumptions: String, propsosition: String): F[Problem]
+  def parseEntailment(rawEntailment: String): F[Entailment]
 
   def splitAllIntoClauses(cnfs: List[Cnf]): F[Clauses]
 

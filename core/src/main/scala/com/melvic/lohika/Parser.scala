@@ -8,12 +8,15 @@ import cats.implicits.*
 import com.melvic.lohika.formula.Formula
 
 object Parser:
+  def parseEntailment(input: String): Parsed[Entailment] =
+    parse(input, entailment(using _))
+
   def parseFormula(input: String): Parsed[Formula] =
     parse(input, formula(using _))
 
-  def parseFormulae(input: String): Parsed[List[Formula]] =
-    (if input.trim.isEmpty then List.empty[String] else input.split(",").toList)
-      .traverse(fm => parseFormula(fm.trim))
+  def entailment[$: P]: P[Entailment] = ((formula.rep(min = 1, sep = ",") ~ "|=").? ~ formula).map:
+    case (None, conclusion) => Entailment(Nil, conclusion)
+    case (Some(premises), conclusion) => Entailment(premises.toList, conclusion)
 
   def formula[$: P]: P[Formula] = P(iff)
 

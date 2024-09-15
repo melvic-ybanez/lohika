@@ -4,7 +4,7 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.prover.algebras.Prover
 import Prover.*
-import com.melvic.lohika.{Clauses, Formatter, Links, Problem}
+import com.melvic.lohika.{Clauses, Formatter, Links, Entailment}
 import com.melvic.lohika.formula.Formula
 import Formatter.*
 
@@ -13,12 +13,9 @@ import java.text.NumberFormat.Style
 object ProverProgram:
   import com.melvic.lohika.Givens.given
 
-  def prove[F[_]: Prover: Monad](
-      rawAssumptions: String,
-      rawProposition: String
-  )(using Formatter): F[ResolutionResult] =
+  def prove[F[_]: Prover: Monad](rawEntailment: String)(using Formatter): F[ResolutionResult] =
     for
-      Problem(assumptions, proposition) <- Prover[F].parseProblem(rawAssumptions, rawProposition)
+      Entailment(assumptions, proposition) <- Prover[F].parseEntailment(rawEntailment)
       _ <- Prover[F].write(
         s"Convert all assumptions into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )

@@ -11,8 +11,7 @@ import scalafx.scene.input.ScrollEvent
 import scalafx.scene.layout.{BorderPane, VBox}
 
 class MainScene extends Scene:
-  val assumptionsProp = new StringProperty("")
-  val propositionProp = new StringProperty("")
+  val entailmentProp = new StringProperty("")
   val solutionsView = SolutionsView()
 
   solutionsView.init()
@@ -28,19 +27,14 @@ class MainScene extends Scene:
       children = Seq(
         new InputText:
           promptText =
-            s"""Optional Assumptions (e.g. "P & Q, A, B => C" to mean "${Unicode.applyToText(
-                "P & Q, A, B => C"
+            s"""Logical Entailment (e.g. "A => B, B => C |= A | !C" to mean "${Unicode.applyToText(
+                "A => B, B => C |= A | !C"
               )}")"""
-          text <==> assumptionsProp
-        ,
-        new InputText:
-          promptText = s"""Proposition (e.g. "A | C" to mean "${Unicode.applyToText("A | C")}")"""
-          text <==> propositionProp
+          text <==> entailmentProp
 
           onAction = event =>
-            val assumptions = Unicode.removeFromText(assumptionsProp.value)
-            val proposition = Unicode.removeFromText(propositionProp.value)
-            ProverProgram.prove[Steps](assumptions, proposition).run match
+            val rawEntailment = Unicode.removeFromText(entailmentProp.value)
+            ProverProgram.prove[Steps](rawEntailment).run match
               case Left(error) => solutionsView.setSolutionContent(error)
               case Right(steps, _) =>
                 val mdSteps = steps.map: step =>

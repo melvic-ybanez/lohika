@@ -6,3 +6,4 @@ object Unicode extends Symbols:
   val Not: String = "\u00AC"
   val Imply: String = "\u2192"
   val Iff: String = "\u2194"
+  val Entailment: String = "\u22A8"

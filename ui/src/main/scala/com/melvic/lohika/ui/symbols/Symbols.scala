@@ -6,8 +6,10 @@ trait Symbols:
   def Not: String
   def Imply: String
   def Iff: String
+  def Entailment: String
 
   def TextToSymbolsMap: List[(String, String)] = List(
+    "|="  -> Entailment,
     "&"   -> And,
     "|"   -> Or,
     "!"   -> Not,

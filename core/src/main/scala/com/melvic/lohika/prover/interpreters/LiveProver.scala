@@ -5,7 +5,7 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Parser, Problem}
+import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Parser, Entailment}
 import com.melvic.lohika.formula.Formula
 import fastparse.Parsed
 import Formatter.*
@@ -64,15 +64,11 @@ object LiveProver:
     override def write(description: String): Steps[Unit] =
       step(s"${itemNumber}$description", ())
 
-    override def parseProblem(rawAssumptions: String, rawProposition: String): Steps[Problem] =
-      Parser.parseFormulae(rawAssumptions) match
-        case Parsed.Success(assumptions, _) =>
-          Parser.parseFormula(rawProposition) match
-            case Parsed.Success(proposition, _) => step(Problem(assumptions, proposition))
-            case Parsed.Failure(label, _, _) =>
-              WriterT(s"Unable to parse proposition. Message: $label".asLeft)
+    override def parseEntailment(rawEntailment: String): Steps[Entailment] =
+      Parser.parseEntailment(rawEntailment) match
+        case Parsed.Success(entailment, _) => step(entailment)
         case Parsed.Failure(label, _, _) =>
-          WriterT(s"Unable to parse assumptions. Message: $label".asLeft)
+          WriterT(s"Unable to parse entailment. Message: $label".asLeft)
 
   def step[A](description: String, value: A): Steps[A] =
     WriterT((description :: Nil, value).asRight)

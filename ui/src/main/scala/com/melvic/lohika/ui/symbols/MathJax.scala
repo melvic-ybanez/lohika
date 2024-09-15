@@ -6,3 +6,4 @@ object MathJax extends Symbols:
   val Not: String = "\\neg "
   val Imply: String = "\\rightarrow"
   val Iff: String = "\\leftrightarrow"
+  val Entailment: String = "\\models"
