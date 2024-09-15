@@ -28,3 +28,9 @@ a:hover {
     padding: 10px
     column-span: all;
 }
+
+.centered {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}

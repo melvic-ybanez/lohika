@@ -11,7 +11,7 @@ class SolutionsView extends WebView:
   minWidth = 600
   minHeight = 600
 
-  def setSolutionContent(content: String): Unit =
+  def setSolutionContent(entailment: String, content: String): Unit =
     engine.loadContent:
       val document = parser.parse(content)
       val htmlContent = renderer.render(document)
@@ -25,6 +25,8 @@ class SolutionsView extends WebView:
          |      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
          |</head>
          |<body>
+         |  <div class="centered"><strong>Prove:</strong> $entailment</div>
+         |
          |  <h3>Solution:</h3>
          |  <div class="two-column">
          |    $htmlContent

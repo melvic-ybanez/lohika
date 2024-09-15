@@ -35,13 +35,14 @@ class MainScene extends Scene:
           onAction = event =>
             val rawEntailment = Unicode.removeFromText(entailmentProp.value)
             ProverProgram.prove[Steps](rawEntailment).run match
-              case Left(error) => solutionsView.setSolutionContent(error)
+              case Left(error) => solutionsView.setSolutionContent(rawEntailment, error)
               case Right(steps, _) =>
                 val mdSteps = steps.map: step =>
                   if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
                   else step + "."
+                val entailment = MathJax.applyToText(s"\\($rawEntailment\\)")
                 val content = MathJax.applyToText(mdSteps.mkString("\n\n"))
-                solutionsView.setSolutionContent(content)
+                solutionsView.setSolutionContent(entailment, content)
       )
 
   // We are disabling some scrolling functionalities (particularly mouse wheels, etc.)
