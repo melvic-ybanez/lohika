@@ -19,10 +19,12 @@ object ProverProgram:
       _ <- Prover[F].write(
         s"Convert all premises into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
-      premiseCnfs        <- Prover[F].convertAllToCnfs(premises)
-      premiseClauses     <- Prover[F].splitAllIntoClauses(premiseCnfs)
-      clauses            <- Prover[F].updateClauseSet(Clauses.empty, premiseClauses)
-      _                  <- Prover[F].write("Negate the conclusion:")
+      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)
+      premiseClauses <- Prover[F].splitAllIntoClauses(premiseCnfs)
+      clauses        <- Prover[F].updateClauseSet(Clauses.empty, premiseClauses)
+      _ <- Prover[F].write(
+        s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
+      )
       negatedConclusion  <- Prover[F].transform(conclusion, !conclusion)
       _                  <- Prover[F].write("Convert the negated conclusion into CNF:")
       negatedPropCnf     <- Prover[F].convertToCnf(negatedConclusion)
@@ -65,10 +67,11 @@ object ProverProgram:
       provable: Boolean
   )(using Formatter): F[Unit] =
     val followsString = if provable then "follows" else "does not follow"
+    val notString = if provable then "" else " not"
     val resultPrefix = "Proof Result".strong + ": "
-    
+
     if premises.isEmpty then
       Prover[F].write(
-        show"$resultPrefix$conclusion is$followsString a ${"tautology".link(Links.Tautology)}."
+        show"$resultPrefix$conclusion is$notString a ${"tautology".link(Links.Tautology)}."
       )
     else Prover[F].write(show"$resultPrefix$conclusion $followsString from $premises")
