@@ -17,7 +17,7 @@ in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)).
     - [Supported Logical Symbols](#supported-logical-symbols)
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Installation](#installation)
-- [Screetshots and Demos](#screenshots-and-demos)
+- [Screenshots and Demos](#screenshots-and-demos)
 - [License](#license)
 
 ## Supported Features
