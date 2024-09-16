@@ -54,7 +54,7 @@ can see this in action in the [Screenshots and Demos](#screenshots-and-demos) se
 | Disjunction   | `\|`              | `P \| Q`  |
 | Conjunction   | `&`               | `P & Q`   |
 | Implication   | `=>`              | `P => Q`  |
-| Biconditional | `<=>`             | `P <=>`   |
+| Biconditional | `<=>`             | `P <=> Q` |
 | Entailment    | `\|=`             | `P \|= Q` |
 
 ## How Lohika's Proof Generator Works
@@ -72,7 +72,7 @@ Lohika's proof generator algorithm is explained in the following steps:
 1. Convert the negated conclusion into CNF.
 1. Add the negated conclusion's CNF to the clause set.
 1. Recursively apply the resolution rule until either the options are exhausted or a contradiction is found.
-     <br>**TODO**: Add more explainations about this (maybe in its own section).
+   <br>**TODO**: Add more explainations about this (maybe in its own section).
 1. If a contradiction is found, then the conclusion follows from the premises (or is a tautology, if there are
    no premises). Otherwise, the conclusion is not provable from the premises (or is not a tautology).
 
