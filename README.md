@@ -84,11 +84,11 @@ Installation instructions will be added after the first release.
 
 Here's what Lohika currently looks like:
 
-![Lohika](https://github.com/user-attachments/assets/91e51bdb-2ae3-42be-9245-a63f16660944)
+![renamed_to_premises](https://github.com/user-attachments/assets/4a5a6f3b-bea6-4c19-848d-0724a754ad51)
 
 **Sample video**:
 
-https://github.com/user-attachments/assets/fbe1a2b5-63f2-47d5-9b63-c5a174c792d3
+https://github.com/user-attachments/assets/44363717-09e7-4fe3-a087-14cb8b4bfadd
 
 ## License
 
