@@ -86,7 +86,7 @@ Installation instructions will be added after the first release.
 
 Here's what Lohika currently looks like:
 
-![renamed_to_premises](https://github.com/user-attachments/assets/4a5a6f3b-bea6-4c19-848d-0724a754ad51)
+![style_entailment](https://github.com/user-attachments/assets/f5460db2-329a-442f-8e16-272edf6c22db)
 
 **Sample video**:
 
