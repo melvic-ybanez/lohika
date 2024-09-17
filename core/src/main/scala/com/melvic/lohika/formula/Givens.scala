@@ -1,6 +1,6 @@
 package com.melvic.lohika.formula
 
-import cats.{Eq, Show}
+import cats.{Endo, Eq, Show}
 import Formula.*
 import com.melvic.lohika.{Formatter, Parser}
 import fastparse.*
@@ -20,7 +20,7 @@ trait Givens:
       def hasSameComps(
           selfFList: Formula,
           otherFList: Formula,
-          flatten: Formula => Formula
+          flatten: Endo[Formula]
       ): Boolean =
         def flattenComponents(fList: Formula): List[Formula] = (flatten(fList): @unchecked) match
           case flatFList: FList => flatFList.components

@@ -1,6 +1,7 @@
 package com.melvic.lohika.formula
 
 import Formula.*
+import cats.Endo
 
 import scala.annotation.targetName
 import scala.util.chaining.*
@@ -54,9 +55,10 @@ object Formula extends Givens:
 
   def isClause: Property = fm => isOr(fm) || isLiteral(fm)
 
+  // TODO: See if we can remove this and replace with the one from `Cnf`
   def flatten[A <: FList](make: (Formula, Formula, List[Formula]) => Formula)(
       filter: PartialFunction[Formula, A]
-  ): Formula => Formula =
+  ): Endo[Formula] =
     def toList: Formula => List[Formula] =
       case fm if filter.isDefinedAt(fm) =>
         val chain = filter(fm)
@@ -79,7 +81,7 @@ object Formula extends Givens:
       case p :: Nil     => p
       case p :: q :: rs => Or(p, q, rs)
 
-    def flatten: Formula => Formula =
+    def flatten: Endo[Formula] =
       Formula.flatten(Or.apply) { case or: Or => or }
 
   object And:
@@ -91,7 +93,7 @@ object Formula extends Givens:
       case p :: Nil     => p
       case p :: q :: rs => And(p, q, rs)
 
-    def flatten: Formula => Formula =
+    def flatten: Endo[Formula] =
       Formula.flatten(And.apply) { case and: And => and }
 
   object Iff:
@@ -103,7 +105,7 @@ object Formula extends Givens:
       case p :: q :: rs => Some(Iff(p, q, rs))
       case _            => None
 
-    def flatten: Formula => Formula =
+    def flatten: Endo[Formula] =
       Formula.flatten(Iff.apply) { case iff: Iff => iff }
 
   object Imply:

@@ -9,8 +9,7 @@ import com.melvic.lohika.formula.Formula
 type Cnf = CAnd | Clause
 
 object Cnf extends CnfImplicits:
-  type ToCnfUntyped[F <: Formula] = F => Formula
-  type ConvertWithFrom[F <: Formula] = (Formula => Formula) => ToCnfUntyped[F]
+  type ConvertWithFrom[F <: Formula] = Endo[Formula] => F => Formula
 
   final case class CAnd(clauses: List[Clause])
   final case class COr(literals: List[Literal])
@@ -47,7 +46,7 @@ object Cnf extends CnfImplicits:
     case CTrue              => True
     case CFalse             => False
 
-  def eliminateBiconditionals: Formula => Formula =
+  def eliminateBiconditionals: Endo[Formula] =
     case Iff(p, q, Nil) => eliminateBiconditionals((p ==> q) & (q ==> p))
     case Iff(p, q, rs) =>
       val iffs = rs.foldLeft(List(p <==> q)):
@@ -59,14 +58,14 @@ object Cnf extends CnfImplicits:
     case not: Not     => fromNotWith(eliminateBiconditionals)(not)
     case fm           => fm
 
-  def eliminateImplications: Formula => Formula =
+  def eliminateImplications: Endo[Formula] =
     case Imply(p, q) => eliminateImplications(!p | q)
     case or: Or      => fromOrWith(eliminateImplications)(or)
     case and: And    => fromAndWith(eliminateImplications)(and)
     case not: Not    => fromNotWith(eliminateImplications)(not)
     case fm          => fm
 
-  def moveNegationsInside: Formula => Formula =
+  def moveNegationsInside: Endo[Formula] =
     case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
     case notNot @ Not(Not(_)) => moveNegationsInside(simplifyNegations(notNot))
@@ -75,7 +74,7 @@ object Cnf extends CnfImplicits:
     case and: And             => fromAndWith(moveNegationsInside)(and)
     case fm                   => fm
 
-  def distributeOrOverAnds: Formula => Formula =
+  def distributeOrOverAnds: Endo[Formula] =
     case Or(p, And(ap, aq, ars), Nil) =>
       fromAndWith(distributeOrOverAnds)(And(p | ap, p | aq, ars.map(p | _)))
     case Or(And(ap, aq, ars), q, Nil) =>
@@ -89,7 +88,7 @@ object Cnf extends CnfImplicits:
     case not: Not          => fromNotWith(distributeOrOverAnds)(not)
     case fm                => fm
 
-  def simplifyNegations: Formula => Formula =
+  def simplifyNegations: Endo[Formula] =
     case Not(Not(p))     => simplifyNegations(p)
     case Not(True)       => False
     case Not(False)      => True
@@ -99,7 +98,7 @@ object Cnf extends CnfImplicits:
     case and: And        => fromAndWith(simplifyNegations)(and)
     case fm              => fm
 
-  def flattenConjunctions: Formula => Formula =
+  def flattenConjunctions: Endo[Formula] =
     case and: And =>
       val flattened = and.components.map(flattenOrsAndAnds)
       flattened.tail.foldLeft(flattened.head):
@@ -110,7 +109,7 @@ object Cnf extends CnfImplicits:
     case or: Or => fromOrWith(flattenConjunctions)(or)
     case fm     => fm
 
-  def flattenDisjunctions: Formula => Formula =
+  def flattenDisjunctions: Endo[Formula] =
     case or: Or =>
       val flattened = or.components.map(flattenOrsAndAnds)
       flattened.tail.foldLeft(flattened.head):
@@ -121,7 +120,7 @@ object Cnf extends CnfImplicits:
     case and: And => fromAndWith(flattenDisjunctions)(and)
     case fm       => fm
 
-  def flattenOrsAndAnds: Formula => Formula =
+  def flattenOrsAndAnds: Endo[Formula] =
     case and: And => flattenConjunctions(and)
     case or: Or   => flattenDisjunctions(or)
     case fm       => fm
@@ -138,7 +137,7 @@ object Cnf extends CnfImplicits:
   def fromNotWith: ConvertWithFrom[Not] = f =>
     case Not(p) => Not(f(p))
 
-  def fromFormulaUntyped: ToCnfUntyped[Formula] =
+  def fromFormulaUntyped: Endo[Formula] =
     eliminateBiconditionals andThen
       eliminateImplications andThen
       moveNegationsInside andThen
