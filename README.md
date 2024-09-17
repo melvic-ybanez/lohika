@@ -11,7 +11,7 @@ in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)).
 
 ## Contents
 
-- [Supported Features](#supported-features)
+- [Most Relevant Features](#most-relevant-features)
     - [Proof Generation](#proof-generation)
     - [MathJax and Unicodes](#mathjax-and-unicodes)
     - [Supported Logical Symbols](#supported-logical-symbols)
@@ -20,7 +20,7 @@ in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)).
 - [Screenshots and Demos](#screenshots-and-demos)
 - [License](#license)
 
-## Supported Features
+## Most Relevant Features
 
 ### Proof Generation
 
@@ -38,7 +38,9 @@ Here are some examples to try:
 
 Lohika's output is a series of steps that show whether the conclusion follows from the
 premises, or is a tautology. How Lohika does this is explained
-in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works).
+in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works). Some of the technical terms in the proof
+are also rendered as links to Wikipedia pages (though they will be loaded within Lohika's UI directly when clicked, since
+Lohika uses [ScalaFX](https://github.com/scalafx/scalafx)'s `WebView`). 
 
 ### MathJax and Unicodes
 
