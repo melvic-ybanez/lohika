@@ -40,7 +40,7 @@ class MainScene extends Scene:
                 val mdSteps = steps.map: step =>
                   if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
                   else step + "."
-                val entailment = MathJax.applyToText(s"\\($rawEntailment\\)")
+                val entailment = MathJax.applyToText(s"<span class='formula'>\\($rawEntailment\\)</span>")
                 val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
                 solutionsView.setSolutionContent(Right(entailment, solution))
       )
