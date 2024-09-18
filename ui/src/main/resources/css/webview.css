@@ -40,3 +40,7 @@ a:hover {
 b, strong {
     color: #A979B9;
 }
+
+.error {
+    color: #EF6F6C;
+}

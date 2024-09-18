@@ -13,7 +13,7 @@ class SolutionsView extends WebView:
 
   def setSolutionContent(content: Either[String, (String, String)]): Unit =
     val htmlBody = content match
-      case Left(errorMessage) => s"""<div class="centered">$errorMessage<div>"""
+      case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>
         val document = parser.parse(solution)
         val htmlContent = renderer.render(document)

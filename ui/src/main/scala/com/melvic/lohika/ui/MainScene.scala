@@ -32,18 +32,20 @@ class MainScene extends Scene:
               )}")"""
           text <==> entailmentProp
 
-          onAction = event =>
-            val rawEntailment = Unicode.removeFromText(entailmentProp.value)
-            ProverProgram.prove[Steps](rawEntailment).run match
-              case Left(error) => solutionsView.setSolutionContent(Left(error))
-              case Right(steps, _) =>
-                val mdSteps = steps.map: step =>
-                  if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
-                  else step + "."
-                val entailment = MathJax.applyToText(s"<span class='formula'>\\($rawEntailment\\)</span>")
-                val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
-                solutionsView.setSolutionContent(Right(entailment, solution))
+          onAction = _ => if entailmentProp.value.nonEmpty then handleInput()
       )
+
+    def handleInput(): Unit =
+      val rawEntailment = Unicode.removeFromText(entailmentProp.value)
+      ProverProgram.prove[Steps](rawEntailment).run match
+        case Left(error) => solutionsView.setSolutionContent(Left(error))
+        case Right(steps, _) =>
+          val mdSteps = steps.map: step =>
+            if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
+            else step + "."
+          val entailment = MathJax.applyToText(s"<span class='formula'>\\($rawEntailment\\)</span>")
+          val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
+          solutionsView.setSolutionContent(Right(entailment, solution))
 
   // We are disabling some scrolling functionalities (particularly mouse wheels, etc.)
   // for now because it causes issues with rendering when contents are long enough to

@@ -14,9 +14,11 @@ object Parser:
   def parseFormula(input: String): Parsed[Formula] =
     parse(input, formula(using _))
 
-  def entailment[$: P]: P[Entailment] = ((formula.rep(min = 1, sep = ",") ~ "|=").? ~ formula).map:
-    case (None, conclusion) => Entailment(Nil, conclusion)
-    case (Some(premises), conclusion) => Entailment(premises.toList, conclusion)
+  def entailment[$: P]: P[Entailment] = 
+    val entailment = ((formula.rep(min = 1, sep = ",") ~ "|=").? ~ formula).map:
+      case (None, conclusion) => Entailment(Nil, conclusion)
+      case (Some(premises), conclusion) => Entailment(premises.toList, conclusion)
+    entailment ~ End
 
   def formula[$: P]: P[Formula] = P(iff)
 

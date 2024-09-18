@@ -66,9 +66,8 @@ object LiveProver:
 
     override def parseEntailment(rawEntailment: String): Steps[Entailment] =
       Parser.parseEntailment(rawEntailment) match
-        case Parsed.Success(entailment, _) => step(entailment)
-        case Parsed.Failure(label, _, _) =>
-          WriterT(s"Unable to parse entailment. Message: $label".asLeft)
+        case Parsed.Success(entailment, _)   => step(entailment)
+        case Parsed.Failure(label, _, extra) => WriterT(s"Unable to parse '$rawEntailment'.".asLeft)
 
   def step[A](description: String, value: A): Steps[A] =
     WriterT((description :: Nil, value).asRight)
