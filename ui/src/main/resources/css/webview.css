@@ -1,25 +1,26 @@
 body {
   font-size: 1.3em;
   font-family: "Open Sans";
-  color: #4B2E2A;
+  color: #46bcde;
+  background: #333333;
 }
 
 h3 {
-  color: #4B2E2A
+  color: #A979B9;
 }
 
 a {
   font-style: italic;
   text-decoration: none;
-  color: #008080;
+  color: #e57254;
 }
 
 a:hover {
-  color: #CC5500;
+  color: #e5c454;
 }
 
 .formula {
-  color: #4A5D23
+  color: #6FD08C;
 }
 
 .two-column {
@@ -34,4 +35,8 @@ a:hover {
     margin: 0;
     padding: 0;
     font-size: 1.4em;
+}
+
+b, strong {
+    color: #A979B9;
 }

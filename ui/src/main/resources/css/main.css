@@ -1,18 +1,26 @@
+.root {
+    -fx-background-color: #333333;
+}
+
 .main-io-text-field {
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-    -fx-border-color: gray;
+    -fx-border-color: #46bcde;
     -fx-border-width: 0.1px;
 
     -fx-font-family: Helvetica;
     -fx-font-size: 1.3em;
     -fx-padding: 15px;
-    -fx-text-fill: #4B2E2A;
+    -fx-text-fill: #46bcde;
+    -fx-prompt-text-fill: #8E98A4;
 
-    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-color: #333333;
+        /* Remove focus border. See https://stackoverflow.com/a/28853294 */
+        /*-fx-outer-border, -fx-inner-border, -fx-body-color;*/
 }
 
 .main-io-text-field:focused {
-    /* Remove focus border. See https://stackoverflow.com/a/28853294 */
-    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-color: #333333;
+        /* Remove focus border. See https://stackoverflow.com/a/28853294 */
+        /*-fx-outer-border, -fx-inner-border, -fx-body-color;*/
 }
