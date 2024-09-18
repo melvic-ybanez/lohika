@@ -19,7 +19,7 @@ object LiveProver:
   given liveProver: Prover[Steps] with
     override def splitAllIntoClauses(cnfs: List[Cnf]): Steps[Clauses] =
       if cnfs.isEmpty then WriterT((Nil, Clauses.empty).asRight)
-      else step(show"${itemNumber}Split all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
+      else step(show"${itemNumber}Extract all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
       formulae match
