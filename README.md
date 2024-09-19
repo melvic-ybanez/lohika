@@ -90,7 +90,7 @@ Here's what Lohika currently looks like:
 
 **Sample video**:
 
-https://github.com/user-attachments/assets/3791d53f-728d-43ba-a43c-40436cf8ee89
+https://github.com/user-attachments/assets/7200e85d-4a4b-4d7e-9d58-49188940dfb8
 
 ## License
 
