@@ -18,13 +18,24 @@ class SolutionsView extends WebView:
         val document = parser.parse(solution)
         val htmlContent = renderer.render(document)
         s"""
-           |<div class="centered"><strong>Prove:</strong> $entailment</div>
+           |<div class="centered prove"><strong>Prove:</strong> <span class="entailment">$entailment</span></div>
            |
-           |<h3>Solution:</h3>
+           |<h3 class="solution">Solution:</h3>
            |<div class="two-column">
            |  $htmlContent
            |</div>
            |""".stripMargin
+
+    def liAnimation(nth: Int): String =
+      s"""
+         |li:nth-child($nth) {
+         |  animation-delay: ${0.2 * nth + 0.4}s;
+         |}
+         |""".stripMargin
+
+    def allLiAnimationStyles: String =
+      val liCount = htmlBody.split("</li>").length - 1
+      (1 to liCount).map(i => liAnimation(i)).mkString("\n")
 
     engine.loadContent:
       s"""
@@ -35,6 +46,7 @@ class SolutionsView extends WebView:
          |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
          |  <script id="MathJax-script" async
          |      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+         |  <style>$allLiAnimationStyles</style>
          |</head>
          |<body>$htmlBody</body>
          |</html>

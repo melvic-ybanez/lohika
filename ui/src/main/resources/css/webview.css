@@ -44,3 +44,25 @@ b, strong {
 .error {
     color: #EF6F6C;
 }
+
+@keyframes fadeInLineByLine {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+li, .prove, .entailment, .solution {
+  opacity: 0;
+  animation: fadeInLineByLine 1s ease forwards;
+}
+
+.entailment {
+    animation-delay: 0.2s;
+}
+
+.solution {
+    animation-delay: 0.4s;
+}
