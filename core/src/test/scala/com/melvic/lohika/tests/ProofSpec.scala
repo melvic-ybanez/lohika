@@ -50,4 +50,4 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
 
 object ProofSpec:
   def result(entailment: String): Either[String, ResolutionResult] =
-    ProverProgram.prove[Steps](entailment).run.map(_._2)
+    ProverProgram.prove[Steps](entailment).run.map(_._2._2)

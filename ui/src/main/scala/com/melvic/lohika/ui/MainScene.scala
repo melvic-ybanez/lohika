@@ -52,7 +52,7 @@ class MainScene extends Scene:
 
   // We are disabling some scrolling functionalities (particularly mouse wheels, etc.)
   // for now because it causes issues with rendering when contents are long enough to
-  // be scrollable
+  // be scrollable. The scrollbar should still be functional though.
   solutionsView.addEventFilter(ScrollEvent.Scroll, _.consume())
 
 class InputText extends TextField:
