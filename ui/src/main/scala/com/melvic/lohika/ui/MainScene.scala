@@ -1,5 +1,6 @@
 package com.melvic.lohika.ui
 
+import cats.implicits.*
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
@@ -32,20 +33,22 @@ class MainScene extends Scene:
               )}")"""
           text <==> entailmentProp
 
-          onAction = _ => if entailmentProp.value.nonEmpty then handleInput()
+          onAction = _ =>
+            if entailmentProp.value.nonEmpty then handleInput()
+            else solutionsView.engine.loadContent("")
       )
 
     def handleInput(): Unit =
       val rawEntailment = Unicode.removeFromText(entailmentProp.value)
       ProverProgram.prove[Steps](rawEntailment).run match
         case Left(error) => solutionsView.setSolutionContent(Left(error))
-        case Right(steps, _) =>
+        case Right(steps, (entailment, _)) =>
           val mdSteps = steps.map: step =>
             if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
             else step + "."
-          val entailment = MathJax.applyToText(s"<span class='formula'>\\($rawEntailment\\)</span>")
+          val entailmentElem = MathJax.applyToText(entailment.show)
           val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
-          solutionsView.setSolutionContent(Right(entailment, solution))
+          solutionsView.setSolutionContent(Right(entailmentElem, solution))
 
   // We are disabling some scrolling functionalities (particularly mouse wheels, etc.)
   // for now because it causes issues with rendering when contents are long enough to

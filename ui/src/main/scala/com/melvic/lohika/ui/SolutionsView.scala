@@ -15,21 +15,25 @@ class SolutionsView extends WebView:
     val htmlBody = content match
       case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>
-        val document = parser.parse(solution)
-        val htmlContent = renderer.render(document)
+        val entailmentContent = renderer.render(parser.parse(entailment))
+        val solutionContent = renderer.render(parser.parse(solution))
+
         s"""
-           |<div class="centered prove"><strong>Prove:</strong> <span class="entailment">$entailment</span></div>
+           |<div class="problem-statement">
+           |  <h3 class="problem-caption">Show that the following holds:</h3>
+           |  <div class="entailment">$entailmentContent</div>
+           |</div>
            |
            |<h3 class="solution">Solution:</h3>
            |<div class="two-column">
-           |  $htmlContent
+           |  $solutionContent
            |</div>
            |""".stripMargin
 
     def liAnimation(nth: Int): String =
       s"""
          |li:nth-child($nth) {
-         |  animation-delay: ${0.2 * nth + 0.4}s;
+         |  animation-delay: ${0.2 * nth + 1.2}s;
          |}
          |""".stripMargin
 

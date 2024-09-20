@@ -13,9 +13,11 @@ import java.text.NumberFormat.Style
 object ProverProgram:
   import com.melvic.lohika.Givens.given
 
-  def prove[F[_]: Prover: Monad](rawEntailment: String)(using Formatter): F[ResolutionResult] =
+  def prove[F[_]: Prover: Monad](
+      rawEntailment: String
+  )(using Formatter): F[(Entailment, ResolutionResult)] =
     for
-      Entailment(premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
+      entailment @ Entailment(premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
       _ <- Prover[F].write(
         s"Convert all premises into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
@@ -31,7 +33,7 @@ object ProverProgram:
       negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
       clauses            <- Prover[F].updateClauseSet(clauses, negatedPropClauses)
       result             <- resolveRecursively(premises, conclusion, clauses)
-    yield result
+    yield (entailment, result)
 
   def resolveRecursively[F[_]: Prover: Monad](
       premises: List[Formula],

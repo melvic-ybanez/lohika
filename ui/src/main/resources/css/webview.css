@@ -30,11 +30,10 @@ a:hover {
     column-span: all;
 }
 
-.centered {
+.problem-statement {
     text-align: center;
     margin: 0;
     padding: 0;
-    font-size: 1.4em;
 }
 
 b, strong {
@@ -54,15 +53,20 @@ b, strong {
   }
 }
 
-li, .prove, .entailment, .solution {
+li, .problem-caption, .entailment, .solution {
   opacity: 0;
   animation: fadeInLineByLine 1s ease forwards;
 }
 
-.entailment {
+.problem-caption {
     animation-delay: 0.2s;
 }
 
-.solution {
+.entailment {
     animation-delay: 0.4s;
+    font-size: 1.4em;
+}
+
+.solution {
+    animation-delay: 0.6s;
 }
