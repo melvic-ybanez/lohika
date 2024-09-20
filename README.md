@@ -86,11 +86,11 @@ Installation instructions will be added after the first release.
 
 Here's what Lohika currently looks like:
 
-![dark_lohika](https://github.com/user-attachments/assets/d7560727-dbc2-4617-bcd9-5ad91fcd8f8d)
+![improve_entailment_rendering](https://github.com/user-attachments/assets/905eb1f5-314c-47f2-b376-8c56a1de44c8)
 
 **Sample video**:
 
-https://github.com/user-attachments/assets/7200e85d-4a4b-4d7e-9d58-49188940dfb8
+https://github.com/user-attachments/assets/02931df1-8018-48db-b853-1f00e82bc918
 
 ## License
 
