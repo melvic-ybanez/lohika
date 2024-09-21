@@ -12,7 +12,7 @@ import scalafx.scene.input.ScrollEvent
 import scalafx.scene.layout.{BorderPane, VBox}
 
 class MainScene extends Scene:
-  val entailmentProp = new StringProperty()
+  val entailmentProp = new StringProperty("")
   val solutionsView = SolutionsView()
 
   solutionsView.init()
@@ -40,7 +40,7 @@ class MainScene extends Scene:
     def handleInput(): Unit =
       val rawEntailment = Unicode.removeFromText(entailmentProp.value)
       ProverProgram.prove[Steps](rawEntailment).run match
-        case error @ Left(_) => solutionsView.setSolutionContent(error)
+        case Left(error) => solutionsView.setSolutionContent(Left(error))
         case Right(steps, (entailment, _)) =>
           val mdSteps = steps.map: step =>
             if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
