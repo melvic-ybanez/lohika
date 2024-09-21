@@ -8,7 +8,7 @@ import com.melvic.lohika.formula.Formula
 
 type Cnf = CAnd | Clause
 
-object Cnf extends CnfImplicits:
+object Cnf extends CnfGivens:
   type ConvertWithFrom[F <: Formula] = Endo[Formula] => F => Formula
 
   final case class CAnd(clauses: List[Clause])
@@ -145,7 +145,7 @@ object Cnf extends CnfImplicits:
       simplifyNegations andThen
       flattenOrsAndAnds
 
-sealed trait CnfImplicits:
+sealed trait CnfGivens:
   given [C <: Cnf](using Formatter): Show[C] = Show.show(toFormula(_).show)
 
   given Conversion[String, Clause] = fromFormula(_) match

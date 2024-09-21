@@ -7,10 +7,10 @@ import com.melvic.lohika.formula.Formula
 
 final case class Equivalence(lhs: Component, rhs: Component)
 
-object Equivalence extends EquivalenceImplicits:
+object Equivalence extends EquivalenceGivens:
   type Component = Formula | Cnf
 
-trait EquivalenceImplicits:
+trait EquivalenceGivens:
   given componentShow(using Formatter): Show[Component] = Show.show:
     case fm: Formula => fm.show
     case cnf: Cnf    => cnf.show

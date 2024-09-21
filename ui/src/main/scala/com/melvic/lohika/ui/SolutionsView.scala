@@ -39,7 +39,7 @@ class SolutionsView extends WebView:
 
     def allLiAnimationStyles: String =
       val liCount = htmlBody.split("</li>").length - 1
-      (1 to liCount).map(i => liAnimation(i)).mkString("\n")
+      (1 to liCount).map(liAnimation).mkString("\n")
 
     engine.loadContent:
       s"""
@@ -57,6 +57,4 @@ class SolutionsView extends WebView:
          |""".stripMargin
 
   def init(): Unit =
-    engine.setUserStyleSheetLocation(
-      getClass.getResource("/css/webview.css").toExternalForm
-    )
+    engine.setUserStyleSheetLocation(getClass.getResource("/css/webview.css").toExternalForm)

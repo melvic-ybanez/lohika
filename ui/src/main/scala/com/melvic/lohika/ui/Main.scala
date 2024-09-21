@@ -18,7 +18,7 @@ import scala.language.implicitConversions
 object Main extends JFXApp3:
 
   override def start(): Unit =
-    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet())
+    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet)
 
     stage = new JFXApp3.PrimaryStage:
       title = "Lohika"
