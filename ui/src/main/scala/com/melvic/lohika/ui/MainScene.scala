@@ -49,11 +49,6 @@ class MainScene extends Scene:
           val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
           solutionsView.setSolutionContent(Right(entailmentElem, solution))
 
-  // We are disabling some scrolling functionalities (particularly mouse wheels, etc.)
-  // for now because it causes issues with rendering when contents are long enough to
-  // be scrollable. The scrollbar should still be functional though.
-  solutionsView.addEventFilter(ScrollEvent.Scroll, _.consume())
-
 class InputText extends TextField:
   styleClass += "main-io-text-field"
   text.onChange: (_, _, _) =>

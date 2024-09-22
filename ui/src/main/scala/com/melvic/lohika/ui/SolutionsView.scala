@@ -48,8 +48,7 @@ class SolutionsView extends WebView:
          |<head>
          |  <meta charset="UTF-8">
          |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         |  <script id="MathJax-script" async
-         |      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+         |  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
          |  <style>$allLiAnimationStyles</style>
          |</head>
          |<body>$htmlBody</body>
