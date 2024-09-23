@@ -2,9 +2,10 @@ package com.melvic.lohika.formula
 
 import cats.{Endo, Eq, Show}
 import Formula.*
-import com.melvic.lohika.{Formatter, Parser}
+import com.melvic.lohika.Formatter
 import fastparse.*
 import Formatter.*
+import com.melvic.lohika.parsers.Parser
 
 trait Givens:
   given Conversion[String, Formula] = input =>

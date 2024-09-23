@@ -1,8 +1,8 @@
 package com.melvic.lohika.tests
 
-import com.melvic.lohika.Parser
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
 
 class ParserSpec extends BaseSpec:

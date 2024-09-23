@@ -1,9 +1,10 @@
 package com.melvic.lohika.formula
 
-import Formula._
+import Formula.*
+import com.melvic.lohika.parsers.Lexemes
 
 object PrettyPrinter:
-  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Iff): String =
+  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Iff - 1): String =
     given currentPrecedence: Int = precedence(formula)
 
     def prettyAssoc(p: Formula, q: Formula, rs: List[Formula], sep: String): String =
@@ -12,17 +13,19 @@ object PrettyPrinter:
 
     val pretty = formula match
       case Var(name)     => name
-      case Or(p, q, rs)  => prettyAssoc(p, q, rs, "|")
-      case And(p, q, rs) => prettyAssoc(p, q, rs, "&")
+      case Or(p, q, rs)  => prettyAssoc(p, q, rs, Lexemes.Or)
+      case And(p, q, rs) => prettyAssoc(p, q, rs, Lexemes.And)
       case Imply(p, q: Imply) =>
-        s"${prettyPrint(p)} => ${prettyPrint(q)(using currentPrecedence - 1)}"
-      case Imply(p, q)   => s"${prettyPrint(p)} => ${prettyPrint(q)}"
-      case Iff(p, q, rs) => prettyAssoc(p, q, rs, "<=>")
-      case Not(p)        => s"!${prettyPrint(p)}"
-      case True          => "T"
-      case False         => "F"
+        s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)(using currentPrecedence - 1)}"
+      case Imply(p, q)   => s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)}"
+      case Iff(p, q, rs) => prettyAssoc(p, q, rs, Lexemes.Iff)
+      case Not(p)        => s"${Lexemes.Not}${prettyPrint(p)}"
+      case True          => Lexemes.True
+      case False         => Lexemes.False
 
-    if parentPrecedence >= currentPrecedence then s"(${pretty})" else pretty
+    if parentPrecedence >= currentPrecedence then
+      s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"
+    else pretty
 
   def precedence: Formula => Int =
     case _: Iff       => Precedence.Iff

@@ -5,10 +5,11 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Parser, Entailment}
+import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Entailment}
 import com.melvic.lohika.formula.Formula
 import fastparse.Parsed
 import Formatter.*
+import com.melvic.lohika.parsers.Parser
 
 object LiveProver:
   import com.melvic.lohika.Givens.given

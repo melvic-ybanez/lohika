@@ -55,6 +55,9 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     ("A" ==> ("B" & "C")).show should be("A => B & C")
     Imply.of("A", !"B", "D", !"E").show should be("A => !B => D => !E")
 
+  "Biconditionals" should "be separated by <=>s" in:
+    ("A" <==> "B").show should be("A <=> B")
+
 trait PrettyPrintGivens:
   given Formatter with
     override def emphasize: Format = identity
