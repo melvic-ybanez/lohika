@@ -3,21 +3,12 @@ package com.melvic.lohika.parsers
 import com.melvic.lohika.Entailment
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import fastparse.*
+import fastparse.{parse => fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
-object Parser:
-  def parseEntailment(input: String): Parsed[Entailment] =
-    parse(input, entailment(using _))
-
-  def parseFormula(input: String): Parsed[Formula] =
-    parse(input, formula(using _))
-
-  def entailment[$: P]: P[Entailment] =
-    val entailment = ((formula.rep(min = 1, sep = ",") ~ "|=").? ~ formula).map:
-      case (None, conclusion)           => Entailment(Nil, conclusion)
-      case (Some(premises), conclusion) => Entailment(premises.toList, conclusion)
-    entailment ~ End
+object FormulaParser:
+  def parse(input: String): Parsed[Formula] =
+    fastParse(input, formula(using _))
 
   def formula[$: P]: P[Formula] = P(iff)
 

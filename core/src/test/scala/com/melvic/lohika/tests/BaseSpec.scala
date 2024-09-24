@@ -7,7 +7,7 @@ import org.scalatest.matchers.should
 import cats.implicits.*
 import com.melvic.lohika.{Clauses, Cnf}
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.parsers.Parser
+import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
 import scala.annotation.targetName
@@ -24,7 +24,7 @@ class BaseSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
 
 object BaseSpec extends BaseSpec:
   def assertFromInputStrings(input1: String, input2: String)(f: (Formula, Formula) => Unit): Unit =
-    (Parser.parseFormula(input1), Parser.parseFormula(input2)) match
+    (FormulaParser.parse(input1), FormulaParser.parse(input2)) match
       case (Parsed.Success(formula1, _), Parsed.Success(formula2, _)) =>
         f(formula1, formula2)
       case (Parsed.Failure(label, _, _), _) =>

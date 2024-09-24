@@ -5,11 +5,11 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Formatter, Equivalence, Entailment}
+import com.melvic.lohika.{Clauses, Cnf, Entailment, Equivalence, Formatter}
 import com.melvic.lohika.formula.Formula
 import fastparse.Parsed
 import Formatter.*
-import com.melvic.lohika.parsers.Parser
+import com.melvic.lohika.parsers.{FormulaParser, MetaParser}
 
 object LiveProver:
   import com.melvic.lohika.Givens.given
@@ -66,7 +66,7 @@ object LiveProver:
       step(s"${itemNumber}$description", ())
 
     override def parseEntailment(rawEntailment: String): Steps[Entailment] =
-      Parser.parseEntailment(rawEntailment) match
+      MetaParser.parseEntailment(rawEntailment) match
         case Parsed.Success(entailment, _)   => step(entailment)
         case Parsed.Failure(label, _, extra) => WriterT(s"Unable to parse '$rawEntailment'.".asLeft)
 

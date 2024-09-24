@@ -2,10 +2,10 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.parsers.Parser
+import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
-class ParserSpec extends BaseSpec:
+class FormulaParserSpec extends BaseSpec:
   "True" should "be written as T" in:
     parseSuccess("T", True)
 
@@ -80,5 +80,5 @@ class ParserSpec extends BaseSpec:
     parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 
   def parseSuccess(input: String, expected: Formula): Unit =
-    Parser.parseFormula(input) should matchPattern:
+    FormulaParser.parse(input) should matchPattern:
       case Parsed.Success(`expected`, _) =>

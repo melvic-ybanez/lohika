@@ -6,6 +6,10 @@ import cats.Endo
 import scala.annotation.targetName
 import scala.util.chaining.*
 
+/**
+ * The syntactical means of expressing propositions and the relationships between them.
+ * It consists of propositional variables and logical connectives.
+ */
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
 
 object Formula extends Givens:
