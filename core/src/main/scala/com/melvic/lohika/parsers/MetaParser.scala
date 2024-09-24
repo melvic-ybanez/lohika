@@ -1,6 +1,6 @@
 package com.melvic.lohika.parsers
 
-import com.melvic.lohika.Entailment
+import com.melvic.lohika.meta.Entailment
 import fastparse.*
 import fastparse.MultiLineWhitespace.*
 

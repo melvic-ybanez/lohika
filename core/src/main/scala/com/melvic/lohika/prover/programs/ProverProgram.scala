@@ -4,9 +4,10 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.prover.algebras.Prover
 import Prover.*
-import com.melvic.lohika.{Clauses, Formatter, Links, Entailment}
+import com.melvic.lohika.{Clauses, Formatter, Links}
 import com.melvic.lohika.formula.Formula
 import Formatter.*
+import com.melvic.lohika.meta.Entailment
 
 import java.text.NumberFormat.Style
 

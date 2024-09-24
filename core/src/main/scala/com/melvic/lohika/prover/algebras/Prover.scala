@@ -4,8 +4,9 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Cnf.{CNot, CVar, Clause}
 import Prover.ResolutionResult
-import com.melvic.lohika.{Clauses, Cnf, Entailment}
+import com.melvic.lohika.{Clauses, Cnf}
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.parsers.Lexemes
 
 trait Prover[F[_]]:

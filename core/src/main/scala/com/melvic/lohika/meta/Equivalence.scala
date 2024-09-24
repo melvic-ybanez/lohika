@@ -1,9 +1,10 @@
-package com.melvic.lohika
+package com.melvic.lohika.meta
 
 import cats.Show
 import cats.implicits.*
-import Equivalence.Component
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.meta.Equivalence.Component
+import com.melvic.lohika.{Cnf, Formatter}
 
 final case class Equivalence(lhs: Component, rhs: Component)
 

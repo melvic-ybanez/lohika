@@ -1,9 +1,10 @@
-package com.melvic.lohika
+package com.melvic.lohika.meta
 
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.Formatter
 
 final case class Entailment(premises: List[Formula], conclusion: Formula)
 
