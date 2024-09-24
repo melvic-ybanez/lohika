@@ -10,3 +10,4 @@ object Lexemes:
   val RightParen = ")"
   val True = "T"
   val False = "F"
+  val Forall = "A:"

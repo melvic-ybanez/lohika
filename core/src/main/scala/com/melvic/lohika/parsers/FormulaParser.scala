@@ -2,7 +2,6 @@ package com.melvic.lohika.parsers
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.meta.Entailment
 import fastparse.{parse => fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
@@ -11,6 +10,10 @@ object FormulaParser:
     fastParse(input, formula(using _))
 
   def formula[$: P]: P[Formula] = P(iff)
+
+  def forall[$: P]: P[Formula] =
+    P(Lexemes.Forall ~/ variable.rep(min = 1, sep = ",") ~ inParens).map:
+      case (Seq(x, xs*), matrix) => Forall((x, xs.toList), matrix)
 
   def iff[$: P]: P[Formula] =
     imply.rep(min = 1, sep = Lexemes.Iff).map(ps => Iff.fromList(ps.toList).getOrElse(False))
@@ -25,15 +28,19 @@ object FormulaParser:
     .rep(min = 1, sep = Lexemes.Or)
     .map(ps => Or.fromList(ps.toList))
 
-  def and[$: P]: P[Formula] = P(inParens | not | variable)
+  def and[$: P]: P[Formula] = highestPrecedence
     .rep(min = 1, sep = Lexemes.And)
     .map(ps => And.fromList(ps.toList))
 
-  def not[$: P]: P[Formula] = P(Lexemes.Not ~ (variable | not | inParens)).map(Not.apply)
+  def not[$: P]: P[Formula] = P(Lexemes.Not ~ highestPrecedence).map(Not.apply)
 
   def inParens[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
 
-  def variable[$: P]: P[Formula] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map:
-    case Lexemes.True  => True
-    case Lexemes.False => False
-    case name          => Var(name)
+  def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
+
+  def highestPrecedence[$: P]: P[Formula] = P(forall | inParens | not | varOrCons)
+
+  def varOrCons[$: P]: P[Formula] = variable.map:
+    case Var(Lexemes.True)  => True
+    case Var(Lexemes.False) => False
+    case variable           => variable

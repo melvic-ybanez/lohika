@@ -2,17 +2,19 @@ package com.melvic.lohika.formula
 
 import Formula.*
 import cats.Endo
+import com.melvic.lohika.formula.Formula.Quantification.QVars
 
 import scala.annotation.targetName
 import scala.util.chaining.*
 
 /**
- * The syntactical means of expressing propositions and the relationships between them.
- * It consists of propositional variables and logical connectives.
+ * The syntactical means of expressing propositions and the relationships between them. It consists
+ * of propositional variables and logical connectives.
  */
-type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type
+type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall
 
-object Formula extends Givens:
+object Formula extends FormulaGivens:
+  final case class Forall(variables: QVars, matrix: Formula) extends Quantification
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
@@ -32,6 +34,11 @@ object Formula extends Givens:
     def rs: List[Formula]
 
     def components: List[Formula] = p :: q :: rs
+
+  sealed trait Quantification:
+    def variables: QVars
+
+    def matrix: Formula
 
   def isInCnf: Property =
     case fm if isLiteral(fm) => true
@@ -75,6 +82,12 @@ object Formula extends Givens:
           case h :: t :: rest => make(h, t, rest)
       case fm => fm
     }
+
+  object Quantification:
+    type QVars = (Var, List[Var])
+
+    def forall(varName: String, rest: String*): Formula => Forall =
+      Forall((Var(varName), rest.map(Var.apply).toList), _)
 
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =

@@ -2,6 +2,7 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula.Quantification.forall
 import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
@@ -79,6 +80,15 @@ class FormulaParserSpec extends BaseSpec:
   it should "support chaining" in:
     parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 
+  "Forall" should "take a set of variables and a matrix" in:
+    parseSuccess("A:x, y (P => Q)", forall("x", "y")("P" ==> "Q"))
+    parseSuccess("A:x(Q)", forall("x")("Q"))
+    parseFailure("A:(P => Q)")
+
   def parseSuccess(input: String, expected: Formula): Unit =
     FormulaParser.parse(input) should matchPattern:
       case Parsed.Success(`expected`, _) =>
+
+  def parseFailure(input: String): Unit =
+    FormulaParser.parse(input) should matchPattern:
+      case Parsed.Failure(_, _, _) =>

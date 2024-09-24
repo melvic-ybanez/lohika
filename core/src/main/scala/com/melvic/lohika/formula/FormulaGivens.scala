@@ -7,7 +7,7 @@ import fastparse.*
 import Formatter.*
 import com.melvic.lohika.parsers.FormulaParser
 
-private[formula] trait Givens:
+private[formula] trait FormulaGivens:
   given Conversion[String, Formula] = input =>
     FormulaParser.parse(input) match
       case Parsed.Success(fm: Formula, _) => fm
