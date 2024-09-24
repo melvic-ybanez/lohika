@@ -7,6 +7,7 @@ import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula.Quantification.forall
 
 class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
   "A variable" should "print its name" in:
@@ -39,7 +40,7 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
   it should "not wrapped components with higher precedence levels in parens" in:
     And.of("A", !"B", "D", !"E").show should be("A & !B & D & !E")
 
-  "Implications" should "be separated by =>s" in:
+  "Implications" should "be separated by `=>`s" in:
     ("A" ==> "B").show should be("A => B")
     Imply.of("A", "B", "C").show should be("A => B => C")
 
@@ -55,8 +56,12 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     ("A" ==> ("B" & "C")).show should be("A => B & C")
     Imply.of("A", !"B", "D", !"E").show should be("A => !B => D => !E")
 
-  "Biconditionals" should "be separated by <=>s" in:
+  "Biconditionals" should "be separated by `<=>`s" in:
     ("A" <==> "B").show should be("A <=> B")
+
+  "Universal Quantification" should "start with `A:`" in:
+    forall("x", "y")("P" ==> "Q").show should be("A:x,y (P => Q)")
+    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:x (A:y ((A => B) & C))")
 
 trait PrettyPrintGivens:
   given Formatter with

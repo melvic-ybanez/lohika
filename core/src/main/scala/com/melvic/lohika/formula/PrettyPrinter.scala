@@ -4,7 +4,7 @@ import Formula.*
 import com.melvic.lohika.parsers.Lexemes
 
 object PrettyPrinter:
-  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Iff - 1): String =
+  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Default): String =
     given currentPrecedence: Int = precedence(formula)
 
     def prettyAssoc(p: Formula, q: Formula, rs: List[Formula], sep: String): String =
@@ -22,6 +22,9 @@ object PrettyPrinter:
       case Not(p)        => s"${Lexemes.Not}${prettyPrint(p)}"
       case True          => Lexemes.True
       case False         => Lexemes.False
+      case Forall((x, xs), matrix) =>
+        given Int = Precedence.Default
+        s"${Lexemes.Forall}${(x :: xs).map(prettyPrint).mkString(",")} (${prettyPrint(matrix)})"
 
     if parentPrecedence >= currentPrecedence then
       s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"
@@ -34,12 +37,15 @@ object PrettyPrinter:
     case _: And       => Precedence.And
     case _: Not       => Precedence.Not
     case _: Var       => Precedence.Var
+    case _: Forall    => Precedence.Var
     case True | False => Precedence.Var
 
   object Precedence:
-    val Iff: Int = 1
+    val Default = 0
+    val Iff: Int = Default + 1
     val Imply: Int = Iff + 1
     val Or: Int = Imply + 1
     val And: Int = Or + 1
     val Not: Int = And + 1
     val Var: Int = Not + 1
+    val Forall: Int = Var
