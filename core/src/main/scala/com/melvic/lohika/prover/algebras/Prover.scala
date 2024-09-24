@@ -2,10 +2,9 @@ package com.melvic.lohika.prover.algebras
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.Cnf.{CNot, CVar, Clause}
+import com.melvic.lohika.formula.Cnf.{CNot, CVar, Clause}
 import Prover.ResolutionResult
-import com.melvic.lohika.{Clauses, Cnf}
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.parsers.Lexemes
 

@@ -3,7 +3,7 @@ package com.melvic.lohika.tests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import ProofSpec.result
-import com.melvic.lohika.Cnf.*
+import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.prover.algebras.Prover.{Contradiction, Exhaustion, ResolutionResult}
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram

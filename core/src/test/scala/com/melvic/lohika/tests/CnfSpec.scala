@@ -1,7 +1,7 @@
 package com.melvic.lohika.tests
 
 import BaseSpec.*
-import com.melvic.lohika.Cnf
+import com.melvic.lohika.formula.Cnf
 
 class CnfSpec extends BaseSpec:
   "Disjunction" should "be flattened" in:

@@ -1,10 +1,11 @@
-package com.melvic.lohika
+package com.melvic.lohika.formula
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.formula.Formula.*
-import Cnf.*
+import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.Formatter
 
 type Cnf = CAnd | Clause
 

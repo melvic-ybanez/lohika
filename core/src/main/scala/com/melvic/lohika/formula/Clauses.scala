@@ -1,10 +1,11 @@
-package com.melvic.lohika
+package com.melvic.lohika.formula
 
 import cats.*
 import cats.implicits.*
-import Cnf.*
+import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.Formula
-import Formula.given
+import com.melvic.lohika.formula.Formula.given
+import com.melvic.lohika.*
 
 import scala.annotation.targetName
 

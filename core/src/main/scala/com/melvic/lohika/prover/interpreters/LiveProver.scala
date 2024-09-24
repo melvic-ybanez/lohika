@@ -3,10 +3,10 @@ package com.melvic.lohika.prover.interpreters
 import cats.implicits.*
 import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
-import com.melvic.lohika.Cnf.*
+import com.melvic.lohika.formula.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Clauses, Cnf, Formatter}
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.{Formatter}
+import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import fastparse.Parsed
 import Formatter.*
 import com.melvic.lohika.meta.{Entailment, Equivalence}
@@ -14,7 +14,7 @@ import com.melvic.lohika.parsers.{FormulaParser, MetaParser}
 
 object LiveProver:
   import com.melvic.lohika.Givens.given
-  import com.melvic.lohika.Clauses.given
+  import Clauses.given
 
   type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 

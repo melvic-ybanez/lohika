@@ -5,8 +5,7 @@ import org.scalatest.Assertions.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.implicits.*
-import com.melvic.lohika.{Clauses, Cnf}
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
