@@ -60,12 +60,12 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     ("A" <==> "B").show should be("A <=> B")
 
   "Universal Quantification" should "start with `A:`" in:
-    forall("x", "y")("P" ==> "Q").show should be("A:x,y (P => Q)")
-    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:x (A:y ((A => B) & C))")
+    forall("x", "y")("P" ==> "Q").show should be("A:x,y(P => Q)")
+    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:x(A:y((A => B) & C))")
 
   "Existential Quantification" should "start with `E:`" in :
-    thereExists("x", "y")("P" ==> "Q").show should be("E:x,y (P => Q)")
-    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:x (E:y ((A => B) & C))")
+    thereExists("x", "y")("P" ==> "Q").show should be("E:x,y(P => Q)")
+    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:x(E:y((A => B) & C))")
 
 trait PrettyPrintGivens:
   given Formatter with

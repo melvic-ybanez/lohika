@@ -45,7 +45,13 @@ object FormulaParser:
 
   def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
 
-  def highestPrecedence[$: P]: P[Formula] = P(forall | thereExists | inParens | not | varOrCons)
+  def predicate[$: P]: P[Predicate] =
+    P(variable ~ ("(" ~ variable.rep(min = 1, sep = ", ") ~ ")")).map:
+      case (Var(name), args) => Predicate(name, args.toList)
+
+  def highestPrecedence[$: P]: P[Formula] = P(
+    forall | thereExists | inParens | not | predicate | varOrCons
+  )
 
   def varOrCons[$: P]: P[Formula] = variable.map:
     case Var(Lexemes.True)  => True

@@ -14,7 +14,7 @@ object PrettyPrinter:
 
     def prettyQuantification(quantifier: String, vars: List[Var], matrix: Formula): String =
       given Int = Precedence.Default
-      s"$quantifier${vars.map(prettyPrint).mkString(",")} (${prettyPrint(matrix)})"
+      s"$quantifier${vars.map(prettyPrint).mkString(",")}(${prettyPrint(matrix)})"
 
     val pretty = formula match
       case Var(name)     => name

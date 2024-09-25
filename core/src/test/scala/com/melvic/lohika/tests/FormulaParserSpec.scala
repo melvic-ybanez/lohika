@@ -90,6 +90,10 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("E:x(Q)", thereExists("x")("Q"))
     parseFailure("E:(P => Q)")
 
+  "Predicates" should "be able to take arguments" in :
+    parseSuccess("P(x)", "P".of("x"))
+    parseSuccess("E:x, y (P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
+
   def parseSuccess(input: String, expected: Formula): Unit =
     FormulaParser.parse(input) should matchPattern:
       case Parsed.Success(`expected`, _) =>

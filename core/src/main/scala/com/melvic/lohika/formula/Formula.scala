@@ -5,17 +5,13 @@ import cats.Endo
 import com.melvic.lohika.formula.Formula.Quantification.QVars
 
 import scala.annotation.targetName
+import scala.math.Equiv
 import scala.util.chaining.*
 
-/**
- * The syntactical means of expressing propositions and the relationships between them. It consists
- * of propositional variables and logical connectives.
- */
-type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall | ThereExists
+type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall | ThereExists |
+  Predicate
 
 object Formula extends FormulaGivens:
-  final case class Forall(variables: QVars, matrix: Formula) extends Quantification
-  final case class ThereExists(variables: QVars, matrix: Formula) extends Quantification
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
@@ -24,6 +20,9 @@ object Formula extends FormulaGivens:
   final case class Not(p: Formula)
   case object True
   case object False
+  final case class Forall(variables: QVars, matrix: Formula) extends Quantification
+  final case class ThereExists(variables: QVars, matrix: Formula) extends Quantification
+  final case class Predicate(name: String, args: List[Var])
 
   type Property = Formula => Boolean
 
@@ -158,3 +157,7 @@ object Formula extends FormulaGivens:
 
     @targetName("not")
     def unary_! : Not = Not(self)
+
+  extension (name: String)
+    def of(args: String*): Predicate =
+      Predicate(name, args.toList.map(Var.apply))
