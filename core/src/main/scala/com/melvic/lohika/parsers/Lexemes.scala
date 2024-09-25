@@ -11,3 +11,4 @@ object Lexemes:
   val True = "T"
   val False = "F"
   val Forall = "A:"
+  val Exists = "E:"

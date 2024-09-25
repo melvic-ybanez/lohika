@@ -2,7 +2,8 @@ package com.melvic.lohika.parsers
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import fastparse.{parse => fastParse, *}
+import com.melvic.lohika.formula.Formula.Quantification.QVars
+import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
 object FormulaParser:
@@ -11,9 +12,15 @@ object FormulaParser:
 
   def formula[$: P]: P[Formula] = P(iff)
 
-  def forall[$: P]: P[Formula] =
-    P(Lexemes.Forall ~/ variable.rep(min = 1, sep = ",") ~ inParens).map:
-      case (Seq(x, xs*), matrix) => Forall((x, xs.toList), matrix)
+  def quantification[$: P, Q <: Quantification](quantifier: String, make: Quantification.Make[Q])(
+      using Q <:< Formula
+  ): P[Formula] =
+    P(quantifier ~/ variable.rep(min = 1, sep = ",") ~ inParens).map:
+      case (Seq(x, xs*), matrix) => make((x, xs.toList), matrix)
+
+  def forall[$: P]: P[Formula] = quantification(Lexemes.Forall, Forall.apply)
+
+  def exists[$: P]: P[Formula] = quantification(Lexemes.Exists, Exists.apply)
 
   def iff[$: P]: P[Formula] =
     imply.rep(min = 1, sep = Lexemes.Iff).map(ps => Iff.fromList(ps.toList).getOrElse(False))
@@ -38,7 +45,7 @@ object FormulaParser:
 
   def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
 
-  def highestPrecedence[$: P]: P[Formula] = P(forall | inParens | not | varOrCons)
+  def highestPrecedence[$: P]: P[Formula] = P(forall | exists | inParens | not | varOrCons)
 
   def varOrCons[$: P]: P[Formula] = variable.map:
     case Var(Lexemes.True)  => True

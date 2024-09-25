@@ -11,10 +11,11 @@ import scala.util.chaining.*
  * The syntactical means of expressing propositions and the relationships between them. It consists
  * of propositional variables and logical connectives.
  */
-type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall
+type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall | Exists
 
 object Formula extends FormulaGivens:
   final case class Forall(variables: QVars, matrix: Formula) extends Quantification
+  final case class Exists(variables: QVars, matrix: Formula) extends Quantification
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
@@ -85,9 +86,18 @@ object Formula extends FormulaGivens:
 
   object Quantification:
     type QVars = (Var, List[Var])
+    type Make[Q <: Quantification] = (QVars, Formula) => Q
+
+    def quantification[Q <: Quantification](varName: String, rest: String*)(
+        make: Make[Q]
+    ): Formula => Q =
+      make((Var(varName), rest.map(Var.apply).toList), _)
 
     def forall(varName: String, rest: String*): Formula => Forall =
-      Forall((Var(varName), rest.map(Var.apply).toList), _)
+      quantification(varName, rest*)(Forall.apply)
+
+    def exists(varName: String, rest: String*): Formula => Exists =
+      quantification(varName, rest*)(Exists.apply)
 
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =
