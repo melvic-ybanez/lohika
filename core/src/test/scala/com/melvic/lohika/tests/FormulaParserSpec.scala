@@ -2,7 +2,7 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.{exists, forall}
+import com.melvic.lohika.formula.Formula.Quantification.{thereExists, forall}
 import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
@@ -86,8 +86,8 @@ class FormulaParserSpec extends BaseSpec:
     parseFailure("A:(P => Q)")
 
   "Exists" should "take a set of variables and a matrix" in :
-    parseSuccess("E:x, y (P => Q)", exists("x", "y")("P" ==> "Q"))
-    parseSuccess("E:x(Q)", exists("x")("Q"))
+    parseSuccess("E:x, y (P => Q)", thereExists("x", "y")("P" ==> "Q"))
+    parseSuccess("E:x(Q)", thereExists("x")("Q"))
     parseFailure("E:(P => Q)")
 
   def parseSuccess(input: String, expected: Formula): Unit =

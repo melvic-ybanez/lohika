@@ -20,7 +20,7 @@ object FormulaParser:
 
   def forall[$: P]: P[Formula] = quantification(Lexemes.Forall, Forall.apply)
 
-  def exists[$: P]: P[Formula] = quantification(Lexemes.Exists, Exists.apply)
+  def thereExists[$: P]: P[Formula] = quantification(Lexemes.ThereExists, ThereExists.apply)
 
   def iff[$: P]: P[Formula] =
     imply.rep(min = 1, sep = Lexemes.Iff).map(ps => Iff.fromList(ps.toList).getOrElse(False))
@@ -45,7 +45,7 @@ object FormulaParser:
 
   def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
 
-  def highestPrecedence[$: P]: P[Formula] = P(forall | exists | inParens | not | varOrCons)
+  def highestPrecedence[$: P]: P[Formula] = P(forall | thereExists | inParens | not | varOrCons)
 
   def varOrCons[$: P]: P[Formula] = variable.map:
     case Var(Lexemes.True)  => True
