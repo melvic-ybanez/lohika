@@ -85,14 +85,14 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("A:x(Q)", forall("x")("Q"))
     parseFailure("A:(P => Q)")
 
-  "Exists" should "take a set of variables and a matrix" in :
-    parseSuccess("E:x, y (P => Q)", thereExists("x", "y")("P" ==> "Q"))
+  "Exists" should "take a set of variables and a matrix" in:
+    parseSuccess("E:x,y(P => Q)", thereExists("x", "y")("P" ==> "Q"))
     parseSuccess("E:x(Q)", thereExists("x")("Q"))
     parseFailure("E:(P => Q)")
 
-  "Predicates" should "be able to take arguments" in :
+  "Predicates" should "be able to take arguments" in:
     parseSuccess("P(x)", "P".of("x"))
-    parseSuccess("E:x, y (P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
+    parseSuccess("E:x,y(P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
 
   def parseSuccess(input: String, expected: Formula): Unit =
     FormulaParser.parse(input) should matchPattern:

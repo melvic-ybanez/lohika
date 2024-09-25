@@ -30,6 +30,9 @@ object PrettyPrinter:
       case Forall((x, xs), matrix) => prettyQuantification(Lexemes.Forall, x :: xs, matrix)
       case ThereExists((x, xs), matrix) =>
         prettyQuantification(Lexemes.ThereExists, x :: xs, matrix)
+      case Predicate(name, args) =>
+        given Int = Precedence.Default
+        s"$name(${args.map(prettyPrint).mkString(", ")})"
 
     if parentPrecedence >= currentPrecedence then
       s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"
@@ -44,6 +47,7 @@ object PrettyPrinter:
     case _: Var         => Precedence.Var
     case _: Forall      => Precedence.Forall
     case _: ThereExists => Precedence.ThereExists
+    case _: Predicate   => Precedence.Predicate
     case True | False   => Precedence.Var
 
   object Precedence:
@@ -55,4 +59,5 @@ object PrettyPrinter:
     val Not: Int = And + 1
     val Var: Int = Not + 1
     val Forall: Int = Var
-    val ThereExists: Int = Var
+    val ThereExists: Int = Forall
+    val Predicate: Int = Var
