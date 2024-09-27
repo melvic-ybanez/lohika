@@ -4,7 +4,7 @@ import cats.Show
 import cats.implicits.*
 import com.melvic.lohika.formula.{Cnf, Formula}
 import com.melvic.lohika.meta.Equivalence.Component
-import com.melvic.lohika.{Formatter}
+import com.melvic.lohika.Formatter
 
 final case class Equivalence(lhs: Component, rhs: Component)
 

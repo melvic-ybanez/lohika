@@ -5,7 +5,6 @@ import cats.Endo
 import com.melvic.lohika.formula.Formula.Quantification.QVars
 
 import scala.annotation.targetName
-import scala.math.Equiv
 import scala.util.chaining.*
 
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall | ThereExists |

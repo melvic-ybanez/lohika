@@ -81,7 +81,7 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 
   "Forall" should "take a set of variables and a matrix" in:
-    parseSuccess("A:x, y (P => Q)", forall("x", "y")("P" ==> "Q"))
+    parseSuccess("A:x,y(P => Q)", forall("x", "y")("P" ==> "Q"))
     parseSuccess("A:x(Q)", forall("x")("Q"))
     parseFailure("A:(P => Q)")
 

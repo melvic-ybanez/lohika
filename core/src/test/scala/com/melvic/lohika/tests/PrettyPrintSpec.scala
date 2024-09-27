@@ -9,7 +9,7 @@ import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantification.{thereExists, forall}
 
-class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
+class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
   "A variable" should "print its name" in:
     Var("A").show should be("A")
 
@@ -72,13 +72,3 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with PrettyPrintG
     thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")).show should be(
       "E:x,y(P(x, y) => Q(y))"
     )
-
-trait PrettyPrintGivens:
-  given Formatter with
-    override def emphasize: Format = identity
-
-    override def strong: Format = identity
-
-    override def link(target: String): Format = identity
-
-    override def itemNumber: String = ""

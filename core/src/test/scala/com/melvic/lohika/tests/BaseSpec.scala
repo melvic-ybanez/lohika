@@ -11,7 +11,7 @@ import fastparse.Parsed
 
 import scala.annotation.targetName
 
-class BaseSpec extends AnyFlatSpec with should.Matchers with PrettyPrintGivens:
+class BaseSpec extends AnyFlatSpec with should.Matchers with Givens:
   given prettifier: Prettifier with
     def apply(obj: Any): String =
       obj match
@@ -40,14 +40,5 @@ object BaseSpec extends BaseSpec:
       assertFromInputStrings(self, other): (formula1, formula2) =>
         assert(
           formula1 === formula2,
-          show"formula1 is not equal to $formula2"
-        )
-
-    @targetName("assertEqualToCnf")
-    def ====>(other: String): Unit =
-      assertFromInputStrings(self, other): (formula1, expectedCnf) =>
-        val cnf = Cnf.fromFormulaUntyped(formula1)
-        assert(
-          cnf == expectedCnf,
-          show"\n$formula1 has the expected CNF: $expectedCnf. Got: $cnf"
+          show"$formula1 is not equal to $formula2"
         )

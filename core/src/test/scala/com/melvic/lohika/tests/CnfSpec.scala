@@ -2,8 +2,9 @@ package com.melvic.lohika.tests
 
 import BaseSpec.*
 import com.melvic.lohika.formula.Cnf
+import com.melvic.lohika.tests.WithFormulaTransformer.FormulaTransformer
 
-class CnfSpec extends BaseSpec:
+class CnfSpec extends BaseSpec with WithFormulaTransformer:
   "Disjunction" should "be flattened" in:
     "(A | B) | (C | (D | E))" ====> "A | B | C | D | E"
     "(A | C) | D" ====> "A | C | D"
@@ -80,3 +81,6 @@ class CnfSpec extends BaseSpec:
 
     assertFromInputStrings("A | !(!(!B) & !A) | C | C", "A | (!B | A) | C | C"):
       (input, output) => Cnf.moveNegationsInside(input) should be(output)
+
+  override def formulaTransformer: FormulaTransformer =
+    FormulaTransformer(Cnf.fromFormulaUntyped)

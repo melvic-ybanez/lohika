@@ -5,7 +5,7 @@ import cats.data.WriterT
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.formula.Cnf.*
 import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
-import com.melvic.lohika.{Formatter}
+import com.melvic.lohika.Formatter
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import fastparse.Parsed
 import Formatter.*

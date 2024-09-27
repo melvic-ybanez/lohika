@@ -15,7 +15,7 @@ object FormulaParser:
   def quantification[$: P, Q <: Quantification](quantifier: String, make: Quantification.Make[Q])(
       using Q <:< Formula
   ): P[Formula] =
-    P(quantifier ~/ variable.rep(min = 1, sep = ",") ~ inParens).map:
+    P(quantifier ~/ variable.rep(min = 1, sep = ",") ~ grouping).map:
       case (Seq(x, xs*), matrix) => make((x, xs.toList), matrix)
 
   def forall[$: P]: P[Formula] = quantification(Lexemes.Forall, Forall.apply)
@@ -41,7 +41,7 @@ object FormulaParser:
 
   def not[$: P]: P[Formula] = P(Lexemes.Not ~ highestPrecedence).map(Not.apply)
 
-  def inParens[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
+  def grouping[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
 
   def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
 
@@ -50,7 +50,7 @@ object FormulaParser:
       case (Var(name), args) => Predicate(name, args.toList)
 
   def highestPrecedence[$: P]: P[Formula] = P(
-    forall | thereExists | inParens | not | predicate | varOrCons
+    forall | thereExists | grouping | not | predicate | varOrCons
   )
 
   def varOrCons[$: P]: P[Formula] = variable.map:

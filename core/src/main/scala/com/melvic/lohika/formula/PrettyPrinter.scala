@@ -1,7 +1,6 @@
 package com.melvic.lohika.formula
 
-import Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.QVars
+import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.parsers.Lexemes
 
 object PrettyPrinter:
