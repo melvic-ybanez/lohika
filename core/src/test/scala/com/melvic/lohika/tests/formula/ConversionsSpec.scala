@@ -2,22 +2,16 @@ package com.melvic.lohika.tests.formula
 
 import com.melvic.lohika.formula.Converter
 import com.melvic.lohika.tests.BaseSpec
-import com.melvic.lohika.tests.BaseSpec.assertFromInputStrings
+import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
 
 class ConversionsSpec extends BaseSpec:
-  "All implications" should "be eliminated" in:
-    assertFromInputStrings(
-      "!((p | q) & (!q => r) => p => r)",
-      "!(!((p | q) & (!(!q) | r)) | (!p | r))"
-    ): (input, output) =>
-      Converter.eliminateImplications(input) should be(output)
+  "Implication elimination" should "work recursively" in:
+    given FormulaMapper = FormulaMapper(Converter.eliminateImplications)
 
-    assertFromInputStrings("!(B => A) => C", "!(!(!B | A)) | C"): (input, output) =>
-      Converter.eliminateImplications(input) should be(output)
+    "!((p | q) & (!q => r) => p => r)" ====> "!(!((p | q) & (!(!q) | r)) | (!p | r))"
+    "!(B => A) => C" ====> "!(!(!B | A)) | C"
 
   "Negations" should "be moved inside" in:
-    assertFromInputStrings("!(!(!B) & !A)", "!B | A"): (input, output) =>
-      Converter.moveNegationsInside(input) should be(output)
-
-    assertFromInputStrings("A | !(!(!B) & !A) | C | C", "A | (!B | A) | C | C"): (input, output) =>
-      Converter.moveNegationsInside(input) should be(output)
+    given FormulaMapper = FormulaMapper(Converter.moveNegationsInside)
+    "!(!(!B) & !A)" ====> "!B | A"
+    "A | !(!(!B) & !A) | C | C" ====> "A | (!B | A) | C | C"
