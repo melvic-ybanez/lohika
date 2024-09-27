@@ -1,13 +1,14 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika.tests.formula
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.{thereExists, forall}
+import com.melvic.lohika.formula.Formula.Quantification.{forall, thereExists}
+import com.melvic.lohika.tests.Givens
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
 
 class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
   "A variable" should "print its name" in:

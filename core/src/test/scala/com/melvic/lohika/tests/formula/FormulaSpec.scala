@@ -1,6 +1,7 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika.tests.formula
 
-import BaseSpec.*
+import com.melvic.lohika.tests.BaseSpec
+import com.melvic.lohika.tests.BaseSpec.====
 
 class FormulaSpec extends BaseSpec:
   "Disjunction" should "support commutativity" in :

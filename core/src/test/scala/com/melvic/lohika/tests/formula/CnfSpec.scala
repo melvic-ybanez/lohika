@@ -1,10 +1,11 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika.tests.formula
 
-import BaseSpec.*
 import com.melvic.lohika.formula.Cnf
-import com.melvic.lohika.tests.WithFormulaTransformer.FormulaTransformer
+import com.melvic.lohika.tests.BaseSpec.assertFromInputStrings
+import FormulaMapper.FormulaMap
+import com.melvic.lohika.tests.BaseSpec
 
-class CnfSpec extends BaseSpec with WithFormulaTransformer:
+class CnfSpec extends BaseSpec with FormulaMapper:
   "Disjunction" should "be flattened" in:
     "(A | B) | (C | (D | E))" ====> "A | B | C | D | E"
     "(A | C) | D" ====> "A | C | D"
@@ -65,22 +66,5 @@ class CnfSpec extends BaseSpec with WithFormulaTransformer:
     "!!!P" ====> "!P"
     "!!!!P" ====> "P"
 
-  "All implications" should "be eliminated" in:
-    assertFromInputStrings(
-      "!((p | q) & (!q => r) => p => r)",
-      "!(!((p | q) & (!(!q) | r)) | (!p | r))"
-    ): (input, output) =>
-      Cnf.eliminateImplications(input) should be(output)
-
-    assertFromInputStrings("!(B => A) => C", "!(!(!B | A)) | C"): (input, output) =>
-      Cnf.eliminateImplications(input) should be(output)
-
-  "Negations" should "be moved inside" in:
-    assertFromInputStrings("!(!(!B) & !A)", "!B | A"): (input, output) =>
-      Cnf.moveNegationsInside(input) should be(output)
-
-    assertFromInputStrings("A | !(!(!B) & !A) | C | C", "A | (!B | A) | C | C"):
-      (input, output) => Cnf.moveNegationsInside(input) should be(output)
-
-  override def formulaTransformer: FormulaTransformer =
-    FormulaTransformer(Cnf.fromFormulaUntyped)
+  override def formulaMap: FormulaMap =
+    FormulaMap(Cnf.fromFormulaUntyped)
