@@ -12,11 +12,13 @@ object Converter:
       val iffs = rs.foldLeft(List(p <==> q)):
         case (iffs @ (Iff(_, q, _) :: _), r) => (q <==> r) :: iffs
       eliminateBiconditionals(And.fromList(iffs.reverse))
-    case imply: Imply => fromImplyWith(eliminateBiconditionals)(imply)
-    case or: Or       => fromOrWith(eliminateBiconditionals)(or)
-    case and: And     => fromAndWith(eliminateBiconditionals)(and)
-    case not: Not     => fromNotWith(eliminateBiconditionals)(not)
-    case fm           => fm
+    case imply: Imply             => fromImplyWith(eliminateBiconditionals)(imply)
+    case or: Or                   => fromOrWith(eliminateBiconditionals)(or)
+    case and: And                 => fromAndWith(eliminateBiconditionals)(and)
+    case not: Not                 => fromNotWith(eliminateBiconditionals)(not)
+    case forall: Forall           => fromForallWith(eliminateBiconditionals)(forall)
+    case thereExists: ThereExists => fromThereExistsWith(eliminateBiconditionals)(thereExists)
+    case fm                       => fm
 
   def eliminateImplications: Endo[Formula] =
     case Imply(p, q)              => eliminateImplications(!p | q)

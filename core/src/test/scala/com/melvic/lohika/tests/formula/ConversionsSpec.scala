@@ -17,6 +17,17 @@ class ConversionsSpec extends BaseSpec:
     "A:x,y(P(x) => !Q(y))" ====> "A:x,y(!P(x) | !Q(y))"
     "E:x,y(P(x) => !Q(y))" ====> "E:x,y(!P(x) | !Q(y))"
 
+  "Bi-conditional elimination" should "produce a conjunction of implications" in:
+    given FormulaMapper = FormulaMapper(Converter.eliminateBiconditionals)
+
+    "P <=> (Q & R)" ====> "(P => Q & R) & (Q & R => P)"
+
+  it should "work on qualified formulas" in:
+    given FormulaMapper = FormulaMapper(Converter.eliminateBiconditionals)
+
+    "A:x,y(P(x) <=> !Q(y))" ====> "A:x,y((P(x) => !Q(y)) & (!Q(y) => P(x)))"
+    "E:x,y(P(x) <=> !Q(y))" ====> "E:x,y((P(x) => !Q(y)) & (!Q(y) => P(x)))"
+
   "Negations" should "be moved inside" in:
     given FormulaMapper = FormulaMapper(Converter.moveNegationsInside)
 
