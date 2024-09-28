@@ -19,11 +19,13 @@ object Converter:
     case fm           => fm
 
   def eliminateImplications: Endo[Formula] =
-    case Imply(p, q) => eliminateImplications(!p | q)
-    case or: Or      => fromOrWith(eliminateImplications)(or)
-    case and: And    => fromAndWith(eliminateImplications)(and)
-    case not: Not    => fromNotWith(eliminateImplications)(not)
-    case fm          => fm
+    case Imply(p, q)              => eliminateImplications(!p | q)
+    case or: Or                   => fromOrWith(eliminateImplications)(or)
+    case and: And                 => fromAndWith(eliminateImplications)(and)
+    case not: Not                 => fromNotWith(eliminateImplications)(not)
+    case forall: Forall           => fromForallWith(eliminateImplications)(forall)
+    case thereExists: ThereExists => fromThereExistsWith(eliminateImplications)(thereExists)
+    case fm                       => fm
 
   def moveNegationsInside: Endo[Formula] =
     case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
@@ -96,3 +98,9 @@ object Converter:
 
   def fromNotWith: ConvertWithFrom[Not] = f =>
     case Not(p) => Not(f(p))
+
+  def fromForallWith: ConvertWithFrom[Forall] = f =>
+    case Forall(boundVars, matrix) => Forall(boundVars, f(matrix))
+
+  def fromThereExistsWith: ConvertWithFrom[ThereExists] = f =>
+    case ThereExists(boundVars, matrix) => ThereExists(boundVars, f(matrix))

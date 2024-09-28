@@ -1,20 +1,25 @@
 package com.melvic.lohika.prover.interpreters
 
-import cats.implicits.*
 import cats.data.WriterT
-import com.melvic.lohika.prover.algebras.Prover
-import com.melvic.lohika.formula.Cnf.*
-import Prover.{Contradiction, Derive, Exhaustion, ResolutionResult}
+import cats.implicits.*
 import com.melvic.lohika.Formatter
+import com.melvic.lohika.Formatter.*
+import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
-import fastparse.Parsed
-import Formatter.*
 import com.melvic.lohika.meta.{Entailment, Equivalence}
-import com.melvic.lohika.parsers.{FormulaParser, MetaParser}
+import com.melvic.lohika.parsers.MetaParser
+import com.melvic.lohika.prover.algebras.Prover
+import com.melvic.lohika.prover.algebras.Prover.{
+  Contradiction,
+  Derive,
+  Exhaustion,
+  ResolutionResult
+}
+import fastparse.Parsed
 
 object LiveProver:
-  import com.melvic.lohika.Givens.given
   import Clauses.given
+  import com.melvic.lohika.Givens.given
 
   type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 

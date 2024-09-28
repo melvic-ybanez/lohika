@@ -2,7 +2,7 @@ package com.melvic.lohika.formula
 
 import Formula.*
 import cats.Endo
-import com.melvic.lohika.formula.Formula.Quantification.QVars
+import com.melvic.lohika.formula.Formula.Quantification.BoundVars
 
 import scala.annotation.targetName
 import scala.util.chaining.*
@@ -19,8 +19,8 @@ object Formula extends FormulaGivens:
   final case class Not(p: Formula)
   case object True
   case object False
-  final case class Forall(variables: QVars, matrix: Formula) extends Quantification
-  final case class ThereExists(variables: QVars, matrix: Formula) extends Quantification
+  final case class Forall(variables: BoundVars, matrix: Formula) extends Quantification
+  final case class ThereExists(variables: BoundVars, matrix: Formula) extends Quantification
   final case class Predicate(name: String, args: List[Var])
 
   type Property = Formula => Boolean
@@ -35,7 +35,7 @@ object Formula extends FormulaGivens:
     def components: List[Formula] = p :: q :: rs
 
   sealed trait Quantification:
-    def variables: QVars
+    def variables: BoundVars
 
     def matrix: Formula
 
@@ -83,8 +83,8 @@ object Formula extends FormulaGivens:
     }
 
   object Quantification:
-    type QVars = (Var, List[Var])
-    type Make[Q <: Quantification] = (QVars, Formula) => Q
+    type BoundVars = (Var, List[Var])
+    type Make[Q <: Quantification] = (BoundVars, Formula) => Q
 
     def quantification[Q <: Quantification](varName: String, rest: String*)(
         make: Make[Q]
