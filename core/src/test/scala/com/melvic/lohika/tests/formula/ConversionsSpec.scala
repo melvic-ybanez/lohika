@@ -27,9 +27,3 @@ class ConversionsSpec extends BaseSpec:
 
     "A:x,y(P(x) <=> !Q(y))" ====> "A:x,y((P(x) => !Q(y)) & (!Q(y) => P(x)))"
     "E:x,y(P(x) <=> !Q(y))" ====> "E:x,y((P(x) => !Q(y)) & (!Q(y) => P(x)))"
-
-  "Negations" should "be moved inside" in:
-    given FormulaMapper = FormulaMapper(Converter.moveNegationsInside)
-
-    "!(!(!B) & !A)" ====> "!B | A"
-    "A | !(!(!B) & !A) | C | C" ====> "A | (!B | A) | C | C"

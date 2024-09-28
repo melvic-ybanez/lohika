@@ -7,7 +7,11 @@ import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.Formatter
 import Converter.*
+import com.melvic.lohika.formula.Nnf.{moveNegationsInside, simplifyNegations}
 
+/**
+ * Conjunctive Normal Form
+ */
 type Cnf = CAnd | Clause
 
 object Cnf extends CnfGivens:

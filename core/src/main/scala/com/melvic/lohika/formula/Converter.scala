@@ -29,15 +29,6 @@ object Converter:
     case thereExists: ThereExists => fromThereExistsWith(eliminateImplications)(thereExists)
     case fm                       => fm
 
-  def moveNegationsInside: Endo[Formula] =
-    case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
-    case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
-    case notNot @ Not(Not(_)) => moveNegationsInside(simplifyNegations(notNot))
-    case not: Not             => fromNotWith(moveNegationsInside)(not)
-    case or: Or               => fromOrWith(moveNegationsInside)(or)
-    case and: And             => fromAndWith(moveNegationsInside)(and)
-    case fm                   => fm
-
   def distributeOrOverAnds: Endo[Formula] =
     case Or(p, And(ap, aq, ars), Nil) =>
       fromAndWith(distributeOrOverAnds)(And(p | ap, p | aq, ars.map(p | _)))
@@ -51,16 +42,6 @@ object Converter:
     case and: And          => fromAndWith(distributeOrOverAnds)(and)
     case not: Not          => fromNotWith(distributeOrOverAnds)(not)
     case fm                => fm
-
-  def simplifyNegations: Endo[Formula] =
-    case Not(Not(p))     => simplifyNegations(p)
-    case Not(True)       => False
-    case Not(False)      => True
-    case Not(p @ Var(_)) => !p
-    case not: Not        => not
-    case or: Or          => fromOrWith(simplifyNegations)(or)
-    case and: And        => fromAndWith(simplifyNegations)(and)
-    case fm              => fm
 
   def flattenConjunctions: Endo[Formula] =
     case and: And =>
