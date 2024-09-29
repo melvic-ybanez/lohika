@@ -2,7 +2,7 @@ package com.melvic.lohika.parsers
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.BoundVars
+import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
@@ -12,15 +12,15 @@ object FormulaParser:
 
   def formula[$: P]: P[Formula] = P(iff)
 
-  def quantification[$: P, Q <: Quantification](quantifier: String, make: Quantification.Make[Q])(
-      using Q <:< Formula
+  def quantified[$: P, Q <: Quantified](quantifier: String, make: Quantified.Make[Q])(using
+      Q <:< Formula
   ): P[Formula] =
     P(quantifier ~/ variable.rep(min = 1, sep = ",") ~ grouping).map:
       case (Seq(x, xs*), matrix) => make((x, xs.toList), matrix)
 
-  def forall[$: P]: P[Formula] = quantification(Lexemes.Forall, Forall.apply)
+  def forall[$: P]: P[Formula] = quantified(Lexemes.Forall, Forall.apply)
 
-  def thereExists[$: P]: P[Formula] = quantification(Lexemes.ThereExists, ThereExists.apply)
+  def thereExists[$: P]: P[Formula] = quantified(Lexemes.ThereExists, ThereExists.apply)
 
   def iff[$: P]: P[Formula] =
     imply.rep(min = 1, sep = Lexemes.Iff).map(ps => Iff.fromList(ps.toList).getOrElse(False))

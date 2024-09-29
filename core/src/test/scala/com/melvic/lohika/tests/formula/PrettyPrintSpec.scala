@@ -5,7 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.{forall, thereExists}
+import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.tests.Givens
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

@@ -2,7 +2,7 @@ package com.melvic.lohika.formula
 
 import Formula.*
 import cats.Endo
-import com.melvic.lohika.formula.Formula.Quantification.BoundVars
+import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 
 import scala.annotation.targetName
 import scala.util.chaining.*
@@ -19,8 +19,8 @@ object Formula extends FormulaGivens:
   final case class Not(p: Formula)
   case object True
   case object False
-  final case class Forall(variables: BoundVars, matrix: Formula) extends Quantification
-  final case class ThereExists(variables: BoundVars, matrix: Formula) extends Quantification
+  final case class Forall(variables: BoundVars, matrix: Formula) extends Quantified
+  final case class ThereExists(variables: BoundVars, matrix: Formula) extends Quantified
   final case class Predicate(name: String, args: List[Var])
 
   type Property = Formula => Boolean
@@ -34,7 +34,7 @@ object Formula extends FormulaGivens:
 
     def components: List[Formula] = p :: q :: rs
 
-  sealed trait Quantification:
+  sealed trait Quantified:
     def variables: BoundVars
 
     def matrix: Formula
@@ -82,20 +82,20 @@ object Formula extends FormulaGivens:
       case fm => fm
     }
 
-  object Quantification:
+  object Quantified:
     type BoundVars = (Var, List[Var])
-    type Make[Q <: Quantification] = (BoundVars, Formula) => Q
+    type Make[Q <: Quantified] = (BoundVars, Formula) => Q
 
-    def quantification[Q <: Quantification](varName: String, rest: String*)(
+    def quantified[Q <: Quantified](varName: String, rest: String*)(
         make: Make[Q]
     ): Formula => Q =
       make((Var(varName), rest.map(Var.apply).toList), _)
 
     def forall(varName: String, rest: String*): Formula => Forall =
-      quantification(varName, rest*)(Forall.apply)
+      quantified(varName, rest*)(Forall.apply)
 
     def thereExists(varName: String, rest: String*): Formula => ThereExists =
-      quantification(varName, rest*)(ThereExists.apply)
+      quantified(varName, rest*)(ThereExists.apply)
 
   object Or:
     def of(p: Formula, q: Formula, rs: Formula*): Or =

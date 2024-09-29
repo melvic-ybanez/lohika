@@ -11,7 +11,7 @@ object PrettyPrinter:
       val pqString = s"${prettyPrint(p)} $sep ${prettyPrint(q)}"
       if rs.isEmpty then pqString else s"$pqString $sep ${rs.map(prettyPrint).mkString(s" $sep ")}"
 
-    def prettyQuantification(quantifier: String, vars: List[Var], matrix: Formula): String =
+    def prettyQuantified(quantifier: String, vars: List[Var], matrix: Formula): String =
       given Int = Precedence.Default
       s"$quantifier${vars.map(prettyPrint).mkString(",")}(${prettyPrint(matrix)})"
 
@@ -26,9 +26,9 @@ object PrettyPrinter:
       case Not(p)                  => s"${Lexemes.Not}${prettyPrint(p)}"
       case True                    => Lexemes.True
       case False                   => Lexemes.False
-      case Forall((x, xs), matrix) => prettyQuantification(Lexemes.Forall, x :: xs, matrix)
+      case Forall((x, xs), matrix) => prettyQuantified(Lexemes.Forall, x :: xs, matrix)
       case ThereExists((x, xs), matrix) =>
-        prettyQuantification(Lexemes.ThereExists, x :: xs, matrix)
+        prettyQuantified(Lexemes.ThereExists, x :: xs, matrix)
       case Predicate(name, args) =>
         given Int = Precedence.Default
         s"$name(${args.map(prettyPrint).mkString(", ")})"

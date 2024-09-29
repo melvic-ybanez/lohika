@@ -2,7 +2,7 @@ package com.melvic.lohika.tests
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantification.{thereExists, forall}
+import com.melvic.lohika.formula.Formula.Quantified.{thereExists, forall}
 import com.melvic.lohika.parsers.FormulaParser
 import fastparse.Parsed
 
