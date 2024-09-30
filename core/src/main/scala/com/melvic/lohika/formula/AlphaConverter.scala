@@ -4,22 +4,23 @@ import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 
 object AlphaConverter:
-  type NameConversionTable = Map[String, String]
-  type Convert[F <: Formula] = NameConversionTable ?=> Endo[F]
+  final case class RenamingPair(originalName: String, newName: String)
+  type Convert[F <: Formula] = RenamingPair ?=> Endo[F]
 
-  def nameConversionTable(using NameConversionTable): NameConversionTable =
-    summon[NameConversionTable]
+  def originalName(using renamingPair: RenamingPair): String =
+    renamingPair.originalName
+
+  def newName(using renamingPair: RenamingPair): String =
+    renamingPair.newName
 
   def convertFormula: Convert[Formula] =
     case forall: Forall           => convertUniversal(forall)
     case thereExists: ThereExists => convertExistential(thereExists)
-    case fm =>
-      Converter.convertFormula(fm).unless { case _: Forall | _: ThereExists => }.by(convertFormula)
+    case fm                       => fm
 
   def convertQuantified: Convert[Quantified] =
-    case Quantified(quantifier, (Var(name), xs), matrix) if nameConversionTable.contains(name) =>
-      val newName = nameConversionTable(name)
-      Quantified(quantifier, (Var(newName), xs), rename(matrix))
+    case Quantified(quantifier, (Var(name), xs), matrix) if name == originalName =>
+      Quantified(quantifier, (Var(newName), xs), renameFreeVars(matrix))
     case quantified @ Quantified(quantifier, (_, Nil), _) => quantified
     case Quantified(quantifier, (x, y :: ys), matrix)     =>
       // rename without the first variable
@@ -37,18 +38,20 @@ object AlphaConverter:
       case thereExists: ThereExists => thereExists
 
   def renameVariable: Convert[Var] =
-    case v @ Var(name) => nameConversionTable.get(name).fold(v)(Var.apply)
+    case Var(name) if name == originalName => Var(newName)
+    case variable                          => variable
 
-  /**
-   * Unlike alpha-conversion, renaming in Lohika is a more general conversion that applies to all
-   * first-order variables within the scope, regardless of whether they are bound by a quantifier
-   */
-  def rename: Convert[Formula] =
-    case v: Var                 => renameVariable(v)
-    case Predicate(name, args)  => Predicate(name, args.map(renameVariable))
-    case quantified: Quantified => convertQuantified(quantified)
+  def renameFreeVars: Convert[Formula] =
+    case v: Var                => renameVariable(v)
+    case Predicate(name, args) => Predicate(name, args.map(renameVariable))
+    // the variable is not free, return as-is
+    case quantified @ Quantified(_, (Var(x), xs), _)
+        if x == originalName || xs.exists(_.name == originalName) =>
+      quantified
+    case Quantified(quantifier, vars, matrix) =>
+      Quantified(quantifier, vars, renameFreeVars(matrix))
     case fm =>
       Converter
         .convertFormula(fm)
         .unless { case _: Forall | _: ThereExists | _: Var | _: Predicate => }
-        .by(rename)
+        .by(renameFreeVars)
