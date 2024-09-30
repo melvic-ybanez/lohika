@@ -2,13 +2,17 @@ package com.melvic.lohika.formula
 
 import Formula.*
 import cats.Endo
-import com.melvic.lohika.formula.Formula.Quantified.BoundVars
+import com.melvic.lohika.formula.Formula.Quantified.{
+  BoundedVars,
+  Existential,
+  Quantifier,
+  Universal
+}
 
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Forall | ThereExists |
-  Predicate
+type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Quantified | Predicate
 
 object Formula extends FormulaGivens:
   final case class Var(name: String)
@@ -19,8 +23,8 @@ object Formula extends FormulaGivens:
   final case class Not(p: Formula)
   case object True
   case object False
-  final case class Forall(variables: BoundVars, matrix: Formula) extends Quantified
-  final case class ThereExists(variables: BoundVars, matrix: Formula) extends Quantified
+  final case class Forall(variables: BoundedVars, matrix: Formula) extends Quantified
+  final case class ThereExists(variables: BoundedVars, matrix: Formula) extends Quantified
   final case class Predicate(name: String, args: List[Var])
 
   type Property = Formula => Boolean
@@ -34,8 +38,8 @@ object Formula extends FormulaGivens:
 
     def components: List[Formula] = p :: q :: rs
 
-  sealed trait Quantified:
-    def variables: BoundVars
+  trait Quantified:
+    def variables: BoundedVars
 
     def matrix: Formula
 
@@ -83,8 +87,22 @@ object Formula extends FormulaGivens:
     }
 
   object Quantified:
-    type BoundVars = (Var, List[Var])
-    type Make[Q <: Quantified] = (BoundVars, Formula) => Q
+    type BoundedVars = (Var, List[Var])
+    type Make[Q <: Quantified] = (BoundedVars, Formula) => Q
+
+    type Quantifier = Universal.type | Existential.type
+    case object Universal
+    case object Existential
+
+    def unapply(quantified: Quantified): Option[(Quantifier, BoundedVars, Formula)] =
+      quantified match
+        case Forall(boundedVars, matrix)      => Some(Universal, boundedVars, matrix)
+        case ThereExists(boundedVars, matrix) => Some(Existential, boundedVars, matrix)
+
+    def apply(quantifier: Quantifier, boundedVars: BoundedVars, matrix: Formula): Quantified =
+      quantifier match
+        case Universal   => Forall(boundedVars, matrix)
+        case Existential => ThereExists(boundedVars, matrix)
 
     def quantified[Q <: Quantified](varName: String, rest: String*)(
         make: Make[Q]

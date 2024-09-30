@@ -2,11 +2,11 @@ package com.melvic.lohika.formula
 
 import cats.Endo
 import com.melvic.lohika.formula.Converter.{
-  fromAndWith,
-  fromForallWith,
-  fromNotWith,
-  fromOrWith,
-  fromThereExistsWith
+  convertConjunction,
+  convertUniversal,
+  convertNegation,
+  convertDisjunction,
+  convertExistential
 }
 import com.melvic.lohika.formula.Formula.*
 
@@ -19,12 +19,12 @@ object Nnf:
     case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
     case notNot @ Not(Not(_)) => moveNegationsInside(simplifyNegations(notNot))
     case Not(Forall(vars, matrix)) =>
-      fromThereExistsWith(moveNegationsInside)(ThereExists(vars, !matrix))
+      convertExistential(moveNegationsInside)(ThereExists(vars, !matrix))
     case Not(ThereExists(vars, matrix)) =>
-      fromForallWith(moveNegationsInside)(Forall(vars, !matrix))
-    case not: Not => fromNotWith(moveNegationsInside)(not)
-    case or: Or   => fromOrWith(moveNegationsInside)(or)
-    case and: And => fromAndWith(moveNegationsInside)(and)
+      convertUniversal(moveNegationsInside)(Forall(vars, !matrix))
+    case not: Not => convertNegation(moveNegationsInside)(not)
+    case or: Or   => convertDisjunction(moveNegationsInside)(or)
+    case and: And => convertConjunction(moveNegationsInside)(and)
     case fm       => fm
 
   def simplifyNegations: Endo[Formula] =
@@ -33,6 +33,6 @@ object Nnf:
     case Not(False)      => True
     case Not(p @ Var(_)) => !p
     case not: Not        => not
-    case or: Or          => fromOrWith(simplifyNegations)(or)
-    case and: And        => fromAndWith(simplifyNegations)(and)
+    case or: Or          => convertDisjunction(simplifyNegations)(or)
+    case and: And        => convertConjunction(simplifyNegations)(and)
     case fm              => fm

@@ -2,7 +2,7 @@ package com.melvic.lohika.parsers
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantified.BoundVars
+import com.melvic.lohika.formula.Formula.Quantified.BoundedVars
 import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
