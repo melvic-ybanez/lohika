@@ -15,7 +15,7 @@ object FormulaParser:
   def quantified[$: P, Q <: Quantified](quantifier: String, make: Quantified.Make[Q])(using
       Q <:< Formula
   ): P[Formula] =
-    P(quantifier ~/ variable.rep(min = 1, sep = ",") ~ grouping).map:
+    P(quantifier ~/ firstOrderVar.rep(min = 1, sep = ",") ~ highestPrecedence).map:
       case (Seq(x, xs*), matrix) => make((x, xs.toList), matrix)
 
   def forall[$: P]: P[Formula] = quantified(Lexemes.Forall, Forall.apply)
@@ -43,17 +43,22 @@ object FormulaParser:
 
   def grouping[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
 
-  def variable[$: P]: P[Var] = P(CharPred(Character.isAlphabetic).rep(min = 1).!).map(Var.apply)
+  def propVar[$: P]: P[Var] = variable(Character.isAlphabetic)
+
+  def firstOrderVar[$: P]: P[Var] = variable(c => Character.isAlphabetic(c) && c.isLower)
+
+  def variable[$: P](predicate: Char => Boolean): P[Var] =
+    P(CharPred(predicate).rep(min = 1).!).map(Var.apply)
 
   def predicate[$: P]: P[Predicate] =
-    P(variable ~ ("(" ~ variable.rep(min = 1, sep = ", ") ~ ")")).map:
+    P(propVar ~ ("(" ~/ firstOrderVar.rep(min = 1, sep = ", ") ~ ")")).map:
       case (Var(name), args) => Predicate(name, args.toList)
 
   def highestPrecedence[$: P]: P[Formula] = P(
     forall | thereExists | grouping | not | predicate | varOrCons
   )
 
-  def varOrCons[$: P]: P[Formula] = variable.map:
+  def varOrCons[$: P]: P[Formula] = propVar.map:
     case Var(Lexemes.True)  => True
     case Var(Lexemes.False) => False
     case variable           => variable

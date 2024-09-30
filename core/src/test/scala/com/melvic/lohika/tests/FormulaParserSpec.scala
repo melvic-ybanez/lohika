@@ -80,19 +80,29 @@ class FormulaParserSpec extends BaseSpec:
   it should "support chaining" in:
     parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
 
-  "Forall" should "take a set of variables and a matrix" in:
+  "Forall" should "take a set of first-order variables and a matrix" in:
     parseSuccess("A:x,y(P => Q)", forall("x", "y")("P" ==> "Q"))
     parseSuccess("A:x(Q)", forall("x")("Q"))
+    parseSuccess("A:xP(x)", forall("x")("P".of("x")))
+    parseSuccess("A:xE:y(P(x) => Q(y))", forall("x")(thereExists("y")("P".of("x") ==> "Q".of("y"))))
+    parseSuccess("A:xE:yP(x) => Q(y)", forall("x")(thereExists("y")("P".of("x"))) ==> "Q".of("y"))
     parseFailure("A:(P => Q)")
+    parseFailure("A:X(P => Q)")
 
   "Exists" should "take a set of variables and a matrix" in:
     parseSuccess("E:x,y(P => Q)", thereExists("x", "y")("P" ==> "Q"))
     parseSuccess("E:x(Q)", thereExists("x")("Q"))
+    parseSuccess("E:xP(x)", thereExists("x")("P".of("x")))
+    parseSuccess("E:xA:y(P(x) => Q(y))", thereExists("x")(forall("y")("P".of("x") ==> "Q".of("y"))))
     parseFailure("E:(P => Q)")
+    parseFailure("E:X(P => Q)")
 
   "Predicates" should "be able to take arguments" in:
     parseSuccess("P(x)", "P".of("x"))
     parseSuccess("E:x,y(P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
+
+  it should "only take first-order variables as arguments" in:
+    parseFailure("P(X)")
 
   def parseSuccess(input: String, expected: Formula): Unit =
     FormulaParser.parse(input) should matchPattern:

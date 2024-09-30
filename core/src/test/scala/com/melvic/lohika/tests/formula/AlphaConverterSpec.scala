@@ -24,4 +24,4 @@ class AlphaConverterSpec extends BaseSpec:
 
   it should "work across multiple quantifiers" in:
     given RenamingPair = RenamingPair("x", "z")
-    "E:x(A:y(P(x, y) & Q(y)))" ====> "E:z(A:y(P(z, y) & Q(y)))"
+    "E:xA:y(P(x, y) & Q(y))" ====> "E:zA:y(P(z, y) & Q(y))"
