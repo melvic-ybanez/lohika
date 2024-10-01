@@ -1,6 +1,8 @@
 package com.melvic.lohika.formula
 
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula.Quantified.BoundVars
+import com.melvic.lohika.formula.PrettyPrinter.Precedence.noParensIfEqual
 import com.melvic.lohika.parsers.Lexemes
 
 object PrettyPrinter:
@@ -11,24 +13,30 @@ object PrettyPrinter:
       val pqString = s"${prettyPrint(p)} $sep ${prettyPrint(q)}"
       if rs.isEmpty then pqString else s"$pqString $sep ${rs.map(prettyPrint).mkString(s" $sep ")}"
 
-    def prettyQuantified(quantifier: String, vars: List[Var], matrix: Formula): String =
-      given Int = Precedence.Default
-      s"$quantifier${vars.map(prettyPrint).mkString(",")}(${prettyPrint(matrix)})"
+    def prettyQuantified(quantifier: String, vars: BoundVars, matrix: Formula): String =
+      quantifier + (vars._1 :: vars._2)
+        .map { variable =>
+          // we don't wrap bound vars with parens when declaring them, so we give the
+          // parent precedence a lower value (default)
+          prettyPrint(variable)(using Precedence.Default)
+        }
+        .mkString(",") + prettyPrint(matrix)(using noParensIfEqual)
 
     val pretty = formula match
-      case Var(name)     => name
-      case Or(p, q, rs)  => prettyFList(p, q, rs, Lexemes.Or)
-      case And(p, q, rs) => prettyFList(p, q, rs, Lexemes.And)
+      case Var(name)          => name
+      case Or(p, q, rs)       => prettyFList(p, q, rs, Lexemes.Or)
+      case And(p, q, rs)      => prettyFList(p, q, rs, Lexemes.And)
       case Imply(p, q: Imply) =>
-        s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)(using currentPrecedence - 1)}"
-      case Imply(p, q)             => s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)}"
-      case Iff(p, q, rs)           => prettyFList(p, q, rs, Lexemes.Iff)
-      case Not(p)                  => s"${Lexemes.Not}${prettyPrint(p)}"
-      case True                    => Lexemes.True
-      case False                   => Lexemes.False
-      case Forall((x, xs), matrix) => prettyQuantified(Lexemes.Forall, x :: xs, matrix)
-      case ThereExists((x, xs), matrix) =>
-        prettyQuantified(Lexemes.ThereExists, x :: xs, matrix)
+        // Implications are right-associative, so let's not add parens around the codomain if
+        // it is another implication.
+        s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)(using noParensIfEqual)}"
+      case Imply(p, q)               => s"${prettyPrint(p)} ${Lexemes.Imply} ${prettyPrint(q)}"
+      case Iff(p, q, rs)             => prettyFList(p, q, rs, Lexemes.Iff)
+      case Not(p)                    => s"${Lexemes.Not}${prettyPrint(p)}"
+      case True                      => Lexemes.True
+      case False                     => Lexemes.False
+      case Forall(vars, matrix)      => prettyQuantified(Lexemes.Forall, vars, matrix)
+      case ThereExists(vars, matrix) => prettyQuantified(Lexemes.ThereExists, vars, matrix)
       case Predicate(name, args) =>
         given Int = Precedence.Default
         s"$name(${args.map(prettyPrint).mkString(", ")})"
@@ -60,3 +68,10 @@ object PrettyPrinter:
     val Forall: Int = Var
     val ThereExists: Int = Forall
     val Predicate: Int = Var
+
+    /**
+     * Use this if the current precedence and its parent are equal, and you want to force Lohika to
+     * avoid auto-wrapping the current scope in parens.
+     */
+    def noParensIfEqual(using precedence: Int): Int =
+      precedence - 1

@@ -6,7 +6,9 @@ import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
+import com.melvic.lohika.parsers.FormulaParser
 import com.melvic.lohika.tests.Givens
+import fastparse.Parsed
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -62,14 +64,27 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
 
   "Universal Quantification" should "start with `A:`" in:
     forall("x", "y")("P" ==> "Q").show should be("A:x,y(P => Q)")
-    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:x(A:y((A => B) & C))")
+    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:xA:y((A => B) & C)")
 
   "Existential Quantification" should "start with `E:`" in:
     thereExists("x", "y")("P" ==> "Q").show should be("E:x,y(P => Q)")
-    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:x(E:y((A => B) & C))")
+    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:xE:y((A => B) & C)")
 
   "Predicates application" should "look like function calls" in:
     "P".of("x").show should be("P(x)")
     thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")).show should be(
       "E:x,y(P(x, y) => Q(y))"
     )
+
+  "Quantified formulas" should "print parens around the matrix only if necessary" in:
+    forall("x", "y")("P".of("x") ==> "Q".of("y")).show should be("A:x,y(P(x) => Q(y))")
+    assertParsePrettify("A:x,y(P(x) => Q(y))", "A:x,y(P(x) => Q(y))")
+    assertParsePrettify("A:xP(x)", "A:xP(x)")
+    assertParsePrettify("A:x!P(x)", "A:x(!P(x))")
+    assertParsePrettify("A:x(E:y(P(x) => Q(y)))", "A:xE:y(P(x) => Q(y))")
+    assertParsePrettify("A:xE:y(P(x) => Q(y))", "A:xE:y(P(x) => Q(y))")
+
+  def assertParsePrettify(input: String, pretty: String): Unit =
+    FormulaParser.parse(input) match
+      case Parsed.Success(formula, _)  => formula.show should be(pretty)
+      case Parsed.Failure(label, _, _) => assert(false, s"Unable to parse $input. Details: $label")
