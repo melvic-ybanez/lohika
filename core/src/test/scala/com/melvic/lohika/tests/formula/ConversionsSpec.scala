@@ -9,7 +9,7 @@ class ConversionsSpec extends BaseSpec:
     given FormulaMapper = FormulaMapper(Converter.eliminateImplications)
 
     "!((p | q) & (!q => r) => p => r)" ====> "!(!((p | q) & (!(!q) | r)) | (!p | r))"
-    "!(B => A) => C" ====> "!(!(!B | A)) | C"
+    "!(B => A) => C"                   ====> "!(!(!B | A)) | C"
 
   it should "work on qualified formulas" in:
     given FormulaMapper = FormulaMapper(Converter.eliminateImplications)

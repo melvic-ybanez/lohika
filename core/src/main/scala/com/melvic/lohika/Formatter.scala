@@ -12,7 +12,7 @@ trait Formatter {
   def itemNumber: String
 
   def indent: String = " " * 4
-  
+
   def formula: Format = emphasize
 }
 
@@ -29,7 +29,7 @@ object Formatter:
 
     def link(target: String): FormatterContext =
       summon[Formatter].link(target)(str)
-      
+
     def formula: FormatterContext =
       summon[Formatter].formula(str)
 
