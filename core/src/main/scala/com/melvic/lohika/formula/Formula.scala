@@ -1,8 +1,8 @@
 package com.melvic.lohika.formula
 
-import Formula.*
 import cats.Endo
-import com.melvic.lohika.formula.Formula.Quantified.{BoundVars, Existential, Quantifier, Universal}
+import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 
 import scala.annotation.targetName
 import scala.util.chaining.*

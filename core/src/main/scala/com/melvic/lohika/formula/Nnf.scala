@@ -22,10 +22,12 @@ object Nnf:
       convertExistential(moveNegationsInside)(ThereExists(vars, !matrix))
     case Not(ThereExists(vars, matrix)) =>
       convertUniversal(moveNegationsInside)(Forall(vars, !matrix))
-    case not: Not => convertNegation(moveNegationsInside)(not)
-    case or: Or   => convertDisjunction(moveNegationsInside)(or)
-    case and: And => convertConjunction(moveNegationsInside)(and)
-    case fm       => fm
+    case not: Not                       => convertNegation(moveNegationsInside)(not)
+    case or: Or                         => convertDisjunction(moveNegationsInside)(or)
+    case and: And                       => convertConjunction(moveNegationsInside)(and)
+    case Forall(vars, Not(matrix))      => Forall(vars, moveNegationsInside(Not(matrix)))
+    case ThereExists(vars, Not(matrix)) => Forall(vars, moveNegationsInside(Not(matrix)))
+    case fm                             => fm
 
   def simplifyNegations: Endo[Formula] =
     case Not(Not(p))     => simplifyNegations(p)
