@@ -18,8 +18,8 @@ object Formula extends FormulaGivens:
   final case class Not(p: Formula)
   case object True
   case object False
-  final case class Forall(variables: BoundVars, matrix: Formula) extends Quantified
-  final case class ThereExists(variables: BoundVars, matrix: Formula) extends Quantified
+  final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
+  final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class Predicate(name: String, args: List[Var])
 
   type Property = Formula => Boolean
@@ -34,7 +34,7 @@ object Formula extends FormulaGivens:
     def components: List[Formula] = p :: q :: rs
 
   trait Quantified:
-    def variables: BoundVars
+    def boundVars: BoundVars
 
     def matrix: Formula
 

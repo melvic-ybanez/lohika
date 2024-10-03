@@ -11,6 +11,7 @@ class AlphaConverterSpec extends BaseSpec:
 
   "Alpha-conversion" should "work on simple bound variable" in:
     "A:x(P(x) => Q(x))" ====> "A:y(P(y) => Q(y))"
+    "E:xQ(x)" ====> "E:yQ(y)"
 
   it should "work even if the quantification is not top-level" in:
     "A:x(P(x) => R(a, x)) & Q(x)" ====> "A:x(P(x) => R(a, x)) & Q(x)"

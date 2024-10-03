@@ -42,7 +42,7 @@ object AlphaConverter:
     case variable                          => variable
 
   def renameFreeVars: Convert[Formula] =
-    case v: Var                => renameVariable(v)
+    case v: Var                => renameVariable(v) // we may not need this
     case Predicate(name, args) => Predicate(name, args.map(renameVariable))
     // the variable is not free, return as-is
     case quantified @ Quantified(_, (Var(x), xs), _)

@@ -2,8 +2,6 @@ package com.melvic.lohika.tests.formula
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.Formatter
-import com.melvic.lohika.Formatter.Format
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.parsers.FormulaParser
