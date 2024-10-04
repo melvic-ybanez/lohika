@@ -4,7 +4,7 @@ import cats.Endo
 import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.Formula.*
 
-private[formula] trait CnfFunctions:
+private[formula] trait CnfConversions:
   def toCnf: Formula => Cnf =
     toCnfUntyped andThen:
       case or: Or if or.components.forall(isLiteral) =>
