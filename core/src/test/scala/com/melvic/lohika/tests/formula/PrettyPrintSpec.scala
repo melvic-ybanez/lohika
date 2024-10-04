@@ -4,7 +4,7 @@ import cats.*
 import cats.implicits.*
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
-import com.melvic.lohika.parsers.FormulaParser
+import com.melvic.lohika.parsers.Parser
 import com.melvic.lohika.tests.Givens
 import fastparse.Parsed
 import org.scalatest.flatspec.AnyFlatSpec
@@ -83,6 +83,6 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
     assertParsePrettify("A:xE:y(P(x) => Q(y))", "A:xE:y(P(x) => Q(y))")
 
   def assertParsePrettify(input: String, pretty: String): Unit =
-    FormulaParser.parse(input) match
+    Parser.parseFormula(input) match
       case Parsed.Success(formula, _)  => formula.show should be(pretty)
       case Parsed.Failure(label, _, _) => assert(false, s"Unable to parse $input. Details: $label")

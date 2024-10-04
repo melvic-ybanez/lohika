@@ -6,8 +6,8 @@ import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
-object FormulaParser:
-  def parse(input: String): Parsed[Formula] =
+object Parser extends MetaParsing:
+  def parseFormula(input: String): Parsed[Formula] =
     fastParse(input, formula(using _))
 
   def formula[$: P]: P[Formula] = P(iff)

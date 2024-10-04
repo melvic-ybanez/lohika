@@ -5,11 +5,11 @@ import Formula.*
 import com.melvic.lohika.Formatter
 import fastparse.*
 import Formatter.*
-import com.melvic.lohika.parsers.FormulaParser
+import com.melvic.lohika.parsers.Parser
 
 private[formula] trait FormulaGivens:
   given Conversion[String, Formula] = input =>
-    FormulaParser.parse(input) match
+    Parser.parseFormula(input) match
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 

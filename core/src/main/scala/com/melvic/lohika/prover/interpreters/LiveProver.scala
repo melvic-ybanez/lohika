@@ -7,7 +7,7 @@ import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
-import com.melvic.lohika.parsers.MetaParser
+import com.melvic.lohika.parsers.Parser
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.algebras.Prover.{
   Contradiction,
@@ -72,7 +72,7 @@ object LiveProver:
       step(s"${itemNumber}$description", ())
 
     override def parseEntailment(rawEntailment: String): Steps[Entailment] =
-      MetaParser.parseEntailment(rawEntailment) match
+      Parser.parseEntailment(rawEntailment) match
         case Parsed.Success(entailment, _)   => step(entailment)
         case Parsed.Failure(label, _, extra) => WriterT(s"Unable to parse '$rawEntailment'.".asLeft)
 

@@ -3,7 +3,7 @@ package com.melvic.lohika.tests
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{thereExists, forall}
-import com.melvic.lohika.parsers.FormulaParser
+import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
 
 class FormulaParserSpec extends BaseSpec:
@@ -105,9 +105,9 @@ class FormulaParserSpec extends BaseSpec:
     parseFailure("P(X)")
 
   def parseSuccess(input: String, expected: Formula): Unit =
-    FormulaParser.parse(input) should matchPattern:
+    Parser.parseFormula(input) should matchPattern:
       case Parsed.Success(`expected`, _) =>
 
   def parseFailure(input: String): Unit =
-    FormulaParser.parse(input) should matchPattern:
+    Parser.parseFormula(input) should matchPattern:
       case Parsed.Failure(_, _, _) =>
