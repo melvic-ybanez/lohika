@@ -2,10 +2,10 @@ package com.melvic.lohika.formula
 
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
-import com.melvic.lohika.formula.PrettyPrinter.Precedence.noParensIfEqual
+import com.melvic.lohika.formula.Formula.Precedence.noParensIfEqual
 import com.melvic.lohika.parsers.Lexemes
 
-object PrettyPrinter:
+private[formula] trait PrettyPrinting:
   def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Default): String =
     given currentPrecedence: Int = precedence(formula)
 

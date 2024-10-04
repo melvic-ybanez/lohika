@@ -2,12 +2,11 @@ package com.melvic.lohika.formula
 
 import cats.data.State
 import cats.implicits.*
-import com.melvic.lohika.formula.AlphaConverter.RenamingPair
 import com.melvic.lohika.formula.Formula.*
 
 import scala.annotation.tailrec
 
-object Standardizer:
+private[formula] trait Standardization:
   type TakenNames = List[String]
   type Standardize[F <: Formula] = F => State[TakenNames, F]
 
@@ -44,7 +43,7 @@ object Standardizer:
             .foldLeft(quantified): (fm, renamingPair) =>
               given RenamingPair = renamingPair
 
-              AlphaConverter.convertQuantified(quantified)
+              Formula.alphaConvertQuantified(quantified)
         )
 
   def standardizeFList(fList: FList): State[TakenNames, (Formula, Formula, List[Formula])] =

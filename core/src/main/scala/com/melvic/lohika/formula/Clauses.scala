@@ -15,7 +15,7 @@ final case class Clauses(underlying: Set[Clause]):
     Clauses(this.underlying ++ that.underlying)
 
   def contains(clause: Clause): Boolean =
-    underlying.exists(thisClause => Cnf.toFormula(thisClause) === Cnf.toFormula(clause))
+    underlying.exists(thisClause => Formula.fromCnf(thisClause) === Formula.fromCnf(clause))
 
   def isEmpty: Boolean = underlying.isEmpty
 
@@ -37,10 +37,10 @@ object Clauses extends ClausesGivens:
       acc ++ clause
 
   def fromFormula: Formula => Clauses =
-    Cnf.fromFormula andThen fromCnf
+    Formula.toCnf andThen fromCnf
 
   def fromAllFormulae: List[Formula] => Clauses =
-    fms => fromCnfs(fms.map(Cnf.fromFormula))
+    fms => fromCnfs(fms.map(Formula.toCnf))
 
 sealed trait ClausesGivens:
   import Givens.given

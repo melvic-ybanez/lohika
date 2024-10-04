@@ -3,9 +3,9 @@ package com.melvic.lohika.formula
 import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 
-object AlphaConverter:
+private[formula] trait AlphaConversion:
   final case class RenamingPair(originalName: String, newName: String)
-  type Convert[F <: Formula] = RenamingPair ?=> Endo[F]
+  type AlphaConvert[F <: Formula] = RenamingPair ?=> Endo[F]
 
   def originalName(using renamingPair: RenamingPair): String =
     renamingPair.originalName
@@ -13,35 +13,35 @@ object AlphaConverter:
   def newName(using renamingPair: RenamingPair): String =
     renamingPair.newName
 
-  def convertFormula: Convert[Formula] =
-    case forall: Forall           => convertUniversal(forall)
-    case thereExists: ThereExists => convertExistential(thereExists)
+  def alphaConvert: AlphaConvert[Formula] =
+    case forall: Forall           => alphaConvertUniversal(forall)
+    case thereExists: ThereExists => alphaConvertExistential(thereExists)
     case fm                       => fm
 
-  def convertQuantified: Convert[Quantified] =
+  def alphaConvertQuantified: AlphaConvert[Quantified] =
     case Quantified(quantifier, (Var(name), xs), matrix) if name == originalName =>
       Quantified(quantifier, (Var(newName), xs), renameFreeVars(matrix))
     case quantified @ Quantified(quantifier, (_, Nil), _) => quantified
     case Quantified(quantifier, (x, y :: ys), matrix)     =>
       // rename without the first variable
-      convertQuantified(Quantified(quantifier, (y, ys), matrix)) match
+      alphaConvertQuantified(Quantified(quantifier, (y, ys), matrix)) match
         // put the variable back into the renamed quantified formula
         case Quantified(quantifier, (y1, ys1), matrix1) =>
           Quantified(quantifier, (x, y1 :: ys1), matrix1)
 
-  def convertUniversal: Convert[Forall] =
-    convertQuantified andThen:
+  def alphaConvertUniversal: AlphaConvert[Forall] =
+    alphaConvertQuantified andThen:
       case forall: Forall => forall
 
-  def convertExistential: Convert[ThereExists] =
-    convertQuantified andThen:
+  def alphaConvertExistential: AlphaConvert[ThereExists] =
+    alphaConvertQuantified andThen:
       case thereExists: ThereExists => thereExists
 
-  def renameVariable: Convert[Var] =
+  def renameVariable: AlphaConvert[Var] =
     case Var(name) if name == originalName => Var(newName)
     case variable                          => variable
 
-  def renameFreeVars: Convert[Formula] =
+  def renameFreeVars: AlphaConvert[Formula] =
     case v: Var                => renameVariable(v) // we may not need this
     case Predicate(name, args) => Predicate(name, args.map(renameVariable))
     // the variable is not free, return as-is
@@ -51,7 +51,7 @@ object AlphaConverter:
     case Quantified(quantifier, vars, matrix) =>
       Quantified(quantifier, vars, renameFreeVars(matrix))
     case fm =>
-      Converter
-        .convertFormula(fm)
+      Formula
+        .convert(fm)
         .unless { case _: Forall | _: ThereExists | _: Var | _: Predicate => }
         .by(renameFreeVars)

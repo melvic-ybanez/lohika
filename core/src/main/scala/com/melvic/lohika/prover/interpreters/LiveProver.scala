@@ -38,7 +38,7 @@ object LiveProver:
             List.empty[Cnf]
           ): (step, formula) =>
             step.flatMap: cnfs =>
-              val cnf = Cnf.fromFormula(formula)
+              val cnf = Formula.toCnf(formula)
               (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
 
           WriterT(cnfs.asRight)

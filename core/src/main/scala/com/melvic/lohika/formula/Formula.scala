@@ -9,7 +9,7 @@ import scala.util.chaining.*
 
 type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Quantified | Predicate
 
-object Formula extends FormulaGivens:
+object Formula extends FormulaGivens with CnfFunctions with Conversions with PrettyPrinting:
   final case class Var(name: String)
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList

@@ -1,17 +1,17 @@
 package com.melvic.lohika.tests.formula
 
-import com.melvic.lohika.formula.AlphaConverter
-import com.melvic.lohika.formula.AlphaConverter.RenamingPair
+import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.RenamingPair
 import com.melvic.lohika.tests.BaseSpec
 import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
 
-class AlphaConverterSpec extends BaseSpec:
+class AlphaConversionSpec extends BaseSpec:
   given RenamingPair = RenamingPair("x", "y")
-  given (using RenamingPair): FormulaMapper = FormulaMapper(AlphaConverter.convertFormula)
+  given (using RenamingPair): FormulaMapper = FormulaMapper(Formula.alphaConvert)
 
   "Alpha-conversion" should "work on simple bound variable" in:
     "A:x(P(x) => Q(x))" ====> "A:y(P(y) => Q(y))"
-    "E:xQ(x)" ====> "E:yQ(y)"
+    "E:xQ(x)"           ====> "E:yQ(y)"
 
   it should "work even if the quantification is not top-level" in:
     "A:x(P(x) => R(a, x)) & Q(x)" ====> "A:x(P(x) => R(a, x)) & Q(x)"

@@ -3,7 +3,7 @@ package com.melvic.lohika.formula
 import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 
-object Converter:
+private[formula] trait Conversions extends NnfConversions with AlphaConversion with Standardization:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
 
@@ -36,11 +36,11 @@ object Converter:
       val iffs = rs.foldLeft(List(p <==> q)):
         case (iffs @ (Iff(_, q, _) :: _), r) => (q <==> r) :: iffs
       eliminateBiconditionals(And.fromList(iffs.reverse))
-    case fm => convertFormula(fm).unless { case _: Iff => }.by(eliminateBiconditionals)
+    case fm => convert(fm).unless { case _: Iff => }.by(eliminateBiconditionals)
 
   def eliminateImplications: Endo[Formula] =
     case Imply(p, q) => eliminateImplications(!p | q)
-    case fm => convertFormula(fm).unless { case _: Iff | _: Imply => }.by(eliminateImplications)
+    case fm          => convert(fm).unless { case _: Iff | _: Imply => }.by(eliminateImplications)
 
   def distributeOrOverAnds: Endo[Formula] =
     case Or(p, And(ap, aq, ars), Nil) =>
@@ -52,7 +52,7 @@ object Converter:
     case Or(p, q, (and: And) :: rs) =>
       distributeOrOverAnds(Or(p, distributeOrOverAnds(q | and), rs))
     case Or(p, q, r :: rs) => distributeOrOverAnds(p | distributeOrOverAnds(Or(q, r, rs)))
-    case fm => convertFormula(fm).when { case _: And | _: Not => }.by(distributeOrOverAnds)
+    case fm                => convert(fm).when { case _: And | _: Not => }.by(distributeOrOverAnds)
 
   def flattenConjunctions: Endo[Formula] =
     case and: And =>
@@ -81,7 +81,7 @@ object Converter:
     case or: Or   => flattenDisjunctions(or)
     case fm       => fm
 
-  def convertFormula(formula: Formula): ConvertFormula = ConvertFormula(formula)
+  def convert(formula: Formula): ConvertFormula = ConvertFormula(formula)
 
   def convertBiconditional: Convert[Iff] = f =>
     case Iff(p, q, rs) => Iff(f(p), f(q), rs.map(f))

@@ -1,19 +1,12 @@
 package com.melvic.lohika.formula
 
 import cats.Endo
-import com.melvic.lohika.formula.Converter.{
-  convertConjunction,
-  convertUniversal,
-  convertNegation,
-  convertDisjunction,
-  convertExistential
-}
 import com.melvic.lohika.formula.Formula.*
 
 /**
  * Negation Normal Form
  */
-object Nnf:
+private[formula] trait NnfConversions:
   def moveNegationsInside: Endo[Formula] =
     case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
