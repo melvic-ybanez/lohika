@@ -1,9 +1,13 @@
 package com.melvic.lohika.formula
 
-import cats.Endo
+import cats.{Endo, Id}
 import com.melvic.lohika.formula.Formula.*
 
-private[formula] trait Conversion extends CnfConversions with NnfConversions with AlphaConversion with Standardization:
+private[formula] trait Conversions
+    extends CnfConversion
+    with NnfConversion
+    with AlphaConversion
+    with Standardization:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
 

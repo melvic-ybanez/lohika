@@ -7,7 +7,7 @@ import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Or | And | Imply | Iff | Var | Not | True.type | False.type | Quantified | Predicate
+type Formula = Imply | FList | Var | Not | True.type | False.type | Quantified | Predicate
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   final case class Var(name: String)

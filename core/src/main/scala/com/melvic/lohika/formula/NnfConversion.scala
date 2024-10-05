@@ -6,7 +6,7 @@ import com.melvic.lohika.formula.Formula.*
 /**
  * Negation Normal Form
  */
-private[formula] trait NnfConversions:
+private[formula] trait NnfConversion:
   def moveNegationsInside: Endo[Formula] =
     case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
     case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))

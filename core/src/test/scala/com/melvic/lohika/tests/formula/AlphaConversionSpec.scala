@@ -5,7 +5,7 @@ import com.melvic.lohika.formula.Formula.RenamingPair
 import com.melvic.lohika.tests.BaseSpec
 import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
 
-class AlphaConversionsSpec extends BaseSpec:
+class AlphaConversionSpec extends BaseSpec:
   given RenamingPair = RenamingPair("x", "y")
   given (using RenamingPair): FormulaMapper = FormulaMapper(Formula.alphaConvert)
 

@@ -54,6 +54,12 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("(A <=> B) & C", ("A" <==> "B") & "C")
     parseSuccess("(A | B) & (C | D)", ("A" | "B") & ("C" | "D"))
 
+  it should "accept quantified constituents" in:
+    parseSuccess(
+      "E:x(P(x) | A:yQ(x, y)) & R(x, z)",
+      thereExists("x")("P".of("x") | forall("y")("Q".of("x", "y"))) & "R".of("x", "z")
+    )
+
   "Implication" should "be connected by =>" in:
     parseSuccess("A => B", "A" ==> "B")
 

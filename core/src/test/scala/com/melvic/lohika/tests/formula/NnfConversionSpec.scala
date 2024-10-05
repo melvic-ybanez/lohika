@@ -4,7 +4,7 @@ import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.tests.BaseSpec
 import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
 
-class NnfConversionsSpec extends BaseSpec with FormulaMappingSupport:
+class NnfConversionSpec extends BaseSpec with FormulaMappingSupport:
   "NNF conversion" should "move negations inside" in:
     "!(A & B)"                  ====> "!A | !B"
     "!(A | B)"                  ====> "!A & !B"
