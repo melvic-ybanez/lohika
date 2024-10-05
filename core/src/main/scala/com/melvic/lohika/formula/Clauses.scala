@@ -9,32 +9,21 @@ import com.melvic.lohika.*
 
 import scala.annotation.targetName
 
-final case class Clauses(underlying: Set[Clause]):
-  @targetName("concat")
-  def ++(that: Clauses): Clauses =
-    Clauses(this.underlying ++ that.underlying)
-
-  def contains(clause: Clause): Boolean =
-    underlying.exists(thisClause => Formula.fromCnf(thisClause) === Formula.fromCnf(clause))
-
-  def isEmpty: Boolean = underlying.isEmpty
+opaque type Clauses = Set[Clause]
 
 object Clauses extends ClausesGivens:
-  def apply(clause: Clause*): Clauses =
-    Clauses(clause.toSet)
+  def apply(clause: Clause*): Clauses = clause.toSet
 
-  def one(clause: Clause): Clauses =
-    Clauses(Set(clause))
+  def one(clause: Clause): Clauses = Set(clause)
 
-  def empty: Clauses = Clauses(Set())
+  def empty: Clauses = Set()
 
   def fromCnf: Cnf => Clauses =
-    case CAnd(clauses)  => Clauses(clauses.toSet)
+    case CAnd(clauses)  => clauses.toSet
     case clause: Clause => one(clause)
 
   def fromCnfs: List[Cnf] => Clauses =
-    _.map(fromCnf).foldLeft(Clauses.empty): (acc, clause) =>
-      acc ++ clause
+    _.map(fromCnf).combineAll
 
   def fromFormula: Formula => Clauses =
     Formula.toCnf andThen fromCnf
@@ -42,8 +31,21 @@ object Clauses extends ClausesGivens:
   def fromAllFormulae: List[Formula] => Clauses =
     fms => fromCnfs(fms.map(Formula.toCnf))
 
+  extension (self: Clauses)
+    @targetName("concat")
+    def ++(other: Clauses): Clauses =
+      self ++ other
+
+    def contains(clause: Clause): Boolean =
+      self.exists(thisClause => Formula.fromCnf(thisClause) === Formula.fromCnf(clause))
+
+    def toList: List[Clause] =
+      self.toList
+
+    def isEmpty: Boolean = self.isEmpty
+
 sealed trait ClausesGivens:
   import Givens.given
 
   given (using Formatter): Show[Clauses] = Show.show:
-    case Clauses(underlying) => underlying.toList.show
+    _.toList.show

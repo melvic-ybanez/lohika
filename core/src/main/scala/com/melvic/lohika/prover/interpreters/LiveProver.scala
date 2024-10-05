@@ -54,7 +54,7 @@ object LiveProver:
       subStep(show"$lhs becomes $rhs", rhs)
 
     override def resolve(clauseSet: Clauses): Steps[ResolutionResult] =
-      def recurse(clauses: Clauses): ResolutionResult = clauses.underlying.toList match
+      def recurse(clauses: Clauses): ResolutionResult = clauses.toList match
         case Nil => Exhaustion
         case clause :: rest =>
           rest

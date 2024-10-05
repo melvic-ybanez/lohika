@@ -18,16 +18,6 @@ private[formula] trait Standardization:
     val boundVars = allBoundVars(formula)
     standardize(formula).run(boundVars).value._2
 
-  def allBoundVars: Formula => AllBoundVars =
-    case fList: FList =>
-      allBoundVars(fList.p) ++ allBoundVars(fList.q) ++ fList.rs.map(allBoundVars).combineAll
-    case Imply(p, q)                    => allBoundVars(p) ++ allBoundVars(q)
-    case Not(p)                         => allBoundVars(p)
-    case Var(x)                         => Nil
-    case Predicate(_, args)             => Nil
-    case Quantified(_, (x, xs), matrix) => (x :: xs) ++ allBoundVars(matrix)
-    case fm                             => Nil
-
   /**
    * Note: Implications and biconditionals are expected to have been eliminated at this point
    */
@@ -50,9 +40,8 @@ private[formula] trait Standardization:
 
         val renamingPairs = (x :: xs).flatMap:
           case Var(name) =>
-            Option.when(takenOrFree(name) > 1)(
+            Option.when(takenOrFree(name) > 1):
               RenamingPair(name, generateNewName(name, takenOrFree.keys.toSet))
-            )
 
         // decrement the count of renamed vars
         val reducedBoundVars = renamingPairs.foldLeft(allBoundVars): (boundVars, pair) =>
@@ -86,6 +75,16 @@ private[formula] trait Standardization:
     case Quantified(_, (Var(x), xs), matrix) =>
       allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
     case fm => Set.empty
+
+  def allBoundVars: Formula => AllBoundVars =
+    case fList: FList =>
+      allBoundVars(fList.p) ++ allBoundVars(fList.q) ++ fList.rs.map(allBoundVars).combineAll
+    case Imply(p, q)                    => allBoundVars(p) ++ allBoundVars(q)
+    case Not(p)                         => allBoundVars(p)
+    case Var(x)                         => Nil
+    case Predicate(_, args)             => Nil
+    case Quantified(_, (x, xs), matrix) => (x :: xs) ++ allBoundVars(matrix)
+    case fm                             => Nil
 
   def generateNewName(base: String, taken: TakenNames): String =
     @tailrec
