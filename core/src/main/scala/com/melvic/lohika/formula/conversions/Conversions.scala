@@ -8,9 +8,10 @@ private[formula] trait Conversions
     extends CnfConversion
     with NnfConversion
     with AlphaConversion
-    with PnfConversion:
+    with Standardization:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
+  opaque type NoConditionals = Formula
 
   class ConvertFormula(formula: Formula):
     def unless(f: Unless): ConvertFormulaUnless =
@@ -46,6 +47,9 @@ private[formula] trait Conversions
   def eliminateImplications: Endo[Formula] =
     case Imply(p, q) => eliminateImplications(!p | q)
     case fm          => convert(fm).unless { case _: Iff | _: Imply => }.by(eliminateImplications)
+
+  def eliminateConditionals: Formula => NoConditionals =
+    eliminateBiconditionals andThen eliminateImplications
 
   def distributeOrOverAnds: Endo[Formula] =
     case Or(p, And(ap, aq, ars), Nil) =>
@@ -108,3 +112,7 @@ private[formula] trait Conversions
 
   def convertExistential: Convert[ThereExists] = f =>
     case ThereExists(boundVars, matrix) => ThereExists(boundVars, f(matrix))
+
+  extension (noConditoinals: NoConditionals)
+    def unwrap: Formula =
+      noConditoinals

@@ -24,4 +24,4 @@ class StandardizationSpec extends BaseSpec with FormulaMappingSupport:
     "A:x(P(x) | E:y(Q(x, y) & A:x(R(x) | E:yS(y, x))))" ====> "A:z(P(z) | E:a(Q(z, a) & A:x(R(x) | E:yS(y, x))))"
 
   override given formulaMapper: FormulaMapper =
-    FormulaMapper(Formula.runStandardization)
+    FormulaMapper(fm => Formula.standardize(Formula.eliminateConditionals(fm)))

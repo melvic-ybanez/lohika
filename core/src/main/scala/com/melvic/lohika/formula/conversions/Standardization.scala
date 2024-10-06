@@ -12,28 +12,29 @@ private[formula] trait Standardization:
   opaque type AllFreeVars = Set[Var]
   opaque type AllBoundVars = List[Var]
 
-  type Standardize[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
+  type StandardizeM[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
 
-  def runStandardization(formula: Formula): Formula =
-    given AllFreeVars = allFreeVars(using Set.empty)(formula)
-    val boundVars = allBoundVars(formula)
-    standardize(formula).run(boundVars).value._2
+  def standardize(noConditionals: NoConditionals): Formula =
+    given AllFreeVars = allFreeVars(using Set.empty)(noConditionals.unwrap)
+    val boundVars = allBoundVars(noConditionals.unwrap)
+    standardizeM(noConditionals.unwrap).run(boundVars).value._2
 
   /**
-   * Note: Implications and biconditionals are expected to have been eliminated at this point
+   * Note: Implications and biconditionals are expected to have been eliminated at this point, as
+   * captured by [[standardize]]'s function signature
    */
-  def standardize: Standardize[Formula] =
+  private def standardizeM: StandardizeM[Formula] =
     case quantified @ Quantified(quantifier, (x, xs), matrix) =>
       for
-        sq <- standardizeQuantified(quantified)
-        sm <- standardize(sq.matrix) // we standardize the matrix for nested quantifiers
+        sq <- standardizeQuantifiedM(quantified)
+        sm <- standardizeM(sq.matrix) // we standardize the matrix for nested quantifiers
       yield Quantified(quantifier, sq.boundVars, sm)
-    case or: Or   => standardizeFList(or).map(Or.apply)
-    case and: And => standardizeFList(and).map(And.apply)
-    case Not(p)   => standardize(p).map(Not.apply)
+    case or: Or   => standardizeFListM(or).map(Or.apply)
+    case and: And => standardizeFListM(and).map(And.apply)
+    case Not(p)   => standardizeM(p).map(Not.apply)
     case fm       => State.pure(fm)
 
-  def standardizeQuantified: Standardize[Quantified] =
+  private def standardizeQuantifiedM: StandardizeM[Quantified] =
     case quantified @ Quantified(_, (x, xs), _) =>
       State: allBoundVars =>
         val takenOrFree = (allBoundVars.map(_.name) ++ summon[AllFreeVars].map(_.name))
@@ -57,16 +58,16 @@ private[formula] trait Standardization:
               Formula.alphaConvertQuantified(fm)
         )
 
-  def standardizeFList(
+  private def standardizeFListM(
       fList: FList
   )(using AllFreeVars): State[AllBoundVars, (Formula, Formula, List[Formula])] =
     for
-      sp  <- standardize(fList.p)
-      sq  <- standardize(fList.q)
-      srs <- fList.rs.map(standardize).sequence
+      sp  <- standardizeM(fList.p)
+      sq  <- standardizeM(fList.q)
+      srs <- fList.rs.map(standardizeM).sequence
     yield (sp, sq, srs)
 
-  def allFreeVars(using enclosing: TakenNames): Formula => AllFreeVars =
+  private def allFreeVars(using enclosing: TakenNames): Formula => AllFreeVars =
     case fList: FList =>
       allFreeVars(fList.p) ++ allFreeVars(fList.q) ++ fList.rs.map(allFreeVars).combineAll
     case Imply(p, q)                      => allFreeVars(p) ++ allFreeVars(q)
@@ -77,7 +78,7 @@ private[formula] trait Standardization:
       allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
     case fm => Set.empty
 
-  def allBoundVars: Formula => AllBoundVars =
+  private def allBoundVars: Formula => AllBoundVars =
     case fList: FList =>
       allBoundVars(fList.p) ++ allBoundVars(fList.q) ++ fList.rs.map(allBoundVars).combineAll
     case Imply(p, q)                    => allBoundVars(p) ++ allBoundVars(q)
