@@ -3,6 +3,7 @@ package com.melvic.lohika.formula
 import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
+import com.melvic.lohika.formula.conversions.Conversions
 
 import scala.annotation.targetName
 import scala.util.chaining.*

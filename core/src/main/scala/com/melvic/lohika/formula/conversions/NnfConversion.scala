@@ -1,6 +1,7 @@
-package com.melvic.lohika.formula
+package com.melvic.lohika.formula.conversions
 
 import cats.Endo
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
 /**

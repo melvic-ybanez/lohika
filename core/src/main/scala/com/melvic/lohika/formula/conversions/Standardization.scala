@@ -1,7 +1,8 @@
-package com.melvic.lohika.formula
+package com.melvic.lohika.formula.conversions
 
 import cats.data.State
 import cats.implicits.*
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
 import scala.annotation.tailrec
