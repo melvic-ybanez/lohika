@@ -16,29 +16,6 @@ private[formula] trait Conversions
   final case class NoIf(raw: Formula)
   final case class OrOverAnds(raw: Formula)
 
-  class ConvertFormula(formula: Formula):
-    def unless(f: Unless): ConvertFormulaUnless =
-      ConvertFormulaUnless(formula, f)
-
-    def when(f: PartialFunction[Formula, Unit]): ConvertFormulaUnless =
-      ConvertFormulaUnless(formula, Function.unlift(fm => Option.when(!f.isDefinedAt(fm))(())))
-
-    def by(convert: Endo[Formula]): Formula =
-      ConvertFormulaUnless(formula, PartialFunction.empty).by(convert)
-
-  class ConvertFormulaUnless(formula: Formula, unless: Unless):
-    def by(convert: Endo[Formula]): Formula =
-      formula match
-        case fm if unless.isDefinedAt(fm) => fm
-        case iff: Iff                     => convertBiconditional(convert)(iff)
-        case imply: Imply                 => convertImplication(convert)(imply)
-        case or: Or                       => convertDisjunction(convert)(or)
-        case and: And                     => convertConjunction(convert)(and)
-        case not: Not                     => convertNegation(convert)(not)
-        case forall: Forall               => convertUniversal(convert)(forall)
-        case thereExists: ThereExists     => convertExistential(convert)(thereExists)
-        case fm                           => fm
-
   def eliminateBiconditionals: Formula => NoIff =
     def recurse: Endo[Formula] =
       case Iff(p, q, Nil) => recurse((p ==> q) & (q ==> p))
@@ -46,7 +23,7 @@ private[formula] trait Conversions
         val iffs = rs.foldLeft(List(p <==> q)):
           case (iffs @ (Iff(_, q, _) :: _), r) => (q <==> r) :: iffs
         recurse(And.fromList(iffs.reverse))
-      case fm => convert(fm).unless { case _: Iff => }.by(recurse)
+      case fm => convertBy(recurse)(fm)
 
     fm => NoIff(recurse(fm))
 
@@ -54,7 +31,7 @@ private[formula] trait Conversions
     case NoIff(fm) =>
       def recurse: Endo[Formula] =
         case Imply(p, q) => recurse(!p | q)
-        case fm          => convert(fm).unless { case _: Iff | _: Imply => }.by(recurse)
+        case fm          => convertBy(recurse)(fm)
 
       NoIf(recurse(fm))
 
@@ -69,7 +46,7 @@ private[formula] trait Conversions
       case Or(p, q, (and: And) :: rs) =>
         recurse(Or(p, recurse(q | and), rs))
       case Or(p, q, r :: rs) => recurse(p | recurse(Or(q, r, rs)))
-      case fm                => convert(fm).when { case _: And | _: Not => }.by(recurse)
+      case fm                => convertBy(recurse)(fm)
 
     negationsInside => OrOverAnds(recurse(negationsInside.raw))
 
@@ -103,7 +80,15 @@ private[formula] trait Conversions
   def flattenOrsAndAnds: SimplifiedNegations => Formula =
     ooa => flattenOrsAndAndsRaw(ooa.raw)
 
-  def convert(formula: Formula): ConvertFormula = ConvertFormula(formula)
+  def convertBy(transform: Endo[Formula]): Endo[Formula] =
+    case iff: Iff                 => convertBiconditional(transform)(iff)
+    case imply: Imply             => convertImplication(transform)(imply)
+    case or: Or                   => convertDisjunction(transform)(or)
+    case and: And                 => convertConjunction(transform)(and)
+    case not: Not                 => convertNegation(transform)(not)
+    case forall: Forall           => convertUniversal(transform)(forall)
+    case thereExists: ThereExists => convertExistential(transform)(thereExists)
+    case fm                       => fm
 
   def convertBiconditional: Convert[Iff] = f =>
     case Iff(p, q, rs) => Iff(f(p), f(q), rs.map(f))

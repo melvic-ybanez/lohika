@@ -51,8 +51,4 @@ private[formula] trait AlphaConversion:
       quantified
     case Quantified(quantifier, vars, matrix) =>
       Quantified(quantifier, vars, renameFreeVars(matrix))
-    case fm =>
-      Formula
-        .convert(fm)
-        .unless { case _: Forall | _: ThereExists | _: Var | _: Predicate => }
-        .by(renameFreeVars)
+    case fm => Formula.convertBy(renameFreeVars)(fm)
