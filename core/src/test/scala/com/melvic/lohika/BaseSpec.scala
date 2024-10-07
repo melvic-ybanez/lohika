@@ -1,4 +1,4 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika
 
 import org.scalactic.Prettifier
 import org.scalatest.Assertions.*

@@ -1,11 +1,11 @@
-package com.melvic.lohika.tests.formula
+package com.melvic.lohika.formula
 
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.tests.BaseSpec.assertFromInputStrings
-import com.melvic.lohika.tests.formula.FormulaMappingSupport.FormulaMapper
+import com.melvic.lohika.BaseSpec.assertFromInputStrings
+import FormulaMappingSupport.FormulaMapper
 
 import scala.annotation.targetName
 

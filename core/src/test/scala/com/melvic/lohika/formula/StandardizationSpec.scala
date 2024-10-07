@@ -1,8 +1,9 @@
-package com.melvic.lohika.tests.formula
+package com.melvic.lohika.formula
 
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.tests.BaseSpec
-import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
+import FormulaMappingSupport.{====>, FormulaMapper}
+import com.melvic.lohika.BaseSpec
+import com.melvic.lohika.formula.Formula.NoIf
 
 class StandardizationSpec extends BaseSpec with FormulaMappingSupport:
   "Standardization" should "work on nested quantifiers" in:
@@ -24,4 +25,4 @@ class StandardizationSpec extends BaseSpec with FormulaMappingSupport:
     "A:x(P(x) | E:y(Q(x, y) & A:x(R(x) | E:yS(y, x))))" ====> "A:z(P(z) | E:a(Q(z, a) & A:x(R(x) | E:yS(y, x))))"
 
   override given formulaMapper: FormulaMapper =
-    FormulaMapper(fm => Formula.standardize(Formula.eliminateConditionals(fm)))
+    FormulaMapper(fm => Formula.standardize(NoIf(fm)).raw)

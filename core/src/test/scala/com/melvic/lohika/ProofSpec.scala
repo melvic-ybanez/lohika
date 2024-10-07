@@ -1,4 +1,4 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

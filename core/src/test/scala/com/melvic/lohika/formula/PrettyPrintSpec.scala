@@ -1,11 +1,11 @@
-package com.melvic.lohika.tests.formula
+package com.melvic.lohika.formula
 
 import cats.*
 import cats.implicits.*
+import com.melvic.lohika.Givens
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.parsers.Parser
-import com.melvic.lohika.tests.Givens
 import fastparse.Parsed
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

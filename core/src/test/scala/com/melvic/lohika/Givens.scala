@@ -1,4 +1,4 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika
 
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.Format

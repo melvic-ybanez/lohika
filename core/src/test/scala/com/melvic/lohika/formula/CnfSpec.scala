@@ -1,8 +1,8 @@
-package com.melvic.lohika.tests.formula
+package com.melvic.lohika.formula
 
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.tests.BaseSpec
-import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
+import FormulaMappingSupport.{====>, FormulaMapper}
+import com.melvic.lohika.BaseSpec
 
 class CnfSpec extends BaseSpec with FormulaMappingSupport:
   "Disjunction" should "be flattened" in:
@@ -66,4 +66,4 @@ class CnfSpec extends BaseSpec with FormulaMappingSupport:
     "!!!!P" ====> "P"
 
   override given formulaMapper: FormulaMapper =
-    FormulaMapper(Formula.toCnfUntyped)
+    FormulaMapper(Formula.toCnfButRaw)

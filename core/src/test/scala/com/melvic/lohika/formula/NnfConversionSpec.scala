@@ -1,8 +1,9 @@
-package com.melvic.lohika.tests.formula
+package com.melvic.lohika.formula
 
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.tests.BaseSpec
-import com.melvic.lohika.tests.formula.FormulaMappingSupport.{====>, FormulaMapper}
+import FormulaMappingSupport.{====>, FormulaMapper}
+import com.melvic.lohika.BaseSpec
+import com.melvic.lohika.formula.Formula.NoIf
 
 class NnfConversionSpec extends BaseSpec with FormulaMappingSupport:
   "NNF conversion" should "move negations inside" in:
@@ -19,4 +20,4 @@ class NnfConversionSpec extends BaseSpec with FormulaMappingSupport:
     "A:z!(P(z) | Q(z))"        ====> "A:z(!P(z) & !Q(z))"
 
   override given formulaMapper: FormulaMapper =
-    FormulaMapper(Formula.moveNegationsInside)
+    FormulaMapper(fm => Formula.moveNegationsInside(NoIf(fm)).raw)

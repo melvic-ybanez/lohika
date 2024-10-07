@@ -8,27 +8,37 @@ import com.melvic.lohika.formula.Formula.*
  * Negation Normal Form
  */
 private[formula] trait NnfConversion:
-  def moveNegationsInside: Endo[Formula] =
-    case Not(Or(p, q, rs))    => moveNegationsInside(And(!p, !q, rs.map(!_)))
-    case Not(And(p, q, rs))   => moveNegationsInside(Or(!p, !q, rs.map(!_)))
-    case notNot @ Not(Not(_)) => moveNegationsInside(simplifyNegations(notNot))
-    case Not(Forall(vars, matrix)) =>
-      convertExistential(moveNegationsInside)(ThereExists(vars, !matrix))
-    case Not(ThereExists(vars, matrix)) =>
-      convertUniversal(moveNegationsInside)(Forall(vars, !matrix))
-    case not: Not                       => convertNegation(moveNegationsInside)(not)
-    case or: Or                         => convertDisjunction(moveNegationsInside)(or)
-    case and: And                       => convertConjunction(moveNegationsInside)(and)
-    case Forall(vars, Not(matrix))      => Forall(vars, moveNegationsInside(Not(matrix)))
-    case ThereExists(vars, Not(matrix)) => Forall(vars, moveNegationsInside(Not(matrix)))
-    case fm                             => fm
+  private[formula] final case class NegationsInside(raw: Formula)
+  private[formula] final case class SimplifiedNegations(raw: Formula)
 
-  def simplifyNegations: Endo[Formula] =
-    case Not(Not(p))     => simplifyNegations(p)
+  def moveNegationsInside: NoIf => NegationsInside =
+    case NoIf(fm) =>
+      def recurse: Endo[Formula] =
+        case Not(Or(p, q, rs))    => recurse(And(!p, !q, rs.map(!_)))
+        case Not(And(p, q, rs))   => recurse(Or(!p, !q, rs.map(!_)))
+        case notNot @ Not(Not(_)) => recurse(simplifyNegationsRaw(notNot))
+        case Not(Forall(vars, matrix)) =>
+          convertExistential(recurse)(ThereExists(vars, !matrix))
+        case Not(ThereExists(vars, matrix)) =>
+          convertUniversal(recurse)(Forall(vars, !matrix))
+        case not: Not                       => convertNegation(recurse)(not)
+        case or: Or                         => convertDisjunction(recurse)(or)
+        case and: And                       => convertConjunction(recurse)(and)
+        case Forall(vars, Not(matrix))      => Forall(vars, recurse(Not(matrix)))
+        case ThereExists(vars, Not(matrix)) => Forall(vars, recurse(Not(matrix)))
+        case fm                             => fm
+
+      NegationsInside(recurse(fm))
+
+  def simplifyNegations: NoIf => SimplifiedNegations =
+    case NoIf(fm) => SimplifiedNegations(simplifyNegationsRaw(fm))
+
+  private def simplifyNegationsRaw: Endo[Formula] =
+    case Not(Not(p))     => simplifyNegationsRaw(p)
     case Not(True)       => False
     case Not(False)      => True
     case Not(p @ Var(_)) => !p
     case not: Not        => not
-    case or: Or          => convertDisjunction(simplifyNegations)(or)
-    case and: And        => convertConjunction(simplifyNegations)(and)
+    case or: Or          => convertDisjunction(simplifyNegationsRaw)(or)
+    case and: And        => convertConjunction(simplifyNegationsRaw)(and)
     case fm              => fm

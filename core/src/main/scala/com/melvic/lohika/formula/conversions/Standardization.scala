@@ -13,15 +13,16 @@ private[formula] trait Standardization:
   opaque type AllBoundVars = List[Var]
 
   type StandardizeM[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
+  final case class Standardized(raw: Formula)
 
-  def standardize(noConditionals: NoConditionals): Formula =
-    given AllFreeVars = allFreeVars(using Set.empty)(noConditionals.unwrap)
-    val boundVars = allBoundVars(noConditionals.unwrap)
-    standardizeM(noConditionals.unwrap).run(boundVars).value._2
+  def standardize: NoIf => Standardized =
+    case NoIf(formula) =>
+      given AllFreeVars = allFreeVars(using Set.empty)(formula)
+      val boundVars = allBoundVars(formula)
+      Standardized(standardizeM(formula).run(boundVars).value._2)
 
   /**
-   * Note: Implications and biconditionals are expected to have been eliminated at this point, as
-   * captured by [[standardize]]'s function signature
+   * Note: Implications and biconditionals are expected to have been eliminated at this point
    */
   private def standardizeM: StandardizeM[Formula] =
     case quantified @ Quantified(quantifier, (x, xs), matrix) =>

@@ -1,4 +1,4 @@
-package com.melvic.lohika.tests
+package com.melvic.lohika
 
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
