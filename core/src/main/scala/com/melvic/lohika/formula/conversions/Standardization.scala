@@ -13,7 +13,7 @@ private[formula] trait Standardization:
   opaque type AllBoundVars = List[Var]
 
   type StandardizeM[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
-  final case class Standardized(raw: Formula)
+  private[formula] final case class Standardized(raw: Formula)
 
   def standardize: NoIf => Standardized =
     case NoIf(formula) =>

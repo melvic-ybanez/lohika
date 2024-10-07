@@ -1,12 +1,11 @@
 package com.melvic.lohika
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import ProofSpec.result
-import com.melvic.lohika.formula.Cnf.*
+import com.melvic.lohika.ProofSpec.result
 import com.melvic.lohika.prover.algebras.Prover.{Contradiction, Exhaustion, ResolutionResult}
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
 
 class ProofSpec extends AnyFlatSpec with should.Matchers:
   "A" should "be provable from A | B" in:

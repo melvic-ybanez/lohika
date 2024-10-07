@@ -12,9 +12,9 @@ private[formula] trait Conversions
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
 
-  final case class NoIff(raw: Formula)
-  final case class NoIf(raw: Formula)
-  final case class OrOverAnds(raw: Formula)
+  private[formula] final case class NoIff(raw: Formula)
+  private[formula] final case class NoIf(raw: Formula)
+  private[formula] final case class OrOverAnds(raw: Formula)
 
   def eliminateBiconditionals: Formula => NoIff =
     def recurse: Endo[Formula] =
