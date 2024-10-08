@@ -8,7 +8,8 @@ private[formula] trait Conversions
     extends CnfConversion
     with NnfConversion
     with AlphaConversion
-    with Standardization:
+    with Standardization
+    with PnfConversion:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
 

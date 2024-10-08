@@ -27,8 +27,8 @@ private[formula] trait NnfConversion:
 
       NegationsInside(recurse(fm))
 
-  def simplifyNegations: NoIf => SimplifiedNegations =
-    case NoIf(fm) => SimplifiedNegations(simplifyNegationsRaw(fm))
+  def simplifyNegations: NegationsInside => SimplifiedNegations =
+    case NegationsInside(fm) => SimplifiedNegations(simplifyNegationsRaw(fm))
 
   private def simplifyNegationsRaw: Endo[Formula] =
     case Not(Not(p))     => simplifyNegationsRaw(p)

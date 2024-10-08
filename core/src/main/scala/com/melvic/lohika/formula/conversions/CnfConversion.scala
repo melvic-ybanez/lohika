@@ -35,5 +35,5 @@ private[formula] trait CnfConversion:
       eliminateImplications andThen
       moveNegationsInside andThen
       distributeOrOverAnds andThen
-      (fm => simplifyNegations(NoIf(fm.raw))) andThen
+      (fm => simplifyNegations(NegationsInside(fm.raw))) andThen
       flattenOrsAndAnds

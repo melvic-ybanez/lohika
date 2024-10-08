@@ -15,8 +15,8 @@ private[formula] trait Standardization:
   type StandardizeM[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
   private[formula] final case class Standardized(raw: Formula)
 
-  def standardize: NoIf => Standardized =
-    case NoIf(formula) =>
+  def standardize: SimplifiedNegations => Standardized =
+    case SimplifiedNegations(formula) =>
       given AllFreeVars = allFreeVars(using Set.empty)(formula)
       val boundVars = allBoundVars(formula)
       Standardized(standardizeM(formula).run(boundVars).value._2)
