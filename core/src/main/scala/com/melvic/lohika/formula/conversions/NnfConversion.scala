@@ -21,12 +21,9 @@ private[formula] trait NnfConversion:
           convertExistential(recurse)(ThereExists(vars, !matrix))
         case Not(ThereExists(vars, matrix)) =>
           convertUniversal(recurse)(Forall(vars, !matrix))
-        case not: Not                       => convertNegation(recurse)(not)
-        case or: Or                         => convertDisjunction(recurse)(or)
-        case and: And                       => convertConjunction(recurse)(and)
         case Forall(vars, Not(matrix))      => Forall(vars, recurse(Not(matrix)))
         case ThereExists(vars, Not(matrix)) => Forall(vars, recurse(Not(matrix)))
-        case fm                             => fm
+        case fm                             => convertBy(recurse)(fm)
 
       NegationsInside(recurse(fm))
 
@@ -39,6 +36,4 @@ private[formula] trait NnfConversion:
     case Not(False)      => True
     case Not(p @ Var(_)) => !p
     case not: Not        => not
-    case or: Or          => convertDisjunction(simplifyNegationsRaw)(or)
-    case and: And        => convertConjunction(simplifyNegationsRaw)(and)
-    case fm              => fm
+    case fm              => convertBy(simplifyNegationsRaw)(fm)
