@@ -43,22 +43,31 @@ object Parser extends MetaParsing:
 
   def grouping[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
 
-  def propVar[$: P]: P[Var] = variable(Character.isAlphabetic)
+  def propVar[$: P]: P[Var] =
+    P(alphabetic(_.isUpper) ~ alphabetic(_ => true).rep(min = 0).!).map: (firstChar, rest) =>
+      Var(firstChar + rest)
 
-  def firstOrderVar[$: P]: P[Var] = variable(c => Character.isAlphabetic(c) && c.isLower)
+  def firstOrderVar[$: P]: P[Var] =
+    P(alphabetic(_.isLower).rep(min = 1).!).map(Var.apply)
 
-  def variable[$: P](predicate: Char => Boolean): P[Var] =
-    P(CharPred(predicate).rep(min = 1).!).map(Var.apply)
+  def alphabetic[$: P](filter: Char => Boolean): P[String] =
+    CharPred(c => Character.isAlphabetic(c) && filter(c)).!
 
-  def predicate[$: P]: P[Predicate] =
-    P(propVar ~ ("(" ~/ firstOrderVar.rep(min = 1, sep = ", ") ~ ")")).map:
-      case (Var(name), args) => Predicate(name, args.toList)
+  def predicate[$: P]: P[Predicate] = P(propVar ~ args).map:
+    case (Var(name), args) => Predicate(name, args)
+
+  def functionApp[$: P]: P[FunctionApp] = P(firstOrderVar ~ args).map:
+    case (Var(name), args) => FunctionApp(name, args)
+
+  def args[$: P]: P[List[Term]] = P("(" ~/ term.rep(min = 1, sep = ",") ~ ")").map(_.toList)
 
   def highestPrecedence[$: P]: P[Formula] = P(
-    forall | thereExists | grouping | not | predicate | varOrCons
+    forall | thereExists | grouping | not | predicate | term | propVarLike
   )
 
-  def varOrCons[$: P]: P[Formula] = propVar.map:
+  def propVarLike[$: P]: P[Var | True.type | False.type] = propVar.map:
     case Var(Lexemes.True)  => True
     case Var(Lexemes.False) => False
     case variable           => variable
+
+  def term[$: P]: P[Term] = functionApp | firstOrderVar

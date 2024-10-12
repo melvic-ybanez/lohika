@@ -107,8 +107,9 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("P(x)", "P".of("x"))
     parseSuccess("E:x,y(P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
 
-  it should "only take first-order variables as arguments" in:
+  it should "only take terms as arguments" in:
     parseFailure("P(X)")
+    parseSuccess("P(f(x, y))", "P".of(FunctionApp("f", List(Var("x"), Var("y")))))
 
   def parseSuccess(input: String, expected: Formula): Unit =
     Parser.parseFormula(input) should matchPattern:

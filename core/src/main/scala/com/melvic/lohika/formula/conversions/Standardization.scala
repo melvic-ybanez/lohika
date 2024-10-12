@@ -5,7 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, targetName}
 
 private[formula] trait Standardization:
   opaque type TakenNames = Set[String]
@@ -44,7 +44,7 @@ private[formula] trait Standardization:
         val renamingPairs = (x :: xs).flatMap:
           case Var(name) =>
             Option.when(takenOrFree(name) > 1):
-              RenamingPair(name, generateNewName(name, takenOrFree.keys.toSet))
+              RenamingPair(name, generateSymbolName(name, takenOrFree.keys.toSet))
 
         // decrement the count of renamed vars
         val reducedBoundVars = renamingPairs.foldLeft(allBoundVars): (boundVars, pair) =>
@@ -59,16 +59,10 @@ private[formula] trait Standardization:
               Formula.alphaConvertQuantified(fm)
         )
 
-  private def standardizeFListM(
-      fList: FList
-  )(using AllFreeVars): State[AllBoundVars, (Formula, Formula, List[Formula])] =
-    for
-      sp  <- standardizeM(fList.p)
-      sq  <- standardizeM(fList.q)
-      srs <- fList.rs.map(standardizeM).sequence
-    yield (sp, sq, srs)
+  private def standardizeFListM(fList: FList)(using AllFreeVars): State[AllBoundVars, FList.Args] =
+    convertFListM(fList)(standardizeM)
 
-  private def allFreeVars(using enclosing: TakenNames): Formula => AllFreeVars =
+  private[formula] def allFreeVars(using enclosing: TakenNames): Formula => AllFreeVars =
     case fList: FList =>
       allFreeVars(fList.p) ++ allFreeVars(fList.q) ++ fList.rs.map(allFreeVars).combineAll
     case Imply(p, q)                      => allFreeVars(p) ++ allFreeVars(q)
@@ -79,17 +73,15 @@ private[formula] trait Standardization:
       allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
     case fm => Set.empty
 
-  private def allBoundVars: Formula => AllBoundVars =
+  private[formula] def allBoundVars: Formula => AllBoundVars =
     case fList: FList =>
       allBoundVars(fList.p) ++ allBoundVars(fList.q) ++ fList.rs.map(allBoundVars).combineAll
     case Imply(p, q)                    => allBoundVars(p) ++ allBoundVars(q)
     case Not(p)                         => allBoundVars(p)
-    case Var(x)                         => Nil
-    case Predicate(_, args)             => Nil
     case Quantified(_, (x, xs), matrix) => (x :: xs) ++ allBoundVars(matrix)
     case fm                             => Nil
 
-  def generateNewName(base: String, taken: TakenNames): String =
+  def generateSymbolName(base: String, taken: TakenNames): String =
     @tailrec
     def findNewCharLastLetter(suggested: Char, visitedZ: Boolean): Option[Char] =
       if suggested == 'z' && visitedZ then None // second z-visit
@@ -105,3 +97,16 @@ private[formula] trait Standardization:
         val lastDigit = base.reverse.takeWhile(_.isDigit).reverse
         if lastDigit.isEmpty then base + "1"
         else base.take(base.length - lastDigit.length) + (lastDigit.toInt + 1)
+
+  object TakenNames:
+    def fromSet(names: Set[String]): TakenNames =
+      names
+
+    def empty: TakenNames =
+      Set.empty
+
+  extension (freeVars: AllFreeVars) def raw: Set[Var] = freeVars
+
+  extension (takenNames: TakenNames)
+    @targetName("names")
+    def raw: Set[String] = takenNames

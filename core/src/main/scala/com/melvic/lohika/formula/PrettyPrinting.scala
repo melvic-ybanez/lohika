@@ -40,6 +40,7 @@ private[formula] trait PrettyPrinting:
       case Predicate(name, args) =>
         given Int = Precedence.Default
         s"$name(${args.map(prettyPrint).mkString(", ")})"
+      case FunctionApp(name, args) => prettyPrint(Predicate(name, args))
 
     if parentPrecedence >= currentPrecedence then
       s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"
@@ -55,6 +56,7 @@ private[formula] trait PrettyPrinting:
     case _: Forall      => Precedence.Forall
     case _: ThereExists => Precedence.ThereExists
     case _: Predicate   => Precedence.Predicate
+    case _: FunctionApp => Precedence.FunctionApp
     case True | False   => Precedence.Var
 
   object Precedence:
@@ -67,7 +69,8 @@ private[formula] trait PrettyPrinting:
     val Var: Int = Not + 1
     val Forall: Int = Var
     val ThereExists: Int = Forall
-    val Predicate: Int = Var
+    val FunctionApp: Int = Var
+    val Predicate: Int = FunctionApp
 
     /**
      * Use this if the current precedence and its parent are equal, and you want to force Lohika to

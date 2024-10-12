@@ -12,6 +12,10 @@ import com.melvic.lohika.Formatter
  */
 type Cnf = CAnd | Clause
 
+/**
+ * Note: The names of the types here are based on the terminology in propositional logic, as opposed
+ * to first-order logic. Some things might change after Lohika fully supports first-order logic
+ */
 object Cnf extends CnfGivens:
   final case class CAnd(clauses: List[Clause])
   final case class COr(literals: List[Literal])

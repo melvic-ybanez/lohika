@@ -43,8 +43,15 @@ private[formula] trait AlphaConversion:
     case variable                          => variable
 
   def renameFreeVars: AlphaConvert[Formula] =
-    case v: Var                => renameVariable(v) // we may not need this
-    case Predicate(name, args) => Predicate(name, args.map(renameVariable))
+    case v: Var => renameVariable(v) // we may not need this
+    case Predicate(name, args) =>
+      Predicate(
+        name,
+        args.map {
+          case varArg: Var => renameVariable(varArg)
+          case fm          => fm
+        }
+      )
     // the variable is not free, return as-is
     case quantified @ Quantified(_, (Var(x), xs), _)
         if x == originalName || xs.exists(_.name == originalName) =>

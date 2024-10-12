@@ -1,6 +1,8 @@
 package com.melvic.lohika.formula.conversions
 
 import cats.Endo
+import cats.data.State
+import cats.implicits.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
@@ -9,7 +11,8 @@ private[formula] trait Conversions
     with NnfConversion
     with AlphaConversion
     with Standardization
-    with PnfConversion:
+    with PnfConversion
+    with Skolemization:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
   type Unless = PartialFunction[Formula, Unit]
 
@@ -111,3 +114,10 @@ private[formula] trait Conversions
 
   def convertExistential: Convert[ThereExists] = f =>
     case ThereExists(boundVars, matrix) => ThereExists(boundVars, f(matrix))
+
+  def convertFListM[S](fList: FList)(by: Formula => State[S, Formula]): State[S, FList.Args] =
+    for
+      sp  <- by(fList.p)
+      sq  <- by(fList.q)
+      srs <- fList.rs.map(by).sequence
+    yield (sp, sq, srs)

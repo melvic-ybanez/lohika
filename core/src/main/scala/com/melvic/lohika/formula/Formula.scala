@@ -8,7 +8,7 @@ import com.melvic.lohika.formula.conversions.Conversions
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Imply | FList | Var | Not | True.type | False.type | Quantified | Predicate
+type Formula = Imply | FList | Not | Quantified | Term | Predicate
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   final case class Var(name: String)
@@ -21,7 +21,10 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   case object False
   final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
-  final case class Predicate(name: String, args: List[Var])
+  final case class Predicate(name: String, args: List[Term])
+  final case class FunctionApp(name: String, args: List[Term])
+
+  type Term = Var | True.type | False.type | FunctionApp
 
   type Property = Formula => Boolean
 
@@ -34,7 +37,7 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
 
     def components: List[Formula] = p :: q :: rs
 
-  trait Quantified:
+  sealed trait Quantified:
     def boundVars: BoundVars
 
     def matrix: Formula
@@ -66,7 +69,7 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   def isClause: Property = fm => isOr(fm) || isLiteral(fm)
 
   // TODO: See if we can remove this and replace with the one from `Cnf`
-  def flatten[A <: FList](make: (Formula, Formula, List[Formula]) => Formula)(
+  def flatten[A <: FList](make: FList.Make)(
       filter: PartialFunction[Formula, A]
   ): Endo[Formula] =
     def toList: Formula => List[Formula] =
@@ -90,10 +93,10 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     case object Universal
     case object Existential
 
-    def unapply(quantified: Quantified): Option[(Quantifier, BoundVars, Formula)] =
+    def unapply(quantified: Quantified): (Quantifier, BoundVars, Formula) =
       quantified match
-        case Forall(boundVars, matrix)      => Some(Universal, boundVars, matrix)
-        case ThereExists(boundVars, matrix) => Some(Existential, boundVars, matrix)
+        case Forall(boundVars, matrix)      => (Universal, boundVars, matrix)
+        case ThereExists(boundVars, matrix) => (Existential, boundVars, matrix)
 
     def apply(quantifier: Quantifier, boundVars: BoundVars, matrix: Formula): Quantified =
       quantifier match
@@ -155,6 +158,10 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
       (components.reduceRight(Imply.apply): @unchecked) match
         case imply: Imply => imply
 
+  object FList:
+    type Args = (Formula, Formula, List[Formula])
+    type Make = Args => Formula
+
   extension (self: Formula)
     @targetName("and")
     def &(other: Formula): And = And.of(self, other)
@@ -173,4 +180,8 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
 
   extension (name: String)
     def of(args: String*): Predicate =
-      Predicate(name, args.toList.map(Var.apply))
+      of(args.map(Var.apply)*)
+
+    @targetName("ofTerms")
+    def of(term: Term*): Predicate =
+      Predicate(name, term.toList)
