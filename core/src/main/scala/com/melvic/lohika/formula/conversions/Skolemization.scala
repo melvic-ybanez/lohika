@@ -11,21 +11,21 @@ private[formula] trait Skolemization:
   opaque type UniversalVars = Set[Var]
   opaque type ExistentialVars = Set[Var]
   type StateData = (TakenNames, UniversalVars)
-  type Skolemize = Formula => State[StateData, Formula]
+  type Skolemize[F <: Formula] = F => State[StateData, F]
 
   def skolemize: Pnf => Snf =
     case Pnf(fm) =>
-      def recurse: Skolemize =
+      def recurse: Skolemize[Formula] =
         case ThereExists((x, xs), matrix) =>
           State
             .get[StateData]
-            .flatMap: (takenNames, boundVars) =>
+            .flatMap: (_, universalVars) =>
               val replaceVars =
-                if boundVars.nonEmpty then
-                  replaceVarsWithSkolemFunctions(using (x :: xs).toSet)(matrix)
+                if universalVars.nonEmpty then
+                  replaceWithSkolemFunctions(using (x :: xs).toSet)(matrix)
                 // If there are no bound variables, then there are no universal quantifiers that appear
                 // before this existential quantifier.
-                else replaceVarsWithSkolemConstants(matrix)
+                else replaceWithSkolemConstants(matrix)
 
               for
                 replacedVars     <- replaceVars
@@ -39,19 +39,31 @@ private[formula] trait Skolemization:
         case fm => State.pure(fm)
 
       val takenNames = allFreeVars(using TakenNames.empty)(fm).raw.map(_.name)
-      Snf(recurse(fm).run(TakenNames.fromSet(takenNames), Set.empty[Var]).value._2)
+      Snf(recurse(fm).runA(TakenNames.fromSet(takenNames), Set.empty[Var]).value)
 
   /**
    * We can reuse the names of the bound variables as Skolem constants without worrying about any
    * potential name clashes, since the formula has been standardized such that all first order
    * variables have unique names.
    */
-  private def replaceVarsWithSkolemConstants: Skolemize =
+  private def replaceWithSkolemConstants: Skolemize[Formula] =
     State.pure
 
-  private def replaceVarsWithSkolemFunctions(using existentialVars: ExistentialVars): Skolemize =
-    case ThereExists((x, xs), matrix) =>
-      replaceVarsWithSkolemFunctions(using existentialVars ++ (x :: xs))(matrix)
+  private def replaceWithSkolemFunctions(using
+      existentialVars: ExistentialVars
+  ): Skolemize[Formula] =
+    case ThereExists(boundVars, matrix) =>
+      replaceWithSkolemFunctions(matrix).map(ThereExists(boundVars, _))
+    case Predicate(name, args) =>
+      args.map(replaceTermsWithSkolemFunctions).sequence.map(Predicate(name, _))
+    case or: Or   => skolemizeFListM(or).map(Or.fromList)
+    case and: And => skolemizeFListM(and).map(And.fromList)
+    case Not(p)   => replaceWithSkolemFunctions(p).map(Not.apply)
+    case fm       => State.pure(fm)
+
+  private def replaceTermsWithSkolemFunctions(using
+      existentialVars: ExistentialVars
+  ): Skolemize[Term] =
     case v: Var if existentialVars.contains(v) =>
       State:
         case (takenNames, universalVars) =>
@@ -60,17 +72,16 @@ private[formula] trait Skolemization:
             (TakenNames.fromSet(takenNames.raw + functionName), universalVars),
             FunctionApp(functionName, universalVars.toList)
           )
-    case Predicate(name, args) =>
-      val skolemizedArgs = args.foldLeft(State.pure[StateData, List[Term]](Nil)): (acc, arg) =>
-        replaceVarsWithSkolemFunctions(arg).flatMap:
-          case skolemizedArg: Term => acc.map(acc => skolemizedArg :: acc)
-          case _                   => acc // probably unreachable
+    case fm => State.pure(fm)
 
-      skolemizedArgs.map(args => Predicate(name, args.reverse))
-    case or: Or   => skolemizeFListM(or).map(Or.apply)
-    case and: And => skolemizeFListM(and).map(And.apply)
-    case Not(p)   => replaceVarsWithSkolemFunctions(p).map(Not.apply)
-    case fm       => State.pure(fm)
+  private def skolemizeFListM(fList: FList)(using
+      ExistentialVars
+  ): State[StateData, List[Formula]] =
+    State: stateData =>
+      val (updatedTakenNames, skolemizedComponents) = fList.components
+        .map(fm => replaceWithSkolemFunctions(fm).run(stateData).value)
+        .foldLeft(TakenNames.empty, List.empty[Formula]):
+          case ((takenNamesAcc, fms), ((takenNames, _), fm)) =>
+            (TakenNames.fromSet(takenNamesAcc.raw ++ takenNames.raw), fm :: fms)
 
-  private def skolemizeFListM(fList: FList)(using ExistentialVars): State[StateData, FList.Args] =
-    convertFListM(fList)(replaceVarsWithSkolemFunctions)
+      ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)

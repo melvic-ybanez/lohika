@@ -74,13 +74,21 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
       "E:x,y(P(x, y) => Q(y))"
     )
 
+  "Function calls" should "look like predicates with lower case names" in:
+    assertParsePrettifyDefault("A:xP(x, f(x))")
+    assertParsePrettifyDefault("A:x(P(x, f(x)) & Q(f(x), g(x)))")
+    assertParsePrettifyDefault("A:x,yA:a(P(a) & Q(f(x, y, a)))")
+
   "Quantified formulas" should "print parens around the matrix only if necessary" in:
     forall("x", "y")("P".of("x") ==> "Q".of("y")).show should be("A:x,y(P(x) => Q(y))")
-    assertParsePrettify("A:x,y(P(x) => Q(y))", "A:x,y(P(x) => Q(y))")
-    assertParsePrettify("A:xP(x)", "A:xP(x)")
+    assertParsePrettifyDefault("A:x,y(P(x) => Q(y))")
+    assertParsePrettifyDefault("A:xP(x)")
     assertParsePrettify("A:x!P(x)", "A:x(!P(x))")
     assertParsePrettify("A:x(E:y(P(x) => Q(y)))", "A:xE:y(P(x) => Q(y))")
     assertParsePrettify("A:xE:y(P(x) => Q(y))", "A:xE:y(P(x) => Q(y))")
+
+  def assertParsePrettifyDefault(input: String): Unit =
+    assertParsePrettify(input, input)
 
   def assertParsePrettify(input: String, pretty: String): Unit =
     Parser.parseFormula(input) match

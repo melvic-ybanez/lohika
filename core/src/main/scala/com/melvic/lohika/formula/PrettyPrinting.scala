@@ -38,9 +38,8 @@ private[formula] trait PrettyPrinting:
       case Forall(vars, matrix)      => prettyQuantified(Lexemes.Forall, vars, matrix)
       case ThereExists(vars, matrix) => prettyQuantified(Lexemes.ThereExists, vars, matrix)
       case Predicate(name, args) =>
-        given Int = Precedence.Default
-        s"$name(${args.map(prettyPrint).mkString(", ")})"
-      case FunctionApp(name, args) => prettyPrint(Predicate(name, args))
+        s"$name(${args.map(prettyPrint(_)(using noParensIfEqual)).mkString(", ")})"
+      case FunctionApp(name, args) => prettyPrint(Predicate(name, args))(using noParensIfEqual)
 
     if parentPrecedence >= currentPrecedence then
       s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"

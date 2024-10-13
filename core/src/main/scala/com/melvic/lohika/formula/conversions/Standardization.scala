@@ -19,7 +19,7 @@ private[formula] trait Standardization:
     case SimplifiedNegations(formula) =>
       given AllFreeVars = allFreeVars(using Set.empty)(formula)
       val boundVars = allBoundVars(formula)
-      Standardized(standardizeM(formula).run(boundVars).value._2)
+      Standardized(standardizeM(formula).runA(boundVars).value)
 
   /**
    * Note: Implications and biconditionals are expected to have been eliminated at this point
