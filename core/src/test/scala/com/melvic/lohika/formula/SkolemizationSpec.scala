@@ -11,6 +11,7 @@ class SkolemizationSpec extends BaseSpec with FormulaMappingSupport:
   it should "account for all universal quantifiers that come before an existential quantifier" in:
     "A:xA:zE:yP(x, y, z)"         ====> "A:xA:zP(x, f(x, z), z)"
     "A:x,yE:zA:aE:b(P(a) & Q(b))" ====> "A:x,yA:a(P(a) & Q(f(x, y, a)))"
+    "A:xE:yA:zE:wP(x, y, z, w)" ====> "A:xA:zP(x, f(x), z, g(x, z))"
 
   it should "work on nested existential quantifiers" in:
     "A:xE:yE:z(P(x, y) & Q(y, z))" ====> "A:x(P(x, f(x)) & Q(f(x), g(x)))"

@@ -52,8 +52,8 @@ private[formula] trait Skolemization:
   private def replaceWithSkolemFunctions(using
       existentialVars: ExistentialVars
   ): Skolemize[Formula] =
-    case ThereExists(boundVars, matrix) =>
-      replaceWithSkolemFunctions(matrix).map(ThereExists(boundVars, _))
+    case Quantified(quantifier, boundVars, matrix) =>
+      replaceWithSkolemFunctions(matrix).map(Quantified(quantifier, boundVars, _))
     case Predicate(name, args) =>
       args.map(replaceTermsWithSkolemFunctions).sequence.map(Predicate(name, _))
     case or: Or   => skolemizeFListM(or).map(Or.fromList)
