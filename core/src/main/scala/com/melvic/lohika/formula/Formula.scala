@@ -11,7 +11,16 @@ import scala.util.chaining.*
 type Formula = Imply | FList | Not | Quantified | Term | Predicate
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
+  /**
+   * Represents both propositional and first-order variables (at least for now). If the formula is
+   * in first-order logic, and the var name starts with an uppercase letter, it represents a nullary
+   * predicate.
+   *
+   * Note: We might want to distinguish both types of variables by giving each of them its
+   * corresponding data structure.
+   */
   final case class Var(name: String)
+
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Imply(p: Formula, q: Formula)

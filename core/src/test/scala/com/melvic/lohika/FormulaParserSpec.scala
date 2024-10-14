@@ -7,11 +7,11 @@ import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
 
 class FormulaParserSpec extends BaseSpec:
-  "True" should "be written as T" in:
-    parseSuccess("T", True)
+  "True" should "be written as True" in:
+    parseSuccess("True", True)
 
   "False" should "be written as F" in:
-    parseSuccess("F", False)
+    parseSuccess("False", False)
 
   "A single alphanumeric string" should "map to a variable" in:
     parseSuccess("A", Var("A"))
