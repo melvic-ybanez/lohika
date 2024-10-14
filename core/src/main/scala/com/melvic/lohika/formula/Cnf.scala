@@ -19,14 +19,10 @@ type Cnf = CAnd | Clause
 object Cnf extends CnfGivens:
   final case class CAnd(clauses: List[Clause])
   final case class COr(literals: List[Literal])
-  final case class CNot(variable: CVar | Constant)
-  final case class CVar(name: String)
-  case object CTrue
-  case object CFalse
+  final case class CNot(atomic: PredicateApp)
 
   type Clause = COr | Literal
-  type Literal = CVar | Constant | CNot
-  type Constant = CTrue.type | CFalse.type
+  type Literal = PredicateApp | CNot
 
 sealed trait CnfGivens:
   given [C <: Cnf](using Formatter): Show[C] = Show.show(Formula.fromCnf(_).show)

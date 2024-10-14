@@ -5,6 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.Cnf.*
+import com.melvic.lohika.formula.Formula.{NullPred, PredicateApp}
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
 import com.melvic.lohika.parsers.Parser
@@ -100,9 +101,9 @@ object LiveProver:
           else Derive(cor1, cor2, COr(cOrLiterals))
 
   def complementary: (Literal, Literal) => Option[(Literal, Literal)] =
-    case (c1 @ CVar(p1), c2 @ CNot(CVar(p2))) if p1 == p2 => Some(c1, c2)
-    case (c1 @ CNot(CVar(p1)), c2 @ CVar(p2)) if p1 == p2 => Some(c1, c2)
-    case _                                                => None
+    case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if p1 == p2 => Some(p1, c2)
+    case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) if p1 == p2 => Some(c1, p2)
+    case _                                                           => None
 
   given Formatter with
     override def emphasize: Format = text => s"_${text}_"

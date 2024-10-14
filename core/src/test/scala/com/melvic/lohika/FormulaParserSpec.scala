@@ -8,16 +8,22 @@ import fastparse.Parsed
 
 class FormulaParserSpec extends BaseSpec:
   "True" should "be written as True" in:
-    parseSuccess("True", True)
+    parseSuccess("true", True)
 
   "False" should "be written as F" in:
-    parseSuccess("False", False)
+    parseSuccess("false", False)
 
-  "A single alphanumeric string" should "map to a variable" in:
-    parseSuccess("A", Var("A"))
+  "A single alphabetic string that starts with an lowercase letter" should "map to first-order variables" in :
+    parseSuccess("a", Var("a"))
+
+  it should "support multiple characters" in :
+    parseSuccess("foo", Var("foo"))
+
+  "A single alphabetic string that starts with an uppercase letter" should "map to a nullary predicate" in:
+    parseSuccess("A", PredicateApp.nullary("A"))
 
   it should "support multiple characters" in:
-    parseSuccess("Foo", Var("Foo"))
+    parseSuccess("Foo", PredicateApp.nullary("Foo"))
 
   "Negation" should "start with !" in:
     parseSuccess("!P", !"P")

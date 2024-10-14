@@ -68,7 +68,7 @@ private[formula] trait Standardization:
     case Imply(p, q)                      => allFreeVars(p) ++ allFreeVars(q)
     case Not(p)                           => allFreeVars(p)
     case Var(x) if !enclosing.contains(x) => Set(Var(x))
-    case Predicate(_, args)               => args.map(allFreeVars).combineAll
+    case PredicateApp(_, args)               => args.map(allFreeVars).combineAll
     case Quantified(_, (Var(x), xs), matrix) =>
       allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
     case fm => Set.empty

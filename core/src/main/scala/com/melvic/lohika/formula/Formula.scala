@@ -8,16 +8,14 @@ import com.melvic.lohika.formula.conversions.Conversions
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Imply | FList | Not | Quantified | Term | Predicate
+type Formula = Imply | FList | Not | Quantified | Term | PredicateApp
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   /**
-   * Represents both propositional and first-order variables (at least for now). If the formula is
-   * in first-order logic, and the var name starts with an uppercase letter, it represents a nullary
-   * predicate.
+   * Represents a first-order variable. Propositional variables are considered nullary predicates,
+   * represented by [[PredicateApp]] but without any arguments.
    *
-   * Note: We might want to distinguish both types of variables by giving each of them its
-   * corresponding data structure.
+   * Note however that this type is also used for constants and nullary functions for now.
    */
   final case class Var(name: String)
 
@@ -30,12 +28,13 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   case object False
   final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
-  final case class Predicate(name: String, args: List[Term])
+  final case class PredicateApp(name: String, args: List[Term])
   final case class FunctionApp(name: String, args: List[Term])
 
   type Term = Var | True.type | False.type | FunctionApp
 
   type Property = Formula => Boolean
+  val NullPred: PredicateApp.Nullary.type = PredicateApp.Nullary
 
   sealed trait FList:
     def p: Formula
@@ -58,10 +57,9 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     case _                   => false
 
   def isLiteral: Property =
-    case v: Var               => true
-    case Not(Var(_))          => true
-    case fm if isConstant(fm) => true
-    case _                    => false
+    case _: PredicateApp        => true
+    case Not(p) if isLiteral(p) => true
+    case _                      => false
 
   def isConstant: Property =
     case True | False => true
@@ -159,6 +157,13 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     def flatten: Endo[Formula] =
       Formula.flatten(Iff.apply) { case iff: Iff => iff }
 
+  object PredicateApp:
+    def nullary(name: String): PredicateApp = PredicateApp(name, Nil)
+
+    object Nullary:
+      def unapply(predicate: PredicateApp): Option[String] =
+        Option.when(predicate.args.isEmpty)(predicate.name)
+
   object Imply:
     def of(p: Formula, qs: Formula*): Imply =
       Imply.fromList(p :: qs.toList)
@@ -188,9 +193,9 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     def unary_! : Not = Not(self)
 
   extension (name: String)
-    def of(args: String*): Predicate =
+    def of(args: String*): PredicateApp =
       of(args.map(Var.apply)*)
 
     @targetName("ofTerms")
-    def of(term: Term*): Predicate =
-      Predicate(name, term.toList)
+    def of(term: Term*): PredicateApp =
+      PredicateApp(name, term.toList)

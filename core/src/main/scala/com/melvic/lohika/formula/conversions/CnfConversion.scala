@@ -12,23 +12,19 @@ private[formula] trait CnfConversion:
         COr(or.components.map(toCnf(_).asInstanceOf[Literal]))
       case and: And if and.components.forall(isClause) =>
         CAnd(and.components.map(toCnf(_).asInstanceOf[Clause]))
-      case Not(Var(name)) => CNot(CVar(name))
-      case Var(name)      => CVar(name)
-      case True           => CTrue
-      case False          => CFalse
-      case fm             => CAnd(Nil)
+      case Not(predicateApp: PredicateApp) => CNot(predicateApp)
+      case predicateApp: PredicateApp      => predicateApp
+      case fm                              => CAnd(Nil)
 
   def fromCnf: Cnf => Formula =
-    case CAnd(p :: q :: rs) => And(fromCnf(p), fromCnf(q), rs.map(fromCnf))
-    case CAnd(p :: Nil)     => fromCnf(p)
-    case CAnd(Nil)          => True
-    case COr(p :: q :: rs)  => Or(fromCnf(p), fromCnf(q), rs.map(fromCnf))
-    case COr(p :: Nil)      => fromCnf(p)
-    case COr(Nil)           => False
-    case CNot(p)            => !fromCnf(p)
-    case CVar(name)         => Var(name)
-    case CTrue              => True
-    case CFalse             => False
+    case CAnd(p :: q :: rs)      => And(fromCnf(p), fromCnf(q), rs.map(fromCnf))
+    case CAnd(p :: Nil)          => fromCnf(p)
+    case CAnd(Nil)               => True
+    case COr(p :: q :: rs)       => Or(fromCnf(p), fromCnf(q), rs.map(fromCnf))
+    case COr(p :: Nil)           => fromCnf(p)
+    case COr(Nil)                => False
+    case CNot(p)                 => !fromCnf(p)
+    case predicate: PredicateApp => predicate
 
   def toCnfButRaw: Endo[Formula] =
     eliminateBiconditionals andThen

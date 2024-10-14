@@ -2,11 +2,12 @@ package com.melvic.lohika.prover.algebras
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.formula.Cnf.{CNot, CVar, Clause}
-import Prover.ResolutionResult
+import com.melvic.lohika.formula.Cnf.{CNot, Clause}
+import com.melvic.lohika.formula.Formula.PredicateApp
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.parsers.Lexemes
+import com.melvic.lohika.prover.algebras.Prover.ResolutionResult
 
 trait Prover[F[_]]:
   def parseEntailment(rawEntailment: String): F[Entailment]
@@ -41,12 +42,12 @@ object Prover:
      * Creates a contradiction (e.g. P & !P) from the variable name. If the input is in the form
      * `!P`, the resulting contradiction is `!P & P`. Otherwise, it is `P & !P`
      */
-    def fromVarName(varName: String): Contradiction =
+    def fromPropVarName(varName: String): Contradiction =
       if varName.startsWith(Lexemes.Not) then
-        val variable = CVar(varName.tail)
+        val variable = PredicateApp.nullary(varName.tail)
         Contradiction(CNot(variable), variable)
       else
-        val variable = CVar(varName)
+        val variable = PredicateApp.nullary(varName)
         Contradiction(variable, CNot(variable))
 
   def apply[F[_]](using prover: Prover[F]): Prover[F] = prover

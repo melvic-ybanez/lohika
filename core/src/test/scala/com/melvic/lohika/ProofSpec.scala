@@ -21,7 +21,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("A => B, B => C, A |= C", "!C")
 
   "P | R" should "be provable from P | Q, !Q | R" in:
-    contradiction("P | Q, !Q | R |= P | R", "R")
+    contradiction("P | Q, !Q | R |= P | R", "Q")
 
   "A | C" should "not be provable from A => B, and B | C" in:
     exhaustion("A => B, B | C |= A | C")
@@ -30,10 +30,10 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("!P | Q, P |= Q", "!P")
 
   "R" should "be provable from P | Q, !Q | R, and !P" in:
-    contradiction("P | Q, !Q | R, !P |= R", "R")
+    contradiction("P | Q, !Q | R, !P |= R", "Q")
 
   "B | C" should "be provable from A | B, !A" in:
-    contradiction("A | B, !A |= B | C", "B")
+    contradiction("A | B, !A |= B | C", "!A")
 
   "A | !C" should "be provable from A => B and B => C" in:
     result("A => B, B => C |= A | !C") should be(Right(Exhaustion))
@@ -48,35 +48,35 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("P | Q, !Q => R |= (P | Q) & (!Q => R) => (P => R)")
 
   "P => Q, Q <=> R, P |= R" should "hold" in:
-    contradiction("P => Q, Q <=> R, P |= R", "R")
+    contradiction("P => Q, Q <=> R, P |= R", "!P")
 
   "A => B, B => C, !C |= !A" should "hold" in:
     contradiction("A => B, B => C, !C |= !A", "!C")
 
   "P <=> Q, Q => R, P |= R" should "hold" in:
-    contradiction("P <=> Q, Q => R, P |= R", "R")
+    contradiction("P <=> Q, Q => R, P |= R", "!P")
 
   "P => Q, Q <=> R, !R |= !P" should "hold" in:
-    contradiction("P => Q, Q <=> R, !R |= !P", "R")
+    contradiction("P => Q, Q <=> R, !R |= !P", "!P")
 
   "P <=> Q, Q => R, R |= P" should "not hold" in:
     exhaustion("P <=> Q, Q => R, R |= P")
 
   "P => Q, R => P, R |= Q" should "hold" in:
-    contradiction("P => Q, R => P, R |= Q", "Q")
+    contradiction("P => Q, R => P, R |= Q", "!P")
 
   "P => Q, Q => R, R => S, P |= S" should "hold" in:
     contradiction("P => Q, Q => R, R => S, P |= S", "!P")
 
   // [Showcase]
   "A => B, B => C, C => D, !D |= !A" should "hold" in:
-    contradiction("A => B, B => C, C => D, !D |= !A", "D")
+    contradiction("A => B, B => C, C => D, !D |= !A", "!B")
 
   "X => Y, Y => Z, Z => W, W |= X" should "not hold" in:
     exhaustion("X => Y, Y => Z, Z => W, W |= X")
 
   def contradiction(entailment: String, varName: String): Unit =
-    result(entailment) should be(Right(Contradiction.fromVarName(varName)))
+    result(entailment) should be(Right(Contradiction.fromPropVarName(varName)))
 
   def exhaustion(entailment: String): Unit =
     result(entailment) should be(Right(Exhaustion))

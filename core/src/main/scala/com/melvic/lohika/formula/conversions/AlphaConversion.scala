@@ -44,8 +44,8 @@ private[formula] trait AlphaConversion:
 
   def renameFreeVars: AlphaConvert[Formula] =
     case v: Var => renameVariable(v) // we may not need this
-    case Predicate(name, args) =>
-      Predicate(
+    case PredicateApp(name, args) =>
+      PredicateApp(
         name,
         args.map {
           case varArg: Var => renameVariable(varArg)

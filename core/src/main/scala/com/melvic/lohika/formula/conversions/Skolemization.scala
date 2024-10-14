@@ -54,8 +54,8 @@ private[formula] trait Skolemization:
   ): Skolemize[Formula] =
     case Quantified(quantifier, boundVars, matrix) =>
       replaceWithSkolemFunctions(matrix).map(Quantified(quantifier, boundVars, _))
-    case Predicate(name, args) =>
-      args.map(replaceTermsWithSkolemFunctions).sequence.map(Predicate(name, _))
+    case PredicateApp(name, args) =>
+      args.map(replaceTermsWithSkolemFunctions).sequence.map(PredicateApp(name, _))
     case or: Or   => skolemizeFListM(or).map(Or.fromList)
     case and: And => skolemizeFListM(and).map(And.fromList)
     case Not(p)   => replaceWithSkolemFunctions(p).map(Not.apply)

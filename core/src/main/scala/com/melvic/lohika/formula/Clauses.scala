@@ -45,7 +45,7 @@ object Clauses extends ClausesGivens:
     def isEmpty: Boolean = self.isEmpty
 
 sealed trait ClausesGivens:
-  import Givens.given
+  import com.melvic.lohika.Givens.given
 
   given (using Formatter): Show[Clauses] = Show.show:
     _.toList.show
