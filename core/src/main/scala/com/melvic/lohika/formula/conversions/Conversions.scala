@@ -17,7 +17,7 @@ private[formula] trait Conversions
 
   private[formula] final case class NoIff(raw: Formula)
   private[formula] final case class NoIf(raw: Formula)
-  private[formula] final case class OrOverAnds(raw: Formula)
+  private[formula] final case class DistributedOrs(raw: Formula)
   private[formula] final case class MatrixForm(raw: Formula)
 
   def eliminateBiconditionals: Formula => NoIff =
@@ -39,7 +39,7 @@ private[formula] trait Conversions
 
       NoIf(recurse(fm))
 
-  def distributeOrOverAnds: NegationsInside => OrOverAnds =
+  def distributeOrOverAnds: Snf => DistributedOrs =
     def recurse: Endo[Formula] =
       case Or(p, And(ap, aq, ars), Nil) =>
         convertConjunction(recurse)(And(p | ap, p | aq, ars.map(p | _)))
@@ -52,7 +52,7 @@ private[formula] trait Conversions
       case Or(p, q, r :: rs) => recurse(p | recurse(Or(q, r, rs)))
       case fm                => convertBy(recurse)(fm)
 
-    negationsInside => OrOverAnds(recurse(negationsInside.raw))
+    snf => DistributedOrs(recurse(snf.raw))
 
   private def flattenConjunctionsRaw: Endo[Formula] =
     case and: And =>
@@ -81,8 +81,8 @@ private[formula] trait Conversions
     case or: Or   => flattenDisjunctionsRaw(or)
     case fm       => fm
 
-  def flattenOrsAndAnds: SimplifiedNegations => Formula =
-    ooa => flattenOrsAndAndsRaw(ooa.raw)
+  def flattenOrsAndAnds(distributedOrs: DistributedOrs): Formula =
+    flattenOrsAndAndsRaw(distributedOrs.raw)
 
   def convertBy(transform: Endo[Formula]): Endo[Formula] =
     case iff: Iff                 => convertBiconditional(transform)(iff)

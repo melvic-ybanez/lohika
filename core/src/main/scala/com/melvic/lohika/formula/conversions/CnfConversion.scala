@@ -26,10 +26,7 @@ private[formula] trait CnfConversion:
     case CNot(p)                 => !fromCnf(p)
     case predicate: PredicateApp => predicate
 
-  def toCnfRaw: Endo[Formula] =
-    eliminateBiconditionals andThen
-      eliminateImplications andThen
-      moveNegationsInside andThen
-      distributeOrOverAnds andThen
-      (fm => simplifyNegations(NegationsInside(fm.raw))) andThen
-      flattenOrsAndAnds
+  private[formula] def toCnfRaw: Endo[Formula] =
+    eliminateBiconditionals andThen eliminateImplications andThen moveNegationsInside andThen
+      simplifyNegations andThen standardize andThen toPnf andThen skolemize andThen
+      distributeOrOverAnds andThen flattenOrsAndAnds
