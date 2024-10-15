@@ -6,8 +6,8 @@ import com.melvic.lohika.formula.Formula.Precedence.noParensIfEqual
 import com.melvic.lohika.parsers.Lexemes
 
 private[formula] trait PrettyPrinting:
-  def prettyPrint(formula: Formula)(using parentPrecedence: Int = Precedence.Default): String =
-    given currentPrecedence: Int = precedence(formula)
+  def prettyPrint(expr: Expression)(using parentPrecedence: Int = Precedence.Default): String =
+    given currentPrecedence: Int = precedence(expr)
 
     def prettyFList(p: Formula, q: Formula, rs: List[Formula], sep: String): String =
       val pqString = s"${prettyPrint(p)} $sep ${prettyPrint(q)}"
@@ -22,7 +22,7 @@ private[formula] trait PrettyPrinting:
         }
         .mkString(",") + prettyPrint(matrix)(using noParensIfEqual)
 
-    val pretty = formula match
+    val pretty = expr match
       case Var(name)          => name
       case Or(p, q, rs)       => prettyFList(p, q, rs, Lexemes.Or)
       case And(p, q, rs)      => prettyFList(p, q, rs, Lexemes.And)
@@ -46,7 +46,7 @@ private[formula] trait PrettyPrinting:
       s"${Lexemes.LeftParen}$pretty${Lexemes.RightParen}"
     else pretty
 
-  def precedence: Formula => Int =
+  def precedence: Expression => Int =
     case _: Iff         => Precedence.Iff
     case _: Imply       => Precedence.Imply
     case _: Or          => Precedence.Or

@@ -9,7 +9,7 @@ class ConversionsSpec extends BaseSpec:
   "Implication elimination" should "work recursively" in:
     given FormulaMapper = FormulaMapper(fm => Formula.eliminateImplications(NoIff(fm)).raw)
 
-    "!((p | q) & (!q => r) => p => r)" ====> "!(!((p | q) & (!(!q) | r)) | (!p | r))"
+    "!((P | Q) & (!Q => R) => P => R)" ====> "!(!((P | Q) & (!(!Q) | R)) | (!P | R))"
     "!(B => A) => C"                   ====> "!(!(!B | A)) | C"
 
   it should "work on qualified formulas" in:

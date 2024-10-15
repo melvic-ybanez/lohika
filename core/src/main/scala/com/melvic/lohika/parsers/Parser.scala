@@ -23,7 +23,9 @@ object Parser extends MetaParsing:
   def thereExists[$: P]: P[Formula] = quantified(Lexemes.ThereExists, ThereExists.apply)
 
   def iff[$: P]: P[Formula] =
-    imply.rep(min = 1, sep = Lexemes.Iff).map(ps => Iff.fromList(ps.toList).getOrElse(False))
+    imply
+      .rep(min = 1, sep = Lexemes.Iff)
+      .map(ps => Iff.fromList(ps.toList).getOrElse(PredicateApp.False))
 
   def imply[$: P]: P[Formula] = or
     .rep(min = 1, sep = Lexemes.Imply)
@@ -62,7 +64,7 @@ object Parser extends MetaParsing:
   def args[$: P]: P[List[Term]] = P("(" ~/ term.rep(min = 1, sep = ",") ~ ")").map(_.toList)
 
   def highestPrecedence[$: P]: P[Formula] = P(
-    forall | thereExists | grouping | not | predicate | nullaryPred | constants | term
+    forall | thereExists | grouping | not | predicate | nullaryPred 
   )
 
   def trueConst[$: P]: P[True.type] =
@@ -73,4 +75,4 @@ object Parser extends MetaParsing:
 
   def constants[$: P]: P[True.type | False.type] = P(trueConst | falseConst)
 
-  def term[$: P]: P[Term] = functionApp | firstOrderVar
+  def term[$: P]: P[Term] = constants | functionApp | firstOrderVar

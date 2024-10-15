@@ -2,7 +2,7 @@ package com.melvic.lohika.formula.conversions
 
 import cats.data.State
 import cats.implicits.*
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.{Expression, Formula}
 import com.melvic.lohika.formula.Formula.*
 
 import scala.annotation.{tailrec, targetName}
@@ -62,13 +62,13 @@ private[formula] trait Standardization:
   private def standardizeFListM(fList: FList)(using AllFreeVars): State[AllBoundVars, FList.Args] =
     convertFListM(fList)(standardizeM)
 
-  private[formula] def allFreeVars(using enclosing: TakenNames): Formula => AllFreeVars =
+  private[formula] def allFreeVars(using enclosing: TakenNames): Expression => AllFreeVars =
     case fList: FList =>
       allFreeVars(fList.p) ++ allFreeVars(fList.q) ++ fList.rs.map(allFreeVars).combineAll
     case Imply(p, q)                      => allFreeVars(p) ++ allFreeVars(q)
     case Not(p)                           => allFreeVars(p)
     case Var(x) if !enclosing.contains(x) => Set(Var(x))
-    case PredicateApp(_, args)               => args.map(allFreeVars).combineAll
+    case PredicateApp(_, args)            => args.map(allFreeVars).combineAll
     case Quantified(_, (Var(x), xs), matrix) =>
       allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
     case fm => Set.empty

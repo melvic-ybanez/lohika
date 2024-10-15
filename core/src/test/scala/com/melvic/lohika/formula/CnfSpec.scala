@@ -29,13 +29,13 @@ class CnfSpec extends BaseSpec with FormulaMappingSupport:
     "(A => B) & C & !!D"       ====> "(!A | B) & C & D"
     "A & (!(B => A) => C) & C" ====> "A & (!B | A | C) & C"
 
-  "p => q" should "become !p | q" in:
+  "P => Q" should "become !P | Q" in:
     "P => Q" ====> "!P | Q"
 
-  "p <=> q" should "become (p => q) & (q => p) and further converted to CNF" in:
+  "P <=> Q" should "become (P => Q) & (Q => P) and further converted to CNF" in:
     "P <=> Q" ====> "(!P | Q) & (!Q | P)"
 
-  "p <=> q <=> r" should "be the as (p <=> q) & (q <=> r)" in:
+  "P <=> Q <=> R" should "be the as (P <=> Q) & (Q <=> R)" in:
     "P <=> Q <=> R" ====> "(!P | Q) & (!Q | P) & (!Q | R) & (!R | Q)"
 
   "Implication" should "recursively convert its components to CNFs" in:
@@ -43,19 +43,19 @@ class CnfSpec extends BaseSpec with FormulaMappingSupport:
     "(A => B) => (C => D)" ====> "(A | !C | D) & (!B | !C | D)"
     "P => (Q | R)"         ====> "!P | Q | R"
 
-  "!(p & q)" should "become !p | !q" in:
+  "!(P & Q)" should "become !P | !Q" in:
     "!(P & Q)"        ====> "!P | !Q"
     "!((P => Q) & R)" ====> "(P | !R) & (!Q | !R)"
 
-  "!(p | q)" should "become !p & q" in:
+  "!(P | Q)" should "become !P & Q" in:
     "!(P | Q)"        ====> "!P & !Q"
     "!((P => Q) | R)" ====> "P & !Q & !R"
 
-  "!(p => q)" should "become p & !q" in:
+  "!(P => Q)" should "become P & !Q" in:
     "!(P => Q)" ====> "P & !Q"
 
-  "!((p | q) & (!q => r) => p => r)" should "become (p | q) & (q | r) & p & !r" in:
-    "!((p | q) & (!q => r) => p => r)" ====> "(p | q) & (q | r) & p & !r"
+  "!((P | Q) & (!Q => R) => P => R)" should "become (P | Q) & (Q | R) & P & !R" in:
+    "!((P | Q) & (!Q => R) => P => R)" ====> "(P | Q) & (Q | R) & P & !R"
 
   "Biconditional" should "recursively convert its components to CNFs" in:
     "P <=> (Q & R)" ====> "(!P | Q) & (!P | R) & (!Q | !R | P)"
@@ -66,4 +66,4 @@ class CnfSpec extends BaseSpec with FormulaMappingSupport:
     "!!!!P" ====> "P"
 
   override given formulaMapper: FormulaMapper =
-    FormulaMapper(Formula.toCnfButRaw)
+    FormulaMapper(Formula.toCnfRaw)

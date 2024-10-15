@@ -7,7 +7,7 @@ import com.melvic.lohika.formula.Formula.*
 
 private[formula] trait CnfConversion:
   def toCnf: Formula => Cnf =
-    toCnfButRaw andThen:
+    toCnfRaw andThen:
       case or: Or if or.components.forall(isLiteral) =>
         COr(or.components.map(toCnf(_).asInstanceOf[Literal]))
       case and: And if and.components.forall(isClause) =>
@@ -19,14 +19,14 @@ private[formula] trait CnfConversion:
   def fromCnf: Cnf => Formula =
     case CAnd(p :: q :: rs)      => And(fromCnf(p), fromCnf(q), rs.map(fromCnf))
     case CAnd(p :: Nil)          => fromCnf(p)
-    case CAnd(Nil)               => True
+    case CAnd(Nil)               => PredicateApp.True
     case COr(p :: q :: rs)       => Or(fromCnf(p), fromCnf(q), rs.map(fromCnf))
     case COr(p :: Nil)           => fromCnf(p)
-    case COr(Nil)                => False
+    case COr(Nil)                => PredicateApp.False
     case CNot(p)                 => !fromCnf(p)
     case predicate: PredicateApp => predicate
 
-  def toCnfButRaw: Endo[Formula] =
+  def toCnfRaw: Endo[Formula] =
     eliminateBiconditionals andThen
       eliminateImplications andThen
       moveNegationsInside andThen

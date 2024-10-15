@@ -4,6 +4,9 @@ import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula
 
+/**
+ * Moves the quantifiers outside.
+ */
 private[formula] trait PnfConversion:
   private[formula] final case class Pnf(raw: Formula)
 

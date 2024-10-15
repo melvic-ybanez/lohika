@@ -13,7 +13,7 @@ private[formula] trait FormulaGivens:
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 
-  given [F <: Formula](using Formatter): Show[F] =
+  given [E <: Expression](using Formatter): Show[E] =
     Show.show(Formula.prettyPrint(_).formula)
 
   given [F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>

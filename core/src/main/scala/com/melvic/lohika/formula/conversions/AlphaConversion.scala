@@ -1,12 +1,12 @@
 package com.melvic.lohika.formula.conversions
 
 import cats.Endo
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.{Expression, Formula}
 import com.melvic.lohika.formula.Formula.*
 
 private[formula] trait AlphaConversion:
   final case class RenamingPair(originalName: String, newName: String)
-  type AlphaConvert[F <: Formula] = RenamingPair ?=> Endo[F]
+  type AlphaConvert[E <: Expression] = RenamingPair ?=> Endo[E]
 
   def originalName(using renamingPair: RenamingPair): String =
     renamingPair.originalName
@@ -43,7 +43,6 @@ private[formula] trait AlphaConversion:
     case variable                          => variable
 
   def renameFreeVars: AlphaConvert[Formula] =
-    case v: Var => renameVariable(v) // we may not need this
     case PredicateApp(name, args) =>
       PredicateApp(
         name,

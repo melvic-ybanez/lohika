@@ -2,7 +2,7 @@ package com.melvic.lohika.formula.conversions
 
 import cats.data.State
 import cats.implicits.*
-import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.{Expression, Formula}
 import com.melvic.lohika.formula.Formula.*
 
 private[formula] trait Skolemization:
@@ -11,7 +11,7 @@ private[formula] trait Skolemization:
   opaque type UniversalVars = Set[Var]
   opaque type ExistentialVars = Set[Var]
   type StateData = (TakenNames, UniversalVars)
-  type Skolemize[F <: Formula] = F => State[StateData, F]
+  type Skolemize[E <: Expression] = E => State[StateData, E]
 
   def skolemize: Pnf => Snf =
     case Pnf(fm) =>

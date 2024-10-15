@@ -7,17 +7,22 @@ import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
 
 class FormulaParserSpec extends BaseSpec:
-  "True" should "be written as True" in:
-    parseSuccess("true", True)
+  "A term" should "not be usable outside of atomic formulas" in:
+    parseFailure("true")
+    parseFailure("x")
+    parseSuccess("P(x)", "P".of("x"))
 
-  "False" should "be written as F" in:
-    parseSuccess("false", False)
+  "True" should "be written as true" in:
+    parseSuccess("P(true)", PredicateApp.unary("P", True))
+
+  "False" should "be written as false" in:
+    parseSuccess("P(false)", PredicateApp.unary("P", False))
 
   "A single alphabetic string that starts with an lowercase letter" should "map to first-order variables" in :
-    parseSuccess("a", Var("a"))
+    parseSuccess("P(a)", "P".of("a"))
 
   it should "support multiple characters" in :
-    parseSuccess("foo", Var("foo"))
+    parseSuccess("P(foo)", "P".of("foo"))
 
   "A single alphabetic string that starts with an uppercase letter" should "map to a nullary predicate" in:
     parseSuccess("A", PredicateApp.nullary("A"))
@@ -35,7 +40,7 @@ class FormulaParserSpec extends BaseSpec:
 
   "Disjunctions" should "be separated by |" in:
     parseSuccess("A | B", "A" | "B")
-    parseSuccess("some | where", "some" | "where")
+    parseSuccess("P(some) | Q(where)", "P(some)" | "Q(where)")
 
   it should "support chaining" in:
     parseSuccess("A|B|C", Or.of("A", "B", "C"))
@@ -46,7 +51,7 @@ class FormulaParserSpec extends BaseSpec:
 
   "Conjunctions" should "be separated by &" in:
     parseSuccess("A & B", "A" & "B")
-    parseSuccess("some & where", "some" & "where")
+    parseSuccess("P(some) & Q(where)", "P(some)" & "Q(where)")
 
   it should "support chaining" in:
     parseSuccess("A&B&C", And.of("A", "B", "C"))

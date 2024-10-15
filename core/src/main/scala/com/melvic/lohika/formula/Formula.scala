@@ -4,11 +4,14 @@ import cats.Endo
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import com.melvic.lohika.formula.conversions.Conversions
+import com.melvic.lohika.parsers.Lexemes
 
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Imply | FList | Not | Quantified | Term | PredicateApp
+type Expression = Formula | Term
+type Formula = Compound | Not | Quantified | PredicateApp
+type Compound = Imply | FList
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
   /**
@@ -126,7 +129,7 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
       Or(p, q, rs.toList)
 
     def fromList: List[Formula] => Formula =
-      case Nil          => False
+      case Nil          => PredicateApp.False
       case p :: Nil     => p
       case p :: q :: rs => Or(p, q, rs)
 
@@ -138,7 +141,7 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
       And(p, q, rs.toList)
 
     def fromList: List[Formula] => Formula =
-      case Nil          => True
+      case Nil          => PredicateApp.True
       case p :: Nil     => p
       case p :: q :: rs => And(p, q, rs)
 
@@ -159,6 +162,12 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
 
   object PredicateApp:
     def nullary(name: String): PredicateApp = PredicateApp(name, Nil)
+
+    def unary(name: String, arg: Term): PredicateApp =
+      PredicateApp(name, arg :: Nil)
+
+    val False: PredicateApp = PredicateApp(Lexemes.False, Nil)
+    val True: PredicateApp = PredicateApp(Lexemes.True, Nil)
 
     object Nullary:
       def unapply(predicate: PredicateApp): Option[String] =

@@ -18,7 +18,7 @@ class AlphaConversionSpec extends BaseSpec:
 
   it should "not work on nested quantification when the name is shadowed" in:
     "A:x(P(x) => E:x(R(x)))" ====> "A:y(P(y) => E:x(R(x)))"
-    "A:x(P(x) => E:z,x(x))"  ====> "A:y(P(y) => E:z,x(x))"
+    "A:x(P(x) => E:z,xQ(x))"  ====> "A:y(P(y) => E:z,xQ(x))"
 
   it should "work on nested quantifier" in:
     "A:x(P(x) => E:z(Q(z) & R(x, z)))" ====> "A:y(P(y) => E:z(Q(z) & R(y, z)))"

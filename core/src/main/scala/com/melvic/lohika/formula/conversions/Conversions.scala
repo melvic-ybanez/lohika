@@ -14,11 +14,11 @@ private[formula] trait Conversions
     with PnfConversion
     with Skolemization:
   type Convert[F <: Formula] = Endo[Formula] => F => Formula
-  type Unless = PartialFunction[Formula, Unit]
 
   private[formula] final case class NoIff(raw: Formula)
   private[formula] final case class NoIf(raw: Formula)
   private[formula] final case class OrOverAnds(raw: Formula)
+  private[formula] final case class MatrixForm(raw: Formula)
 
   def eliminateBiconditionals: Formula => NoIff =
     def recurse: Endo[Formula] =
@@ -121,3 +121,7 @@ private[formula] trait Conversions
       sq  <- by(fList.q)
       srs <- fList.rs.map(by).sequence
     yield (sp, sq, srs)
+
+  def dropUniversalQuantifiers: Snf => MatrixForm =
+    case Snf(Forall(boundVars, matrix)) => dropUniversalQuantifiers(Snf(matrix))
+    case Snf(matrix)                    => MatrixForm(matrix)

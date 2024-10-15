@@ -31,9 +31,7 @@ private[formula] trait NnfConversion:
     case NegationsInside(fm) => SimplifiedNegations(simplifyNegationsRaw(fm))
 
   private def simplifyNegationsRaw: Endo[Formula] =
-    case Not(Not(p))     => simplifyNegationsRaw(p)
-    case Not(True)       => False
-    case Not(False)      => True
-    case Not(p @ Var(_)) => !p
-    case not: Not        => not
-    case fm              => convertBy(simplifyNegationsRaw)(fm)
+    case Not(Not(p))    => simplifyNegationsRaw(p)
+    case Not(predicate) => !predicate
+    case not: Not       => not
+    case fm             => convertBy(simplifyNegationsRaw)(fm)
