@@ -7,3 +7,5 @@ object MathJax extends Symbols:
   val Imply: String = "\\rightarrow"
   val Iff: String = "\\leftrightarrow"
   val Entailment: String = "\\models"
+  val Forall: String = "\\forall "
+  val ThereExists: String = "\\exists "

@@ -79,6 +79,9 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "X => Y, Y => Z, Z => W, W |= X" should "not hold" in:
     exhaustion("X => Y, Y => Z, Z => W, W |= X")
 
+  "Non-provable first-order entailments" should "result to exhaustion" in:
+    exhaustion("E:xP(x) |= P(a)")
+
   def contradiction(entailment: String, varName: String): Unit =
     result(entailment) should be(Right(Contradiction.fromPropVarName(varName)))
 

@@ -7,3 +7,5 @@ object Unicode extends Symbols:
   val Imply: String = "\u2192"
   val Iff: String = "\u2194"
   val Entailment: String = "\u22A8"
+  val Forall: String = "\u2200"
+  val ThereExists: String = "\u2203"

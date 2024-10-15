@@ -39,7 +39,7 @@ private[formula] trait Conversions
 
       NoIf(recurse(fm))
 
-  def distributeOrOverAnds: Snf => DistributedOrs =
+  def distributeOrOverAnds: MatrixForm => DistributedOrs =
     def recurse: Endo[Formula] =
       case Or(p, And(ap, aq, ars), Nil) =>
         convertConjunction(recurse)(And(p | ap, p | aq, ars.map(p | _)))
@@ -52,7 +52,7 @@ private[formula] trait Conversions
       case Or(p, q, r :: rs) => recurse(p | recurse(Or(q, r, rs)))
       case fm                => convertBy(recurse)(fm)
 
-    snf => DistributedOrs(recurse(snf.raw))
+    matrixForm => DistributedOrs(recurse(matrixForm.raw))
 
   private def flattenConjunctionsRaw: Endo[Formula] =
     case and: And =>

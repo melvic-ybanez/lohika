@@ -12,3 +12,4 @@ object Lexemes:
   val ThereExists = "E:"
   val LeftParen = "("
   val RightParen = ")"
+  val Entailment = "|="

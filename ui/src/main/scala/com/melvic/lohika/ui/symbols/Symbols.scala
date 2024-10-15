@@ -1,5 +1,7 @@
 package com.melvic.lohika.ui.symbols
 
+import com.melvic.lohika.parsers.Lexemes
+
 trait Symbols:
   def And: String
   def Or: String
@@ -7,6 +9,8 @@ trait Symbols:
   def Imply: String
   def Iff: String
   def Entailment: String
+  def Forall: String
+  def ThereExists: String
 
   /**
    * Maps texts to symbols.
@@ -17,12 +21,14 @@ trait Symbols:
    * rendered as the symbol for `|` followed by `=`.
    */
   def TextToSymbolsMap: List[(String, String)] = List(
-    "|="  -> Entailment,
-    "&"   -> And,
-    "|"   -> Or,
-    "!"   -> Not,
-    "<=>" -> Iff,
-    "=>"  -> Imply
+    Lexemes.Entailment  -> Entailment,
+    Lexemes.And         -> And,
+    Lexemes.Or          -> Or,
+    Lexemes.Not         -> Not,
+    Lexemes.Iff         -> Iff,
+    Lexemes.Imply       -> Imply,
+    Lexemes.Forall      -> Forall,
+    Lexemes.ThereExists -> ThereExists
   )
 
   def applyToText(text: String): String =

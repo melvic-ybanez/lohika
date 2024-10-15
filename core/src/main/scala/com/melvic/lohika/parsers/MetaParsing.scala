@@ -13,7 +13,7 @@ private[parsers] trait MetaParsing:
 
   def entailment[$: P]: P[Entailment] =
     val entailment =
-      ((Parser.formula.rep(min = 1, sep = ",") ~ "|=").? ~ Parser.formula).map:
+      ((Parser.formula.rep(min = 1, sep = ",") ~ Lexemes.Entailment).? ~ Parser.formula).map:
         case (None, conclusion)           => Entailment(Nil, conclusion)
         case (Some(premises), conclusion) => Entailment(premises.toList, conclusion)
     entailment ~ End

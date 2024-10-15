@@ -29,4 +29,4 @@ private[formula] trait CnfConversion:
   private[formula] def toCnfRaw: Endo[Formula] =
     eliminateBiconditionals andThen eliminateImplications andThen moveNegationsInside andThen
       simplifyNegations andThen standardize andThen toPnf andThen skolemize andThen
-      distributeOrOverAnds andThen flattenOrsAndAnds
+      dropUniversalQuantifiers andThen distributeOrOverAnds andThen flattenOrsAndAnds
