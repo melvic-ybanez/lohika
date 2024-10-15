@@ -56,7 +56,7 @@ object ProverProgram:
             )
             _ <- proofResult(premises, conclusion, true)
           yield contradiction
-        case Derive(left, right, clause) =>
+        case Derived(left, right, clause) =>
           for
             _            <- Prover[F].write(show"$left and $right resolves to $clause")
             newClauseSet <- Prover[F].updateClauseSet(clauseSet, Clauses.one(clause))

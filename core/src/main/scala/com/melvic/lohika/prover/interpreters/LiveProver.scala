@@ -12,11 +12,13 @@ import com.melvic.lohika.parsers.Parser
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.algebras.Prover.{
   Contradiction,
-  Derive,
+  Derived,
   Exhaustion,
   ResolutionResult
 }
 import fastparse.Parsed
+
+import scala.annotation.tailrec
 
 object LiveProver:
   import Clauses.given
@@ -55,19 +57,28 @@ object LiveProver:
       subStep(show"$lhs becomes $rhs", rhs)
 
     override def resolve(clauseSet: Clauses): Steps[ResolutionResult] =
-      def recurse(clauses: Clauses): ResolutionResult = clauses.toList match
-        case Nil => Exhaustion
-        case clause :: rest =>
-          rest
-            .map(clause -> _)
-            .collectFirstSome(resolvePair(_, _).flatMap:
-              case Derive(_, _, clause) if clauseSet.contains(clause) =>
-                None
-              case result => Some(result)
-            )
-            .getOrElse(recurse(Clauses(rest*)))
+      @tailrec
+      def outerLoop(clauses: Clauses, result: ResolutionResult): ResolutionResult =
+        clauses.toList match
+          case Nil => result
+          case clause :: rest =>
+            def innerLoop(
+                pairs: List[(Clause, Clause)],
+                result: ResolutionResult
+            ): ResolutionResult =
+              pairs match
+                case Nil => result
+                case (left, right) :: rest =>
+                  resolvePair(left, right).fold(innerLoop(rest, result)):
+                    case contradiction: Contradiction => contradiction
+                    case Derived(_, _, clause) if clauseSet.contains(clause) =>
+                      innerLoop(rest, result)
+                    case derived => innerLoop(rest, derived)
 
-      step(recurse(clauseSet))
+            innerLoop(rest.map(clause -> _), result) match
+              case contradiction: Contradiction => contradiction
+              case altResult                    => outerLoop(Clauses(rest*), altResult)
+      step(outerLoop(clauseSet, Exhaustion))
 
     override def write(description: String): Steps[Unit] =
       step(s"${itemNumber}$description", ())
@@ -85,7 +96,7 @@ object LiveProver:
 
   def step[A](value: A): Steps[A] = WriterT((Nil, value).asRight)
 
-  def resolvePair: (Clause, Clause) => Option[Derive | Contradiction] =
+  def resolvePair: (Clause, Clause) => Option[Derived | Contradiction] =
     case (lit1: Literal, lit2: Literal) => complementary(lit1, lit2).map(Contradiction(_, _))
     case (lit: Literal, or: COr)        => resolvePair(COr(lit :: Nil), or)
     case (or: COr, lit: Literal)        => resolvePair(or, COr(lit :: Nil))
@@ -98,7 +109,7 @@ object LiveProver:
           val cOrLiterals = newLiterals1 ++ newLiterals2
 
           if cOrLiterals.isEmpty then Contradiction(lit1, lit2)
-          else Derive(cor1, cor2, COr(cOrLiterals))
+          else Derived(cor1, cor2, COr(cOrLiterals))
 
   def complementary: (Literal, Literal) => Option[(Literal, Literal)] =
     case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if p1 == p2 => Some(p1, c2)

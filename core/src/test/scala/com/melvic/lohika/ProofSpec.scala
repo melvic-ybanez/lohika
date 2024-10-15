@@ -18,7 +18,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("A & C |= A | B", "A")
 
   "C" should "be provable from A => B, B => C, and A" in:
-    contradiction("A => B, B => C, A |= C", "!C")
+    contradiction("A => B, B => C, A |= C", "!A")
 
   "P | R" should "be provable from P | Q, !Q | R" in:
     contradiction("P | Q, !Q | R |= P | R", "Q")
@@ -27,10 +27,10 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("A => B, B | C |= A | C")
 
   "Q" should "be provable from !P | Q and P" in:
-    contradiction("!P | Q, P |= Q", "!P")
+    contradiction("!P | Q, P |= Q", "P")
 
   "R" should "be provable from P | Q, !Q | R, and !P" in:
-    contradiction("P | Q, !Q | R, !P |= R", "Q")
+    contradiction("P | Q, !Q | R, !P |= R", "P")
 
   "B | C" should "be provable from A | B, !A" in:
     contradiction("A | B, !A |= B | C", "!A")
@@ -48,16 +48,16 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("P | Q, !Q => R |= (P | Q) & (!Q => R) => (P => R)")
 
   "P => Q, Q <=> R, P |= R" should "hold" in:
-    contradiction("P => Q, Q <=> R, P |= R", "!P")
+    contradiction("P => Q, Q <=> R, P |= R", "R")
 
   "A => B, B => C, !C |= !A" should "hold" in:
     contradiction("A => B, B => C, !C |= !A", "!C")
 
   "P <=> Q, Q => R, P |= R" should "hold" in:
-    contradiction("P <=> Q, Q => R, P |= R", "!P")
+    contradiction("P <=> Q, Q => R, P |= R", "R")
 
   "P => Q, Q <=> R, !R |= !P" should "hold" in:
-    contradiction("P => Q, Q <=> R, !R |= !P", "!P")
+    contradiction("P => Q, Q <=> R, !R |= !P", "R")
 
   "P <=> Q, Q => R, R |= P" should "not hold" in:
     exhaustion("P <=> Q, Q => R, R |= P")
@@ -66,11 +66,15 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("P => Q, R => P, R |= Q", "!P")
 
   "P => Q, Q => R, R => S, P |= S" should "hold" in:
-    contradiction("P => Q, Q => R, R => S, P |= S", "!P")
+    contradiction("P => Q, Q => R, R => S, P |= S", "R")
 
   // [Showcase]
   "A => B, B => C, C => D, !D |= !A" should "hold" in:
-    contradiction("A => B, B => C, C => D, !D |= !A", "!B")
+    contradiction("A => B, B => C, C => D, !D |= !A", "!A")
+
+  // [Showcase]
+  "A => B, B => C, A, !D |= C | D" should "hold" in:
+    contradiction("A => B, B => C, A, !D |= C | D", "!A")
 
   "X => Y, Y => Z, Z => W, W |= X" should "not hold" in:
     exhaustion("X => Y, Y => Z, Z => W, W |= X")

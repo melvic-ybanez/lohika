@@ -31,9 +31,9 @@ trait Prover[F[_]]:
   def write(description: String): F[Unit]
 
 object Prover:
-  type ResolutionResult = Derive | Contradiction | Exhaustion.type
+  type ResolutionResult = Derived | Contradiction | Exhaustion.type
 
-  final case class Derive(left: Clause, right: Clause, result: Clause)
+  final case class Derived(left: Clause, right: Clause, result: Clause)
   final case class Contradiction(clause1: Clause, clause2: Clause)
   case object Exhaustion
 
