@@ -1,7 +1,9 @@
 package com.melvic.lohika.formula
 
 import com.melvic.lohika.BaseSpec
-import com.melvic.lohika.formula.Formula.Pnf
+import com.melvic.lohika.expression.Expression.*
+import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.Formula.Quantified.forall
 import com.melvic.lohika.formula.FormulaMappingSupport.{====>, FormulaMapper}
 
 class SkolemizationSpec extends BaseSpec with FormulaMappingSupport:
@@ -10,14 +12,19 @@ class SkolemizationSpec extends BaseSpec with FormulaMappingSupport:
     "A:xE:y(P(x) | Q(y))" ====> "A:x(P(x) | Q(f(x)))"
 
   it should "replace variables with Skolem constants when there's no preceding universal quantifier" in:
-    "E:xA:yP(x, y)" ====> "A:yP(x, y)"
+    "E:xA:yP(x, y)" ====> forall("y")("P".of(Const("x"), Var("y")))
 
   it should "account for all universal quantifiers that come before an existential quantifier" in:
     "A:xA:zE:yP(x, y, z)"                ====> "A:xA:zP(x, f(x, z), z)"
     "A:x,yE:zA:aE:b(P(a) & Q(b))"        ====> "A:x,yA:a(P(a) & Q(f(x, y, a)))"
     "A:xE:yA:zE:wP(x, y, z, w)"          ====> "A:xA:zP(x, f(x), z, g(x, z))"
     "A:xA:yE:zE:w(P(x, y, z) & Q(z, w))" ====> "A:xA:y(P(x, y, f(x, y)) & Q(f(x, y), g(x, y)))"
-    "E:xA:yE:zE:w(R(x, y) | (S(z, w) & T(y)))" ====> "A:y(R(x, y) | (S(f(y), g(y)) &  T(y)))"
+    "E:xA:yE:zE:w(R(x, y) | (S(z, w) & T(y)))" ====> forall("y")(
+      "R".of(Const("x"), Var("y")) | "S".of(
+        FunctionApp.unary("f", Var("y")),
+        FunctionApp.unary("g", Var("y"))
+      ) & "T".of("y")
+    )
 
   it should "work on nested existential quantifiers" in:
     "A:xE:yE:z(P(x, y) & Q(y, z))"      ====> "A:x(P(x, f(x)) & Q(f(x), g(x)))"

@@ -2,7 +2,9 @@ package com.melvic.lohika.formula.conversions
 
 import cats.data.State
 import cats.implicits.*
-import com.melvic.lohika.formula.{Expression, Formula}
+import com.melvic.lohika.expression.Expression
+import com.melvic.lohika.expression.Expression.Var
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
 import scala.annotation.{tailrec, targetName}

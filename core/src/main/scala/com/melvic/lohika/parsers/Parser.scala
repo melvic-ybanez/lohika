@@ -1,11 +1,13 @@
 package com.melvic.lohika.parsers
 
+import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
 
+// TODO: Move formula and expresison parsers to their own modules
 object Parser extends MetaParsing:
   def parseFormula(input: String): Parsed[Formula] =
     fastParse(input, formula(using _))

@@ -3,6 +3,7 @@ package com.melvic.lohika.formula
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Givens
+import com.melvic.lohika.expression.Expression.Var
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.parsers.Parser

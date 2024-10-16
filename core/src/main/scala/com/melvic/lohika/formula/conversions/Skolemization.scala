@@ -1,8 +1,11 @@
 package com.melvic.lohika.formula.conversions
 
+import cats.Endo
 import cats.data.State
 import cats.implicits.*
-import com.melvic.lohika.formula.{Expression, Formula}
+import com.melvic.lohika.expression.Expression
+import com.melvic.lohika.expression.Expression.*
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
 private[formula] trait Skolemization:
@@ -17,15 +20,16 @@ private[formula] trait Skolemization:
     case Pnf(fm) =>
       def recurse: Skolemize[Formula] =
         case ThereExists((x, xs), matrix) =>
+          val boundVars = x :: xs
           State
             .get[StateData]
             .flatMap: (_, universalVars) =>
               val replaceVars =
                 if universalVars.nonEmpty then
-                  replaceWithSkolemFunctions(using (x :: xs).toSet)(matrix)
+                  replaceWithSkolemFunctions(using boundVars.toSet)(matrix)
                 // If there are no bound variables, then there are no universal quantifiers that appear
                 // before this existential quantifier.
-                else replaceWithSkolemConstants(matrix)
+                else State.pure(replaceWithSkolemConstants(using boundVars.map(_.name))(matrix))
 
               for
                 replacedVars     <- replaceVars
@@ -46,8 +50,16 @@ private[formula] trait Skolemization:
    * potential name clashes, since the formula has been standardized such that all first order
    * variables have unique names.
    */
-  private def replaceWithSkolemConstants: Skolemize[Formula] =
-    State.pure
+  private def replaceWithSkolemConstants(using constNames: List[String]): Endo[Formula] =
+    case PredicateApp(name, args) =>
+      PredicateApp(name, args.map(replaceTermWithSkolemConstants))
+    case fm: Formula => convertBy(replaceWithSkolemConstants)(fm)
+
+  private def replaceTermWithSkolemConstants(using constNames: List[String]): Endo[Term] =
+    case Var(name) if constNames.contains(name) => Const(name)
+    case FunctionApp(name, args) =>
+      FunctionApp(name, args.map(replaceTermWithSkolemConstants))
+    case term: Term => term
 
   private def replaceWithSkolemFunctions(using
       existentialVars: ExistentialVars

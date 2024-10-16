@@ -1,6 +1,7 @@
 package com.melvic.lohika.formula
 
 import cats.Endo
+import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import com.melvic.lohika.formula.conversions.Conversions
@@ -9,32 +10,20 @@ import com.melvic.lohika.parsers.Lexemes
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Expression = Formula | Term
 type Formula = Compound | Not | Quantified | PredicateApp
-type Compound = Imply | FList
 
 object Formula extends FormulaGivens with Conversions with PrettyPrinting:
-  /**
-   * Represents a first-order variable. Propositional variables are considered nullary predicates,
-   * represented by [[PredicateApp]] but without any arguments.
-   *
-   * Note however that this type is also used for constants and nullary functions for now.
-   */
-  final case class Var(name: String)
+  type Compound = Imply | FList
 
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Not(p: Formula)
-  case object True
-  case object False
   final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class PredicateApp(name: String, args: List[Term])
   final case class FunctionApp(name: String, args: List[Term])
-
-  type Term = Var | True.type | False.type | FunctionApp
 
   type Property = Formula => Boolean
   val NullPred: PredicateApp.Nullary.type = PredicateApp.Nullary
@@ -63,10 +52,6 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     case _: PredicateApp        => true
     case Not(p) if isLiteral(p) => true
     case _                      => false
-
-  def isConstant: Property =
-    case True | False => true
-    case _            => false
 
   def isAnd: Property =
     case _: And => true
@@ -172,6 +157,10 @@ object Formula extends FormulaGivens with Conversions with PrettyPrinting:
     object Nullary:
       def unapply(predicate: PredicateApp): Option[String] =
         Option.when(predicate.args.isEmpty)(predicate.name)
+
+  object FunctionApp:
+    def unary(name: String, arg: Term): FunctionApp =
+      FunctionApp(name, arg :: Nil)
 
   object Imply:
     def of(p: Formula, qs: Formula*): Imply =

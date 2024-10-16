@@ -1,8 +1,9 @@
 package com.melvic.lohika
 
+import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
-import com.melvic.lohika.formula.Formula.Quantified.{thereExists, forall}
+import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
 

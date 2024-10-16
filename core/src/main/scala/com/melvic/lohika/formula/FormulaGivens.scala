@@ -5,6 +5,7 @@ import Formula.*
 import com.melvic.lohika.Formatter
 import fastparse.*
 import Formatter.*
+import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.parsers.Parser
 
 private[formula] trait FormulaGivens:
@@ -13,8 +14,8 @@ private[formula] trait FormulaGivens:
       case Parsed.Success(fm: Formula, _) => fm
       case _                              => throw new Error(s"Unable to parse $input")
 
-  given [E <: Expression](using Formatter): Show[E] =
-    Show.show(Formula.prettyPrint(_).formula)
+  given [F <: Formula](using Formatter): Show[F] =
+    Expression.showExpr
 
   given [F <: Formula]: Eq[F] = Eq.instance: (fm1, fm2) =>
     def compare(fm1: Formula, fm2: Formula): Boolean =
