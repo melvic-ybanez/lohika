@@ -1,15 +1,17 @@
-package com.melvic.lohika.formula
+package com.melvic.lohika.expression
 
 import com.melvic.lohika.expression
 import com.melvic.lohika.expression.Expression.*
+import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.expression.Expression.Precedence.noParensIfEqual
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
-import com.melvic.lohika.formula.Formula.Precedence.noParensIfEqual
 import com.melvic.lohika.parsers.Lexemes
 
-// TODO: Move this to expression package
-private[formula] trait PrettyPrinting:
-  def prettyPrint(expr: expression.Expression)(using parentPrecedence: Int = Precedence.Default): String =
+private[expression] trait PrettyPrinting:
+  def prettyPrint(expr: expression.Expression)(using
+      parentPrecedence: Int = Precedence.Default
+  ): String =
     given currentPrecedence: Int = precedence(expr)
 
     def prettyFList(p: Formula, q: Formula, rs: List[Formula], sep: String): String =

@@ -9,7 +9,7 @@ import com.melvic.lohika.formula.Formula.*
 
 type Expression = Formula | Term
 
-object Expression extends ExpressionGivens:
+object Expression extends ExpressionGivens with PrettyPrinting:
   type Term = Var | Const | True.type | False.type | FunctionApp
 
   /**
@@ -24,4 +24,4 @@ object Expression extends ExpressionGivens:
 
 private sealed trait ExpressionGivens:
   given showExpr[E <: Expression](using Formatter): Show[E] =
-    Show.show(Formula.prettyPrint(_).formula)
+    Show.show(Expression.prettyPrint(_).formula)

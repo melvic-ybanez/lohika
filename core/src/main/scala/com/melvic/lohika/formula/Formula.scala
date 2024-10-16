@@ -12,7 +12,7 @@ import scala.util.chaining.*
 
 type Formula = Compound | Not | Quantified | PredicateApp
 
-object Formula extends FormulaGivens with Conversions with PrettyPrinting:
+object Formula extends FormulaGivens with Conversions:
   type Compound = Imply | FList
 
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
