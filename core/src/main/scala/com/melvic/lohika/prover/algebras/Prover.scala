@@ -3,7 +3,7 @@ package com.melvic.lohika.prover.algebras
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.formula.Cnf.{CNot, Clause}
-import com.melvic.lohika.formula.Formula.PredicateApp
+import com.melvic.lohika.formula.Formula.{ConstSuffix, PredicateApp}
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.parsers.Lexemes
@@ -17,9 +17,9 @@ trait Prover[F[_]]:
   def splitIntoClauses(cnf: Cnf): F[Clauses] =
     splitAllIntoClauses(cnf :: Nil)
 
-  def convertAllToCnfs(formulae: List[Formula]): F[List[Cnf]]
+  def convertAllToCnfs(formulae: List[Formula])(using ConstSuffix): F[List[Cnf]]
 
-  def convertToCnf(formula: Formula)(implicit functor: Functor[F]): F[Cnf] =
+  def convertToCnf(formula: Formula)(using Functor[F], ConstSuffix): F[Cnf] =
     convertAllToCnfs(formula :: Nil).map(_.head)
 
   def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): F[Clauses]

@@ -84,9 +84,19 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "Non-provable first-order entailments" should "result to exhaustion" in:
     exhaustion("E:xP(x) |= P(a)")
     exhaustion("A:x(P(x) | Q(x)) |= A:xP(x) | A:xQ(x)")
+    exhaustion("E:xP(x) |= A:xP(x)")
 
   "Provable first-order entailments" should "result to contradictions" in:
     contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)", "P".of("a"), CNot("P".of("x")))
+
+  "Modus Ponens" should "be provable" in:
+    contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)", "P".of("a"), CNot("P".of("a")))
+
+  "Contrapositive" should "be provable" in:
+    contradiction("A:x(P(x) => Q(x)), !Q(a) |= !P(a)", CNot("Q".of("a")), "Q".of("x"))
+
+  def contradiction(entailment: String): Unit =
+    result(entailment) should be(Right(Contradiction(_, _)))
 
   def contradiction(entailment: String, varName: String): Unit =
     contradiction(entailment, Contradiction.fromPropVarName(varName))

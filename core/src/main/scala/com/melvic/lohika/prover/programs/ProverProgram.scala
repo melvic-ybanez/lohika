@@ -2,12 +2,13 @@ package com.melvic.lohika.prover.programs
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.prover.algebras.Prover
-import Prover.*
-import com.melvic.lohika.{Formatter, Links}
+import com.melvic.lohika.Formatter.*
+import com.melvic.lohika.formula.Formula.ConstSuffix
 import com.melvic.lohika.formula.{Clauses, Formula}
-import Formatter.*
 import com.melvic.lohika.meta.Entailment
+import com.melvic.lohika.prover.algebras.Prover
+import com.melvic.lohika.prover.algebras.Prover.*
+import com.melvic.lohika.{Formatter, Links}
 
 import java.text.NumberFormat.Style
 
@@ -22,14 +23,15 @@ object ProverProgram:
       _ <- Prover[F].write(
         s"Convert all premises into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
-      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)
+      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)(using ConstSuffix(1))
       premiseClauses <- Prover[F].splitAllIntoClauses(premiseCnfs)
       clauses        <- Prover[F].updateClauseSet(Clauses.empty, premiseClauses)
       _ <- Prover[F].write(
         s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
       )
-      negatedConclusion  <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
-      _                  <- Prover[F].write("Convert the negated conclusion into CNF:")
+      negatedConclusion <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
+      _                 <- Prover[F].write("Convert the negated conclusion into CNF:")
+      given ConstSuffix = ConstSuffix(premises.length + 1)
       negatedPropCnf     <- Prover[F].convertToCnf(negatedConclusion)
       negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
       clauses            <- Prover[F].updateClauseSet(clauses, negatedPropClauses)

@@ -1,17 +1,23 @@
 package com.melvic.lohika.prover.interpreters
 
+import cats.Functor
 import cats.data.WriterT
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.formula.Cnf.*
-import com.melvic.lohika.formula.Formula.PredicateApp
+import com.melvic.lohika.formula.Formula.{ConstSuffix, PredicateApp}
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
 import com.melvic.lohika.parsers.Parser
 import com.melvic.lohika.prover.algebras.Prover
-import com.melvic.lohika.prover.algebras.Prover.{Contradiction, Derived, Exhaustion, ResolutionResult}
+import com.melvic.lohika.prover.algebras.Prover.{
+  Contradiction,
+  Derived,
+  Exhaustion,
+  ResolutionResult
+}
 import fastparse.Parsed
 
 import scala.annotation.tailrec
@@ -27,18 +33,22 @@ object LiveProver:
       if cnfs.isEmpty then WriterT((Nil, Clauses.empty).asRight)
       else step(show"${itemNumber}Extract all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
 
-    override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
+    override def convertAllToCnfs(formulae: List[Formula])(using
+        constSuffix: ConstSuffix
+    ): Steps[List[Cnf]] =
       formulae match
         case Nil => subStep("No formulae to convert".emphasize, Nil)
         case _ =>
           val cnfsString = if formulae.size > 1 then "their CNFs" else "its CNF"
-          val cnfs = formulae.foldLeft(
+          val cnfs = formulae.zipWithIndex.foldLeft(
             List(show"$indent* Convert $formulae into $cnfsString:"),
             List.empty[Cnf]
-          ): (step, formula) =>
-            step.flatMap: cnfs =>
-              val cnf = Formula.toCnf(formula)
-              (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+          ):
+            case (step, (formula, i)) =>
+              given ConstSuffix = ConstSuffix(i + constSuffix.raw)
+              step.flatMap: cnfs =>
+                val cnf = Formula.toCnf(formula)
+                (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
 
           WriterT(cnfs.asRight)
 

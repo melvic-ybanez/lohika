@@ -5,6 +5,7 @@ import org.scalatest.Assertions.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import cats.implicits.*
+import com.melvic.lohika.formula.Formula.ConstSuffix
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.parsers.Parser
 import fastparse.Parsed
@@ -12,6 +13,8 @@ import fastparse.Parsed
 import scala.annotation.targetName
 
 class BaseSpec extends AnyFlatSpec with should.Matchers with Givens:
+  given ConstSuffix = ConstSuffix(1)
+
   given prettifier: Prettifier with
     def apply(obj: Any): String =
       obj match

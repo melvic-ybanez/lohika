@@ -111,8 +111,7 @@ private[formula] trait Standardization:
     def empty: TakenNames =
       Set.empty
 
-  extension (freeVars: AllFreeVars)
-    def raw: Set[Var] = freeVars
+  extension (freeVars: AllFreeVars) def raw: Set[Var] = freeVars
 
   extension (takenNames: TakenNames)
     @targetName("names")

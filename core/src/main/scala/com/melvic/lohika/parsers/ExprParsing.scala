@@ -13,7 +13,8 @@ private[parsers] trait ExprParsing:
     case (Var(name), args) => FunctionApp(name, args)
 
   def firstOrderVar[$: P]: P[Var] =
-    P(alphabetic(_.isLower).rep(min = 1).!).map(Var.apply)
+    P((alphabetic(_.isLower).rep(min = 1) ~ "_".? ~ CharPred(_.isDigit).rep(min = 0)).!)
+      .map(Var.apply)
 
   def args[$: P]: P[List[Term]] = P("(" ~/ term.rep(min = 1, sep = ",") ~ ")").map(_.toList)
 

@@ -13,10 +13,11 @@ private[formula] trait Skolemization:
 
   opaque type UniversalVars = Set[Var]
   opaque type ExistentialVars = Set[Var]
+  opaque type ConstSuffix = Int
   type StateData = (TakenNames, UniversalVars)
   type Skolemize[E <: Expression] = E => State[StateData, E]
 
-  def skolemize: Pnf => Snf =
+  def skolemize(using ConstSuffix): Pnf => Snf =
     case Pnf(fm) =>
       def recurse: Skolemize[Formula] =
         case ThereExists((x, xs), matrix) =>
@@ -50,13 +51,19 @@ private[formula] trait Skolemization:
    * potential name clashes, since the formula has been standardized such that all first order
    * variables have unique names.
    */
-  private def replaceWithSkolemConstants(using constNames: List[String]): Endo[Formula] =
+  private def replaceWithSkolemConstants(using
+      constNames: List[String],
+      constSuffix: ConstSuffix
+  ): Endo[Formula] =
     case PredicateApp(name, args) =>
       PredicateApp(name, args.map(replaceTermWithSkolemConstants))
     case fm: Formula => convertBy(replaceWithSkolemConstants)(fm)
 
-  private def replaceTermWithSkolemConstants(using constNames: List[String]): Endo[Term] =
-    case Var(name) if constNames.contains(name) => Const(name)
+  private def replaceTermWithSkolemConstants(using
+      constNames: List[String],
+      constSuffix: ConstSuffix
+  ): Endo[Term] =
+    case Var(name) if constNames.contains(name) => Const(s"${name}_$constSuffix")
     case FunctionApp(name, args) =>
       FunctionApp(name, args.map(replaceTermWithSkolemConstants))
     case term: Term => term
@@ -97,3 +104,9 @@ private[formula] trait Skolemization:
             (TakenNames(takenNamesAcc.raw ++ takenNames.raw), fm :: fms)
 
       ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)
+
+  object ConstSuffix:
+    def apply(value: Int): ConstSuffix =
+      value
+
+  extension (constSuffix: ConstSuffix) def raw: Int = constSuffix
