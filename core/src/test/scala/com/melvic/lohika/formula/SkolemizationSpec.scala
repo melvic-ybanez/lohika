@@ -10,6 +10,7 @@ class SkolemizationSpec extends BaseSpec with FormulaMappingSupport:
     "A:xE:y(P(x) | Q(y))" ====> "A:x(P(x) | Q(f(x)))"
 
   it should "replace variables with Skolem constants when there's no preceding universal quantifier" in:
+    "E:xP(x)"       ====> "P('x)"
     "E:xA:yP(x, y)" ====> "A:yP('x, y)"
 
   it should "account for all universal quantifiers that come before an existential quantifier" in:

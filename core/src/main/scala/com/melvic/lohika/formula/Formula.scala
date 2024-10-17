@@ -1,6 +1,7 @@
 package com.melvic.lohika.formula
 
 import cats.Endo
+import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
@@ -27,7 +28,6 @@ object Formula extends FormulaGivens with Conversions:
   final case class FunctionApp(name: String, args: List[Term])
 
   type Property = Formula => Boolean
-  val NullPred: PredicateApp.Nullary.type = PredicateApp.Nullary
 
   sealed trait FList:
     def p: Formula
@@ -63,6 +63,12 @@ object Formula extends FormulaGivens with Conversions:
     case _     => false
 
   def isClause: Property = fm => isOr(fm) || isLiteral(fm)
+
+  def addImpliedForall(formula: Formula): Formula =
+    val freeVars = allFreeVars(using AllFreeVars.empty)(formula)
+    freeVars.raw.toList match
+      case Nil     => formula
+      case x :: xs => Forall((x, xs), formula)
 
   // TODO: See if we can remove this and replace with the one from `Cnf`
   def flatten[A <: FList](make: FList.Make)(
@@ -147,13 +153,18 @@ object Formula extends FormulaGivens with Conversions:
       Formula.flatten(Iff.apply) { case iff: Iff => iff }
 
   object PredicateApp:
+    val False: PredicateApp = PredicateApp(Lexemes.False, Nil)
+    val True: PredicateApp = PredicateApp(Lexemes.True, Nil)
+
     def nullary(name: String): PredicateApp = PredicateApp(name, Nil)
 
     def unary(name: String, arg: Term): PredicateApp =
       PredicateApp(name, arg :: Nil)
 
-    val False: PredicateApp = PredicateApp(Lexemes.False, Nil)
-    val True: PredicateApp = PredicateApp(Lexemes.True, Nil)
+    def unify: Endo[(PredicateApp, PredicateApp)] =
+      case (PredicateApp(f, fArgs), PredicateApp(g, gArgs)) =>
+        val (newFArgs, newGArgs) = Expression.unifyApp((f, fArgs), (g, gArgs))
+        (PredicateApp(f, newFArgs), PredicateApp(g, newGArgs))
 
     object Nullary:
       def unapply(predicate: PredicateApp): Option[String] =

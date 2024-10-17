@@ -28,7 +28,7 @@ object ProverProgram:
       _ <- Prover[F].write(
         s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
       )
-      negatedConclusion  <- Prover[F].transform(conclusion, !conclusion)
+      negatedConclusion  <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
       _                  <- Prover[F].write("Convert the negated conclusion into CNF:")
       negatedPropCnf     <- Prover[F].convertToCnf(negatedConclusion)
       negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)

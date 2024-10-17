@@ -43,7 +43,7 @@ private[formula] trait Skolemization:
         case fm => State.pure(fm)
 
       val takenNames = allFreeVars(using TakenNames.empty)(fm).raw.map(_.name)
-      Snf(recurse(fm).runA(TakenNames.fromSet(takenNames), Set.empty[Var]).value)
+      Snf(recurse(fm).runA(TakenNames(takenNames), Set.empty[Var]).value)
 
   /**
    * We can reuse the names of the bound variables as Skolem constants without worrying about any
@@ -81,7 +81,7 @@ private[formula] trait Skolemization:
         case (takenNames, universalVars) =>
           val functionName = generateSymbolName("e", takenNames)
           (
-            (TakenNames.fromSet(takenNames.raw + functionName), universalVars),
+            (TakenNames(takenNames.raw + functionName), universalVars),
             FunctionApp(functionName, universalVars.toList)
           )
     case fm => State.pure(fm)
@@ -94,6 +94,6 @@ private[formula] trait Skolemization:
         .map(fm => replaceWithSkolemFunctions(fm).run(stateData).value)
         .foldLeft(TakenNames.empty, List.empty[Formula]):
           case ((takenNamesAcc, fms), ((takenNames, _), fm)) =>
-            (TakenNames.fromSet(takenNamesAcc.raw ++ takenNames.raw), fm :: fms)
+            (TakenNames(takenNamesAcc.raw ++ takenNames.raw), fm :: fms)
 
       ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)

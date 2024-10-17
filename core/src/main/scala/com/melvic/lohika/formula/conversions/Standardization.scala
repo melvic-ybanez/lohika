@@ -101,13 +101,18 @@ private[formula] trait Standardization:
         else base.take(base.length - lastDigit.length) + (lastDigit.toInt + 1)
 
   object TakenNames:
-    def fromSet(names: Set[String]): TakenNames =
+    def apply(names: Set[String]): TakenNames =
       names
 
     def empty: TakenNames =
       Set.empty
 
-  extension (freeVars: AllFreeVars) def raw: Set[Var] = freeVars
+  object AllFreeVars:
+    def empty: TakenNames =
+      Set.empty
+
+  extension (freeVars: AllFreeVars)
+    def raw: Set[Var] = freeVars
 
   extension (takenNames: TakenNames)
     @targetName("names")

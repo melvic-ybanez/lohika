@@ -1,11 +1,13 @@
 package com.melvic.lohika
 
 import com.melvic.lohika.ProofSpec.result
+import com.melvic.lohika.formula.Cnf.{CNot, Clause}
 import com.melvic.lohika.prover.algebras.Prover.{Contradiction, Exhaustion, ResolutionResult}
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import com.melvic.lohika.formula.Formula.*
 
 class ProofSpec extends AnyFlatSpec with should.Matchers:
   "A" should "be provable from A | B" in:
@@ -81,9 +83,19 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
 
   "Non-provable first-order entailments" should "result to exhaustion" in:
     exhaustion("E:xP(x) |= P(a)")
+    exhaustion("A:x(P(x) | Q(x)) |= A:xP(x) | A:xQ(x)")
+
+  "Provable first-order entailments" should "result to contradictions" in:
+    contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)", "P".of("a"), CNot("P".of("x")))
 
   def contradiction(entailment: String, varName: String): Unit =
-    result(entailment) should be(Right(Contradiction.fromPropVarName(varName)))
+    contradiction(entailment, Contradiction.fromPropVarName(varName))
+
+  def contradiction(entailment: String, clause1: Clause, clause2: Clause): Unit =
+    contradiction(entailment, Contradiction(clause1, clause2))
+
+  def contradiction(entailment: String, contradiction: Contradiction): Unit =
+    result(entailment) should be(Right(contradiction))
 
   def exhaustion(entailment: String): Unit =
     result(entailment) should be(Right(Exhaustion))

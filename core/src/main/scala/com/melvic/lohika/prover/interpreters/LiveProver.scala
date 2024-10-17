@@ -4,18 +4,14 @@ import cats.data.WriterT
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
+import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.formula.Cnf.*
-import com.melvic.lohika.formula.Formula.{NullPred, PredicateApp}
+import com.melvic.lohika.formula.Formula.PredicateApp
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
 import com.melvic.lohika.parsers.Parser
 import com.melvic.lohika.prover.algebras.Prover
-import com.melvic.lohika.prover.algebras.Prover.{
-  Contradiction,
-  Derived,
-  Exhaustion,
-  ResolutionResult
-}
+import com.melvic.lohika.prover.algebras.Prover.{Contradiction, Derived, Exhaustion, ResolutionResult}
 import fastparse.Parsed
 
 import scala.annotation.tailrec
@@ -98,8 +94,8 @@ object LiveProver:
 
   def resolvePair: (Clause, Clause) => Option[Derived | Contradiction] =
     case (lit1: CLiteral, lit2: CLiteral) => complementary(lit1, lit2).map(Contradiction(_, _))
-    case (lit: CLiteral, or: COr)        => resolvePair(COr(lit :: Nil), or)
-    case (or: COr, lit: CLiteral)        => resolvePair(or, COr(lit :: Nil))
+    case (lit: CLiteral, or: COr)         => resolvePair(COr(lit :: Nil), or)
+    case (or: COr, lit: CLiteral)         => resolvePair(or, COr(lit :: Nil))
     case (cor1 @ COr(literals1), cor2 @ COr(literals2)) =>
       literals1
         .collectFirstSome(lit1 => literals2.collectFirstSome(complementary(lit1, _)))
@@ -112,9 +108,13 @@ object LiveProver:
           else Derived(cor1, cor2, COr(cOrLiterals))
 
   def complementary: (CLiteral, CLiteral) => Option[(CLiteral, CLiteral)] =
-    case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if p1 == p2 => Some(p1, c2)
-    case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) if p1 == p2 => Some(c1, p2)
-    case _                                                           => None
+    case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if unifyCompare(p1, p2) => Some(p1, c2)
+    case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) if unifyCompare(p1, p2) => Some(c1, p2)
+    case _                                                                       => None
+
+  def unifyCompare(pred1: PredicateApp, pred2: PredicateApp): Boolean =
+    val (newPred1, newPred2) = PredicateApp.unify(pred1, pred2)
+    newPred1 == newPred2
 
   given Formatter with
     override def emphasize: Format = text => s"_${text}_"
