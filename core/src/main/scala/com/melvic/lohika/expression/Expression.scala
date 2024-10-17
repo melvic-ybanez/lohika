@@ -1,6 +1,6 @@
 package com.melvic.lohika.expression
 
-import cats.Show
+import cats.{Endo, Show}
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.expression.Expression.Term

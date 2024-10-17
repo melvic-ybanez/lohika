@@ -18,11 +18,11 @@ type Cnf = CAnd | Clause
  */
 object Cnf extends CnfGivens:
   final case class CAnd(clauses: List[Clause])
-  final case class COr(literals: List[Literal])
+  final case class COr(literals: List[CLiteral])
   final case class CNot(atomic: PredicateApp)
 
-  type Clause = COr | Literal
-  type Literal = PredicateApp | CNot
+  type Clause = COr | CLiteral
+  type CLiteral = PredicateApp | CNot
 
 sealed trait CnfGivens:
   given [C <: Cnf](using Formatter): Show[C] = Show.show(Formula.fromCnf(_).show)

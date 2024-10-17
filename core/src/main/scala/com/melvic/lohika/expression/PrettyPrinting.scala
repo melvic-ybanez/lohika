@@ -29,7 +29,7 @@ private[expression] trait PrettyPrinting:
 
     val pretty = expr match
       case Var(name)          => name
-      case Const(name)        => name
+      case Const(name)        => Lexemes.Const + name
       case Or(p, q, rs)       => prettyFList(p, q, rs, Lexemes.Or)
       case And(p, q, rs)      => prettyFList(p, q, rs, Lexemes.And)
       case Imply(p, q: Imply) =>

@@ -23,4 +23,7 @@ private[parsers] trait ExprParsing:
   def falseConst[$: P]: P[False.type] =
     P(Lexemes.False).map(_ => False)
 
-  def constants[$: P]: P[True.type | False.type] = P(trueConst | falseConst)
+  def constApp[$: P]: P[Const] = (Lexemes.Const ~ firstOrderVar).map:
+    case Var(name) => Const(name)
+
+  def constants[$: P]: P[Const | True.type | False.type] = P(constApp | trueConst | falseConst)

@@ -9,7 +9,7 @@ private[formula] trait CnfConversion:
   def toCnf: Formula => Cnf =
     toCnfRaw andThen:
       case or: Or if or.components.forall(isLiteral) =>
-        COr(or.components.map(toCnf(_).asInstanceOf[Literal]))
+        COr(or.components.map(toCnf(_).asInstanceOf[CLiteral]))
       case and: And if and.components.forall(isClause) =>
         CAnd(and.components.map(toCnf(_).asInstanceOf[Clause]))
       case Not(predicateApp: PredicateApp) => CNot(predicateApp)

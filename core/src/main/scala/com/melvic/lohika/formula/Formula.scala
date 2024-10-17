@@ -10,10 +10,11 @@ import com.melvic.lohika.parsers.Lexemes
 import scala.annotation.targetName
 import scala.util.chaining.*
 
-type Formula = Compound | Not | Quantified | PredicateApp
+type Formula = Compound | Quantified | Literal
 
 object Formula extends FormulaGivens with Conversions:
   type Compound = Imply | FList
+  type Literal = Not | PredicateApp
 
   final case class Or(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class And(p: Formula, q: Formula, rs: List[Formula]) extends FList

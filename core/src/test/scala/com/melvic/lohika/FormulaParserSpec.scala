@@ -19,11 +19,14 @@ class FormulaParserSpec extends BaseSpec:
   "False" should "be written as false" in:
     parseSuccess("P(false)", PredicateApp.unary("P", False))
 
-  "A single alphabetic string that starts with an lowercase letter" should "map to first-order variables" in :
+  "A single alphabetic string that starts with an lowercase letter" should "map to first-order variables" in:
     parseSuccess("P(a)", "P".of("a"))
 
-  it should "support multiple characters" in :
+  it should "support multiple characters" in:
     parseSuccess("P(foo)", "P".of("foo"))
+
+  "A constant" should "be written with the correct character as the prefix" in:
+    parseSuccess("P('x, 'y)", "P".of(Const("x"), Const("y")))
 
   "A single alphabetic string that starts with an uppercase letter" should "map to a nullary predicate" in:
     parseSuccess("A", PredicateApp.nullary("A"))

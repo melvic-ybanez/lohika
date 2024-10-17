@@ -3,7 +3,7 @@ package com.melvic.lohika.formula
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Givens
-import com.melvic.lohika.expression.Expression.Var
+import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.{forall, thereExists}
 import com.melvic.lohika.parsers.Parser
@@ -14,6 +14,9 @@ import org.scalatest.matchers.should
 class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
   "A variable" should "print its name" in:
     Var("A").show should be("A")
+
+  "A constant" should "have the correct prefix" in:
+    Const("x").show should be("'x")
 
   "Disjunctions" should "be separated by |s" in:
     Or.of("A", "B", "C").show should be("A | B | C")

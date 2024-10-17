@@ -97,9 +97,9 @@ object LiveProver:
   def step[A](value: A): Steps[A] = WriterT((Nil, value).asRight)
 
   def resolvePair: (Clause, Clause) => Option[Derived | Contradiction] =
-    case (lit1: Literal, lit2: Literal) => complementary(lit1, lit2).map(Contradiction(_, _))
-    case (lit: Literal, or: COr)        => resolvePair(COr(lit :: Nil), or)
-    case (or: COr, lit: Literal)        => resolvePair(or, COr(lit :: Nil))
+    case (lit1: CLiteral, lit2: CLiteral) => complementary(lit1, lit2).map(Contradiction(_, _))
+    case (lit: CLiteral, or: COr)        => resolvePair(COr(lit :: Nil), or)
+    case (or: COr, lit: CLiteral)        => resolvePair(or, COr(lit :: Nil))
     case (cor1 @ COr(literals1), cor2 @ COr(literals2)) =>
       literals1
         .collectFirstSome(lit1 => literals2.collectFirstSome(complementary(lit1, _)))
@@ -111,7 +111,7 @@ object LiveProver:
           if cOrLiterals.isEmpty then Contradiction(lit1, lit2)
           else Derived(cor1, cor2, COr(cOrLiterals))
 
-  def complementary: (Literal, Literal) => Option[(Literal, Literal)] =
+  def complementary: (CLiteral, CLiteral) => Option[(CLiteral, CLiteral)] =
     case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if p1 == p2 => Some(p1, c2)
     case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) if p1 == p2 => Some(c1, p2)
     case _                                                           => None
