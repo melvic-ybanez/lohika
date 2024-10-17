@@ -40,11 +40,10 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "A | !C" should "be provable from A => B and B => C" in:
     result("A => B, B => C |= A | !C") should be(Right(Exhaustion))
 
-  "P | !P" should "be a tautology" in:
+  "Tautologies" should "be provable" in:
     contradiction("P | !P", "!P")
-
-  "(P & Q) => P" should "be a tautology" in:
     contradiction("P | !P", "!P")
+    contradiction("P(a) | !P(a)")
 
   "(P | Q) & (!Q => R) => (P => R)" should "not be provable from P | Q and !Q => R" in:
     exhaustion("P | Q, !Q => R |= (P | Q) & (!Q => R) => (P => R)")
@@ -86,8 +85,9 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("A:x(P(x) | Q(x)) |= A:xP(x) | A:xQ(x)")
     exhaustion("E:xP(x) |= A:xP(x)")
 
-  "Provable first-order entailments" should "result to contradictions" in:
+  "Provable first-order entailments" should "result to contradictzions" in:
     contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)", "P".of("a"), CNot("P".of("x")))
+    contradiction("E:x(P(x) & Q(x)) |= E:xP(x)")
 
   "Modus Ponens" should "be provable" in:
     contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)", "P".of("a"), CNot("P".of("a")))
@@ -96,7 +96,8 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("A:x(P(x) => Q(x)), !Q(a) |= !P(a)", CNot("Q".of("a")), "Q".of("x"))
 
   def contradiction(entailment: String): Unit =
-    result(entailment) should be(Right(Contradiction(_, _)))
+    result(entailment) should matchPattern:
+      case Right(Contradiction(_, _)) =>
 
   def contradiction(entailment: String, varName: String): Unit =
     contradiction(entailment, Contradiction.fromPropVarName(varName))

@@ -12,7 +12,9 @@ import scala.collection.immutable.Seq as sep
 
 private[parsers] trait FormulaParsing:
   def parseFormula(input: String): Parsed[Formula] =
-    fastParse(input, formula(using _))
+    fastParse(input, fullFormula(using _))
+
+  def fullFormula[$: P]: P[Formula] = formula ~ End
 
   def formula[$: P]: P[Formula] = P(iff)
 

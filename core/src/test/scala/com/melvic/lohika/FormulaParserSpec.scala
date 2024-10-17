@@ -44,6 +44,7 @@ class FormulaParserSpec extends BaseSpec:
 
   "Disjunctions" should "be separated by |" in:
     parseSuccess("A | B", "A" | "B")
+    parseSuccess("P(a) | !P(a)", "P(a)" | "!P(a)")
     parseSuccess("P(some) | Q(where)", "P(some)" | "Q(where)")
 
   it should "support chaining" in:
