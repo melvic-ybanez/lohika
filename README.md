@@ -50,14 +50,16 @@ can see this in action in the [Screenshots and Demos](#screenshots-and-demos) se
 
 ### Supported Logical Symbols
 
-| Symbol        | How to write them | Example   |
-|---------------|-------------------|-----------|
-| Negation      | `!`               | `!P`      |
-| Disjunction   | `\|`              | `P \| Q`  |
-| Conjunction   | `&`               | `P & Q`   |
-| Implication   | `=>`              | `P => Q`  |
-| Biconditional | `<=>`             | `P <=> Q` |
-| Entailment    | `\|=`             | `P \|= Q` |
+| Symbol                 | How to write them | Example   |
+|------------------------|------------------|-----------|
+| Negation               | `!`              | `!P`      |
+| Disjunction            | `\|`             | `P \| Q`  |
+| Conjunction            | `&`              | `P & Q`   |
+| Implication            | `=>`             | `P => Q`  |
+| Biconditional          | `<=>`            | `P <=> Q` |
+| Entailment             | `\|=`            | `P \|= Q` |
+| Universal Quantifier   | `A:` | `A:x,y(P(x) => Q(y))` |
+| Existential Quantifier | `E:` | `E:a,bR(a,b)` |
 
 ## How Lohika's Proof Generator Works
 
