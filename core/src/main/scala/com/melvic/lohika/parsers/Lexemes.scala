@@ -14,3 +14,5 @@ object Lexemes:
   val RightParen = ")"
   val Entailment = "|="
   val Const = "'"
+  val LeftBracket = "["
+  val RightBracket = "]"

@@ -65,31 +65,31 @@ class PrettyPrintSpec extends AnyFlatSpec with should.Matchers with Givens:
     ("A" <==> "B").show should be("A <=> B")
 
   "Universal Quantification" should "start with `A:`" in:
-    forall("x", "y")("P" ==> "Q").show should be("A:x,y(P => Q)")
-    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:xA:y((A => B) & C)")
+    forall("x", "y")("P" ==> "Q").show should be("A:x,y[P => Q]")
+    forall("x")(forall("y")(("A" ==> "B") & "C")).show should be("A:xA:y[(A => B) & C]")
 
   "Existential Quantification" should "start with `E:`" in:
-    thereExists("x", "y")("P" ==> "Q").show should be("E:x,y(P => Q)")
-    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:xE:y((A => B) & C)")
+    thereExists("x", "y")("P" ==> "Q").show should be("E:x,y[P => Q]")
+    thereExists("x")(thereExists("y")(("A" ==> "B") & "C")).show should be("E:xE:y[(A => B) & C]")
 
   "Predicates application" should "look like function calls" in:
     "P".of("x").show should be("P(x)")
     thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")).show should be(
-      "E:x,y(P(x, y) => Q(y))"
+      "E:x,y[P(x, y) => Q(y)]"
     )
 
   "Function calls" should "look like predicates with lower case names" in:
     assertParsePrettifyDefault("A:xP(x, f(x))")
-    assertParsePrettifyDefault("A:x(P(x, f(x)) & Q(f(x), g(x)))")
-    assertParsePrettifyDefault("A:x,yA:a(P(a) & Q(f(x, y, a)))")
+    assertParsePrettifyDefault("A:x[P(x, f(x)) & Q(f(x), g(x))]")
+    assertParsePrettifyDefault("A:x,yA:a[P(a) & Q(f(x, y, a))]")
 
-  "Quantified formulas" should "print parens around the matrix only if necessary" in:
-    forall("x", "y")("P".of("x") ==> "Q".of("y")).show should be("A:x,y(P(x) => Q(y))")
-    assertParsePrettifyDefault("A:x,y(P(x) => Q(y))")
+  "Quantified formulas" should "print brackets around the matrix only if necessary" in:
+    forall("x", "y")("P".of("x") ==> "Q".of("y")).show should be("A:x,y[P(x) => Q(y)]")
+    assertParsePrettifyDefault("A:x,y[P(x) => Q(y)]")
     assertParsePrettifyDefault("A:xP(x)")
-    assertParsePrettify("A:x!P(x)", "A:x(!P(x))")
-    assertParsePrettify("A:x(E:y(P(x) => Q(y)))", "A:xE:y(P(x) => Q(y))")
-    assertParsePrettify("A:xE:y(P(x) => Q(y))", "A:xE:y(P(x) => Q(y))")
+    assertParsePrettify("A:x!P(x)", "A:x[!P(x)]")
+    assertParsePrettify("A:x(E:y(P(x) => Q(y)))", "A:xE:y[P(x) => Q(y)]")
+    assertParsePrettify("A:xE:y(P(x) => Q(y))", "A:xE:y[P(x) => Q(y)]")
 
   def assertParsePrettifyDefault(input: String): Unit =
     assertParsePrettify(input, input)

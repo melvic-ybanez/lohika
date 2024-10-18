@@ -106,7 +106,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("A:xE:y(P(x, y) => Q(x)), A:x!Q(x) |= A:aE:b!P(a, b)")
 
     // [Showcase]
-    contradiction("A:xE:y(P(x, y) => E:z(!R(z) => Q(x))), A:x!Q(x), !R(w) |= A:aE:b!P(a, b)")
+    contradiction("A:xE:y[P(x, y) => E:z[!R(z) => Q(x)]], A:x!Q(x), !R(w) |= A:aE:b!P(a, b)")
 
   "Modus Ponens" should "be provable" in:
     contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)", "P".of("a"), CNot("P".of("a")))

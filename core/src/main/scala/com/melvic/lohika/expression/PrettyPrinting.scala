@@ -19,13 +19,22 @@ private[expression] trait PrettyPrinting:
       if rs.isEmpty then pqString else s"$pqString $sep ${rs.map(prettyPrint).mkString(s" $sep ")}"
 
     def prettyQuantified(quantifier: String, vars: BoundVars, matrix: Formula): String =
-      quantifier + (vars._1 :: vars._2)
+      val prettyQuantification = quantifier + (vars._1 :: vars._2)
         .map { variable =>
           // we don't wrap bound vars with parens when declaring them, so we give the
           // parent precedence a lower value (default)
           prettyPrint(variable)(using Precedence.Default)
         }
-        .mkString(",") + prettyPrint(matrix)(using noParensIfEqual)
+        .mkString(",")
+
+      val prettyMatrix = {
+        val matrixPrecedence = precedence(matrix)
+        val pretty = prettyPrint(matrix)(using Precedence.Default)
+        if matrixPrecedence == Precedence.FunctionApp then pretty
+        else s"${Lexemes.LeftBracket}$pretty${Lexemes.RightBracket}"
+      }
+
+      prettyQuantification + prettyMatrix
 
     val pretty = expr match
       case Var(name)          => name

@@ -16,7 +16,8 @@ private[parsers] trait ExprParsing:
     P((alphabetic(_.isLower).rep(min = 1) ~ "_".? ~ CharPred(_.isDigit).rep(min = 0)).!)
       .map(Var.apply)
 
-  def args[$: P]: P[List[Term]] = P("(" ~ term.rep(min = 1, sep = ",") ~ ")").map(_.toList)
+  def args[$: P]: P[List[Term]] =
+    P(Lexemes.LeftParen ~ term.rep(min = 1, sep = ",") ~ Lexemes.RightParen).map(_.toList)
 
   def trueConst[$: P]: P[True.type] =
     P(Lexemes.True).map(_ => True)

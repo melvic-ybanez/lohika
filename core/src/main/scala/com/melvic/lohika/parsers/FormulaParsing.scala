@@ -49,7 +49,10 @@ private[parsers] trait FormulaParsing:
 
   def not[$: P]: P[Formula] = P(Lexemes.Not ~ highestPrecedence).map(Not.apply)
 
-  def grouping[$: P]: P[Formula] = P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen)
+  def grouping[$: P]: P[Formula] =
+    P(Lexemes.LeftParen ~ formula ~ Lexemes.RightParen) | P(
+      Lexemes.LeftBracket ~ formula ~ Lexemes.RightBracket
+    )
 
   def nullaryPred[$: P]: P[PredicateApp] =
     P(alphabetic(_.isUpper) ~ alphabetic(_ => true).rep(min = 0).!).map: (firstChar, rest) =>
