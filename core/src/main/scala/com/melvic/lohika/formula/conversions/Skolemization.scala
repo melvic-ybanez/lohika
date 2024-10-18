@@ -55,9 +55,8 @@ private[formula] trait Skolemization:
       constNames: List[String],
       constSuffix: ConstSuffix
   ): Endo[Formula] =
-    case PredicateApp(name, args) =>
-      PredicateApp(name, args.map(replaceTermWithSkolemConstants))
-    case fm: Formula => convertBy(replaceWithSkolemConstants)(fm)
+    case PredicateApp(name, args) => PredicateApp(name, args.map(replaceTermWithSkolemConstants))
+    case fm                       => convertBy(replaceWithSkolemConstants)(fm)
 
   private def replaceTermWithSkolemConstants(using
       constNames: List[String],
@@ -66,7 +65,7 @@ private[formula] trait Skolemization:
     case Var(name) if constNames.contains(name) => Const(s"${name}_$constSuffix")
     case FunctionApp(name, args) =>
       FunctionApp(name, args.map(replaceTermWithSkolemConstants))
-    case term: Term => term
+    case term => term
 
   private def replaceWithSkolemFunctions(using
       existentialVars: ExistentialVars

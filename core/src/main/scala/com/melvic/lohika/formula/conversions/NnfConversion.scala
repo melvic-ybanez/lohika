@@ -22,7 +22,7 @@ private[formula] trait NnfConversion:
         case Not(ThereExists(vars, matrix)) =>
           convertUniversal(recurse)(Forall(vars, !matrix))
         case Forall(vars, Not(matrix))      => Forall(vars, recurse(Not(matrix)))
-        case ThereExists(vars, Not(matrix)) => Forall(vars, recurse(Not(matrix)))
+        case ThereExists(vars, Not(matrix)) => ThereExists(vars, recurse(Not(matrix)))
         case fm                             => convertBy(recurse)(fm)
 
       NegationsInside(recurse(fm))

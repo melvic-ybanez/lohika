@@ -86,6 +86,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("E:xP(x) |= A:xP(x)")
     exhaustion("A:x(P(x) & Q(x)) |= A:xP(x) & A:xQ(x)")
     exhaustion("E:x(P(x) | Q(x)), !P(a) |= Q(a)")
+    exhaustion("E:a!Q(a) |= !Q(a)")
 
   "Provable first-order entailments" should "result to contradictions" in:
     contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)", "P".of("a"), CNot("P".of("x")))
@@ -100,6 +101,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("P(a) |= E:xP(x)")
     contradiction("A:x(P(x) => Q(x)), A:xP(x) |= A:xQ(x)")
     contradiction("A:x(P(x) => Q(x)), E:x!Q(x) |= E:x!P(x)")
+    contradiction("A:x(P(x) => Q(x)), E:a!Q(a) |= E:b!P(b)")
 
   "Modus Ponens" should "be provable" in:
     contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)", "P".of("a"), CNot("P".of("a")))
