@@ -13,11 +13,11 @@ private[formula] trait Skolemization:
 
   opaque type UniversalVars = Set[Var]
   opaque type ExistentialVars = Set[Var]
-  opaque type ConstSuffix = Int
+  opaque type SkolemSuffix = Int
   type StateData = (TakenNames, UniversalVars)
   type Skolemize[E <: Expression] = E => State[StateData, E]
 
-  def skolemize(using ConstSuffix): Pnf => Snf =
+  def skolemize(using SkolemSuffix): Pnf => Snf =
     case Pnf(fm) =>
       def recurse: Skolemize[Formula] =
         case ThereExists((x, xs), matrix) =>
@@ -53,22 +53,23 @@ private[formula] trait Skolemization:
    */
   private def replaceWithSkolemConstants(using
       constNames: List[String],
-      constSuffix: ConstSuffix
+      skolemSuffix: SkolemSuffix
   ): Endo[Formula] =
     case PredicateApp(name, args) => PredicateApp(name, args.map(replaceTermWithSkolemConstants))
     case fm                       => convertBy(replaceWithSkolemConstants)(fm)
 
   private def replaceTermWithSkolemConstants(using
       constNames: List[String],
-      constSuffix: ConstSuffix
+      skolemSuffix: SkolemSuffix
   ): Endo[Term] =
-    case Var(name) if constNames.contains(name) => Const(s"${name}_$constSuffix")
+    case Var(name) if constNames.contains(name) => Const(s"${name}_$skolemSuffix")
     case FunctionApp(name, args) =>
       FunctionApp(name, args.map(replaceTermWithSkolemConstants))
     case term => term
 
   private def replaceWithSkolemFunctions(using
-      existentialVars: ExistentialVars
+      existentialVars: ExistentialVars,
+      skolemSuffix: SkolemSuffix
   ): Skolemize[Formula] =
     case Quantified(quantifier, boundVars, matrix) =>
       replaceWithSkolemFunctions(matrix).map(Quantified(quantifier, boundVars, _))
@@ -80,7 +81,8 @@ private[formula] trait Skolemization:
     case fm       => State.pure(fm)
 
   private def replaceTermsWithSkolemFunctions(using
-      existentialVars: ExistentialVars
+      existentialVars: ExistentialVars,
+      skolemSuffix: SkolemSuffix
   ): Skolemize[Term] =
     case v: Var if existentialVars.contains(v) =>
       State:
@@ -88,12 +90,13 @@ private[formula] trait Skolemization:
           val functionName = generateSymbolName("e", takenNames)
           (
             (TakenNames(takenNames.raw + functionName), universalVars),
-            FunctionApp(functionName, universalVars.toList)
+            FunctionApp(s"${functionName}_$skolemSuffix", universalVars.toList)
           )
     case fm => State.pure(fm)
 
   private def skolemizeFListM(fList: FList)(using
-      ExistentialVars
+      ExistentialVars,
+      SkolemSuffix
   ): State[StateData, List[Formula]] =
     State: stateData =>
       val (updatedTakenNames, skolemizedComponents) = fList.components
@@ -104,8 +107,8 @@ private[formula] trait Skolemization:
 
       ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)
 
-  object ConstSuffix:
-    def apply(value: Int): ConstSuffix =
+  object SkolemSuffix:
+    def apply(value: Int): SkolemSuffix =
       value
 
-  extension (constSuffix: ConstSuffix) def raw: Int = constSuffix
+  extension (skolemSuffix: SkolemSuffix) def raw: Int = skolemSuffix

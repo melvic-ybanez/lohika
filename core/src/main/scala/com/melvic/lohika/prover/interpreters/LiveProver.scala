@@ -7,7 +7,7 @@ import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.formula.Cnf.*
-import com.melvic.lohika.formula.Formula.{ConstSuffix, PredicateApp}
+import com.melvic.lohika.formula.Formula.{SkolemSuffix, PredicateApp}
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
 import com.melvic.lohika.parsers.Parser
@@ -34,7 +34,7 @@ object LiveProver:
       else step(show"${itemNumber}Extract all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
 
     override def convertAllToCnfs(formulae: List[Formula])(using
-        constSuffix: ConstSuffix
+        skolemSuffix: SkolemSuffix
     ): Steps[List[Cnf]] =
       formulae match
         case Nil => subStep("No formulae to convert".emphasize, Nil)
@@ -45,7 +45,7 @@ object LiveProver:
             List.empty[Cnf]
           ):
             case (step, (formula, i)) =>
-              given ConstSuffix = ConstSuffix(i + constSuffix.raw)
+              given SkolemSuffix = SkolemSuffix(i + skolemSuffix.raw)
               step.flatMap: cnfs =>
                 val cnf = Formula.toCnf(formula)
                 (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)

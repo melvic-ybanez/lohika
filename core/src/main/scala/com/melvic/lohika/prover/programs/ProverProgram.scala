@@ -3,7 +3,7 @@ package com.melvic.lohika.prover.programs
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Formatter.*
-import com.melvic.lohika.formula.Formula.ConstSuffix
+import com.melvic.lohika.formula.Formula.SkolemSuffix
 import com.melvic.lohika.formula.{Clauses, Formula}
 import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.prover.algebras.Prover
@@ -23,7 +23,7 @@ object ProverProgram:
       _ <- Prover[F].write(
         s"Convert all premises into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
-      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)(using ConstSuffix(1))
+      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)(using SkolemSuffix(1))
       premiseClauses <- Prover[F].splitAllIntoClauses(premiseCnfs)
       clauses        <- Prover[F].updateClauseSet(Clauses.empty, premiseClauses)
       _ <- Prover[F].write(
@@ -31,7 +31,7 @@ object ProverProgram:
       )
       negatedConclusion <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
       _                 <- Prover[F].write("Convert the negated conclusion into CNF:")
-      given ConstSuffix = ConstSuffix(premises.length + 1)
+      given SkolemSuffix = SkolemSuffix(premises.length + 1)
       negatedPropCnf     <- Prover[F].convertToCnf(negatedConclusion)
       negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
       clauses            <- Prover[F].updateClauseSet(clauses, negatedPropClauses)
