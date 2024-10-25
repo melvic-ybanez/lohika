@@ -1,9 +1,10 @@
 package com.melvic.lohika.formula.conversions
 
+import cats.Endo
 import cats.data.State
 import cats.implicits.*
 import com.melvic.lohika.expression.Expression
-import com.melvic.lohika.expression.Expression.Var
+import com.melvic.lohika.expression.Expression.{Var, collect}
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 
@@ -14,14 +15,20 @@ private[formula] trait Standardization:
   opaque type AllFreeVars = Set[Var]
   opaque type AllBoundVars = List[Var]
 
-  type StandardizeM[F <: Formula] = AllFreeVars ?=> F => State[AllBoundVars, F]
+  type StandardizeM[F] = AllFreeVars ?=> F => State[AllBoundVars, F]
+
   private[formula] final case class Standardized(raw: Formula)
 
-  def standardize: SimplifiedNegations => Standardized =
-    case SimplifiedNegations(formula) =>
-      given AllFreeVars = allFreeVars(using Set.empty)(formula)
-      val boundVars = allBoundVars(formula)
-      Standardized(standardizeM(formula).runA(boundVars).value)
+  def standardizeAll(sns: List[SimplifiedNegations]): List[Standardized] =
+    given AllFreeVars = sns.map(sn => freeVars(using Set.empty)(sn.raw)).combineAll
+    standardizeAllM(sns.map(_.raw)).runA(Nil).value.map(Standardized(_))
+
+  def standardize(sn: SimplifiedNegations): Standardized =
+    standardizeAll(List(sn)).head
+
+  def standardizeAllM: StandardizeM[List[Formula]] =
+    _.traverse: fm =>
+      State.modify[AllBoundVars](_ ++ boundVars(fm)).flatMap(_ => standardizeM(fm))
 
   /**
    * Note: Implications and biconditionals are expected to have been eliminated at this point
@@ -40,15 +47,17 @@ private[formula] trait Standardization:
   private def standardizeQuantifiedM: StandardizeM[Quantified] =
     case quantified @ Quantified(_, (x, xs), _) =>
       State: allBoundVars =>
-        val takenOrFree = (allBoundVars.map(_.name) ++ summon[AllFreeVars].map(_.name))
+        val taken = (allBoundVars.map(_.name) ++ summon[AllFreeVars].map(_.name))
           .groupMapReduce(identity)(_ => 1)(_ + _)
 
         val renamingPairs = (x :: xs).flatMap:
           case Var(name) =>
-            Option.when(takenOrFree(name) > 1):
-              RenamingPair(name, generateSymbolName(name, takenOrFree.keys.toSet))
+            Option.when(taken(name) > 1):
+              RenamingPair(name, generateSymbolName(name, taken.keys.toSet))
 
-        // decrement the count of renamed vars
+        // Decrement the count of renamed vars.
+        // Note: we don't use `List.filterNot` or `Set.diff` because we don't want to
+        // remove all the intersections. We just want to decrease the corresponding counts.
         val reducedBoundVars = renamingPairs.foldLeft(allBoundVars): (boundVars, pair) =>
           val i = boundVars.indexOf(Var(pair.originalName))
           if i == -1 then boundVars else boundVars.patch(i, Nil, 1)
@@ -64,24 +73,13 @@ private[formula] trait Standardization:
   private def standardizeFListM(fList: FList)(using AllFreeVars): State[AllBoundVars, FList.Args] =
     convertFListM(fList)(standardizeM)
 
-  private[formula] def allFreeVars(using enclosing: TakenNames): Expression => AllFreeVars =
-    case fList: FList =>
-      allFreeVars(fList.p) ++ allFreeVars(fList.q) ++ fList.rs.map(allFreeVars).combineAll
-    case Imply(p, q)                      => allFreeVars(p) ++ allFreeVars(q)
-    case Not(p)                           => allFreeVars(p)
-    case Var(x) if !enclosing.contains(x) => Set(Var(x))
-    case PredicateApp(_, args)            => args.map(allFreeVars).combineAll
-    case Quantified(_, (Var(x), xs), matrix) =>
-      allFreeVars(using (x :: xs.map(_.name)).toSet ++ enclosing)(matrix)
-    case fm => Set.empty
+  //noinspection ConvertibleToMethodValue
+  private[formula] def freeVars(using quantifiedNames: TakenNames): Expression => AllFreeVars =
+    Expression.freeVarNames(_).map(Var(_))
 
-  private[formula] def allBoundVars: Formula => AllBoundVars =
-    case fList: FList =>
-      allBoundVars(fList.p) ++ allBoundVars(fList.q) ++ fList.rs.map(allBoundVars).combineAll
-    case Imply(p, q)                    => allBoundVars(p) ++ allBoundVars(q)
-    case Not(p)                         => allBoundVars(p)
-    case Quantified(_, (x, xs), matrix) => (x :: xs) ++ allBoundVars(matrix)
-    case fm                             => Nil
+  private[formula] def boundVars: Formula => AllBoundVars =
+    collect:
+      case Quantified(_, (x, xs), matrix) => (x :: xs) ++ boundVars(matrix)
 
   def generateSymbolName(base: String, taken: TakenNames): String =
     @tailrec
@@ -107,12 +105,11 @@ private[formula] trait Standardization:
     def empty: TakenNames =
       Set.empty
 
-  object AllFreeVars:
-    def empty: TakenNames =
-      Set.empty
-
   extension (freeVars: AllFreeVars) def raw: Set[Var] = freeVars
 
   extension (takenNames: TakenNames)
     @targetName("names")
     def raw: Set[String] = takenNames
+
+    def modify(f: Endo[Set[String]]): TakenNames =
+      f(takenNames)

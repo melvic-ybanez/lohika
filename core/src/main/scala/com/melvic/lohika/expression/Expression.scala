@@ -1,11 +1,14 @@
 package com.melvic.lohika.expression
 
-import cats.{Endo, Show}
+import cats.*
+import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
-import com.melvic.lohika.expression.Expression.Term
+import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+
+import scala.collection.immutable.Set
 
 type Expression = Formula | Term
 
@@ -40,6 +43,26 @@ object Expression extends ExpressionGivens with PrettyPrinting:
     case ((f, fArgs), (g, gArgs)) if f == g && fArgs.length == gArgs.length =>
       fArgs.zip(gArgs).map(Term.unify).unzip
     case ((_, fArgs), (_, gArgs)) => (fArgs, gArgs)
+
+  def freeVarNames(using quantifiedNames: Set[String]): Expression => Set[String] =
+    collect:
+      case Var(x) if !quantifiedNames.contains(x) => Set(x)
+      case PredicateApp(_, args)                  => args.map(freeVarNames).combineAll
+      case Quantified(_, (Var(x), xs), matrix) =>
+        freeVarNames(using (x :: xs.map(_.name)).toSet ++ quantifiedNames)(matrix)
+
+  def functionNames: Expression => Set[String] =
+    collect:
+      case FunctionApp(name, _) => Set(name)
+
+  def collect[F[_], A](f: PartialFunction[Expression, F[A]])(using
+      monoid: Monoid[F[A]]
+  ): Expression => F[A] =
+    case fm if f.isDefinedAt(fm) => f(fm)
+    case FList(p, q, rs) => collect(f)(p) |+| collect(f)(q) |+| rs.map(collect(f)).combineAll
+    case Imply(p, q)     => collect(f)(p) |+| collect(f)(q)
+    case Not(p)          => collect(f)(p)
+    case fm              => Monoid[F[A]].empty
 
 private sealed trait ExpressionGivens:
   given showExpr[E <: Expression](using Formatter): Show[E] =

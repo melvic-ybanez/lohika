@@ -15,36 +15,46 @@ private[formula] trait Skolemization:
   opaque type ExistentialVars = Set[Var]
   opaque type SkolemSuffix = Int
   type StateData = (TakenNames, UniversalVars)
-  type Skolemize[E <: Expression] = E => State[StateData, E]
+  type Skolemize[E] = E => State[StateData, E]
 
-  def skolemize(using SkolemSuffix): Pnf => Snf =
-    case Pnf(fm) =>
-      def recurse: Skolemize[Formula] =
-        case ThereExists((x, xs), matrix) =>
-          val boundVars = x :: xs
-          State
-            .get[StateData]
-            .flatMap: (_, universalVars) =>
-              val replaceVars =
-                if universalVars.nonEmpty then
-                  replaceWithSkolemFunctions(using boundVars.toSet)(matrix)
-                // If there are no bound variables, then there are no universal quantifiers that appear
-                // before this existential quantifier.
-                else State.pure(replaceWithSkolemConstants(using boundVars.map(_.name))(matrix))
+  def skolemize(pnf: Pnf)(using SkolemSuffix): Snf =
+    skolemizeAll(List(pnf)).head
 
-              for
-                replacedVars     <- replaceVars
-                skolemizedMatrix <- recurse(replacedVars)
-              yield skolemizedMatrix
-        case Forall(bounds @ (x, xs), matrix) =>
+  def skolemizeAll(pnfs: List[Pnf])(using SkolemSuffix): List[Snf] =
+    val functionNames = pnfs.map(pnf => Expression.functionNames(pnf.raw)).combineAll
+    skolemizeAllM(pnfs.map(_.raw)).runA(TakenNames(functionNames), Set.empty[Var]).value.map(Snf(_))
+
+  def skolemizeAllM(using SkolemSuffix): Skolemize[List[Formula]] =
+    _.traverse: fm =>
+      State
+        .modify[StateData] { case (taken, universalVars) =>
+          val freeVarNames = Expression.freeVarNames(using Set.empty)(fm)
+          (taken.modify(_ ++ universalVars.map(_.name) ++ freeVarNames), Set.empty)
+        }
+        .flatMap(_ => skolemizeM(fm))
+
+  def skolemizeM(using SkolemSuffix): Skolemize[Formula] =
+    case ThereExists((x, xs), matrix) =>
+      val boundVars = x :: xs
+      State
+        .get[StateData]
+        .flatMap: (_, universalVars) =>
+          val replaceVars =
+            if universalVars.nonEmpty then replaceWithSkolemFunctions(using boundVars.toSet)(matrix)
+            // If there are no bound variables, then there are no universal quantifiers that appear
+            // before this existential quantifier.
+            else State.pure(replaceWithSkolemConstants(using boundVars.map(_.name))(matrix))
+
           for
-            _ <- State.modify[StateData]((taken, vars) => (taken, vars ++ (x :: xs).toSet))
-            skolemizedMatrix <- recurse(matrix)
-          yield Forall(bounds, skolemizedMatrix)
-        case fm => State.pure(fm)
-
-      val takenNames = allFreeVars(using TakenNames.empty)(fm).raw.map(_.name)
-      Snf(recurse(fm).runA(TakenNames(takenNames), Set.empty[Var]).value)
+            replacedVars     <- replaceVars
+            skolemizedMatrix <- skolemizeM(replacedVars)
+          yield skolemizedMatrix
+    case Forall(bounds @ (x, xs), matrix) =>
+      for
+        _ <- State.modify[StateData]((taken, vars) => (taken, vars ++ (x :: xs).toSet))
+        skolemizedMatrix <- skolemizeM(matrix)
+      yield Forall(bounds, skolemizedMatrix)
+    case fm => State.pure(fm)
 
   /**
    * We can reuse the names of the bound variables as Skolem constants without worrying about any
@@ -87,9 +97,10 @@ private[formula] trait Skolemization:
     case v: Var if existentialVars.contains(v) =>
       State:
         case (takenNames, universalVars) =>
-          val functionName = generateSymbolName("e", takenNames)
+          val functionName =
+            generateSymbolName("e", takenNames.modify(_ ++ universalVars.map(_.name)))
           (
-            (TakenNames(takenNames.raw + functionName), universalVars),
+            (takenNames.modify(_ + functionName), universalVars),
             FunctionApp(s"${functionName}_$skolemSuffix", universalVars.toList)
           )
     case fm => State.pure(fm)
@@ -103,7 +114,7 @@ private[formula] trait Skolemization:
         .map(fm => replaceWithSkolemFunctions(fm).run(stateData).value)
         .foldLeft(TakenNames.empty, List.empty[Formula]):
           case ((takenNamesAcc, fms), ((takenNames, _), fm)) =>
-            (TakenNames(takenNamesAcc.raw ++ takenNames.raw), fm :: fms)
+            (takenNamesAcc.modify(_ ++ takenNames.raw), fm :: fms)
 
       ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)
 

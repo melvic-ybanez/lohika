@@ -2,8 +2,8 @@ package com.melvic.lohika.formula.conversions
 
 import cats.Endo
 import com.melvic.lohika.formula.Cnf.*
-import com.melvic.lohika.formula.{Cnf, Formula}
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.formula.{Cnf, Formula}
 
 private[formula] trait CnfConversion:
   def toCnf(using SkolemSuffix): Formula => Cnf =

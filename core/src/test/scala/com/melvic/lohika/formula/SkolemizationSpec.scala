@@ -26,5 +26,9 @@ class SkolemizationSpec extends BaseSpec with FormulaMappingSupport:
     "A:xE:yE:z(P(y, z) & Q(x, y))"      ====> "A:x(P(f_1(x), g_1(x)) & Q(x, f_1(x)))"
     "A:xE:y,aE:z(P(y, z, a) & Q(x, y))" ====> "A:x(P(f_1(x), h_1(x), g_1(x)) & Q(x, f_1(x)))"
 
+  "Skolem functions" should "have unique names" in:
+    "A:fE:yP(y)" ====> "A:fP(g_1(f))"
+    "E:fA:xE:yP(f, y)" ====> "A:xP('f_1, f_1(x))"
+
   override given formulaMapper: FormulaMapper =
     FormulaMapper(fm => Formula.skolemize(Pnf(fm)).raw)

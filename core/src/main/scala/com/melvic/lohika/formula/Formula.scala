@@ -65,8 +65,8 @@ object Formula extends FormulaGivens with Conversions:
   def isClause: Property = fm => isOr(fm) || isLiteral(fm)
 
   def addImpliedForall(formula: Formula): Formula =
-    val freeVars = allFreeVars(using AllFreeVars.empty)(formula)
-    freeVars.raw.toList match
+    val frees = freeVars(using TakenNames.empty)(formula)
+    frees.raw.toList match
       case Nil     => formula
       case x :: xs => Forall((x, xs), formula)
 
@@ -185,6 +185,9 @@ object Formula extends FormulaGivens with Conversions:
   object FList:
     type Args = (Formula, Formula, List[Formula])
     type Make = Args => Formula
+
+    def unapply(fList: FList): Args =
+      (fList.p, fList.q, fList.rs)
 
   extension (self: Formula)
     @targetName("and")
