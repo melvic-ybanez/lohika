@@ -13,18 +13,17 @@ private[formula] trait Skolemization:
 
   opaque type UniversalVars = Set[Var]
   opaque type ExistentialVars = Set[Var]
-  opaque type SkolemSuffix = Int
   type StateData = (TakenNames, UniversalVars)
   type Skolemize[E] = E => State[StateData, E]
 
-  def skolemize(pnf: Pnf)(using SkolemSuffix): Snf =
+  def skolemize(pnf: Pnf): Snf =
     skolemizeAll(List(pnf)).head
 
-  def skolemizeAll(pnfs: List[Pnf])(using SkolemSuffix): List[Snf] =
+  def skolemizeAll(pnfs: List[Pnf]): List[Snf] =
     val functionNames = pnfs.map(pnf => Expression.functionNames(pnf.raw)).combineAll
     skolemizeAllM(pnfs.map(_.raw)).runA(TakenNames(functionNames), Set.empty[Var]).value.map(Snf(_))
 
-  def skolemizeAllM(using SkolemSuffix): Skolemize[List[Formula]] =
+  def skolemizeAllM: Skolemize[List[Formula]] =
     _.traverse: fm =>
       State
         .modify[StateData] { case (taken, universalVars) =>
@@ -33,7 +32,7 @@ private[formula] trait Skolemization:
         }
         .flatMap(_ => skolemizeM(fm))
 
-  def skolemizeM(using SkolemSuffix): Skolemize[Formula] =
+  def skolemizeM: Skolemize[Formula] =
     case ThereExists((x, xs), matrix) =>
       val boundVars = x :: xs
       State
@@ -61,26 +60,17 @@ private[formula] trait Skolemization:
    * potential name clashes, since the formula has been standardized such that all first order
    * variables have unique names.
    */
-  private def replaceWithSkolemConstants(using
-      constNames: List[String],
-      skolemSuffix: SkolemSuffix
-  ): Endo[Formula] =
+  private def replaceWithSkolemConstants(using constNames: List[String]): Endo[Formula] =
     case PredicateApp(name, args) => PredicateApp(name, args.map(replaceTermWithSkolemConstants))
     case fm                       => convertBy(replaceWithSkolemConstants)(fm)
 
-  private def replaceTermWithSkolemConstants(using
-      constNames: List[String],
-      skolemSuffix: SkolemSuffix
-  ): Endo[Term] =
-    case Var(name) if constNames.contains(name) => Const(s"${name}_$skolemSuffix")
+  private def replaceTermWithSkolemConstants(using constNames: List[String]): Endo[Term] =
+    case Var(name) if constNames.contains(name) => Const(name)
     case FunctionApp(name, args) =>
       FunctionApp(name, args.map(replaceTermWithSkolemConstants))
     case term => term
 
-  private def replaceWithSkolemFunctions(using
-      existentialVars: ExistentialVars,
-      skolemSuffix: SkolemSuffix
-  ): Skolemize[Formula] =
+  private def replaceWithSkolemFunctions(using ExistentialVars): Skolemize[Formula] =
     case Quantified(quantifier, boundVars, matrix) =>
       replaceWithSkolemFunctions(matrix).map(Quantified(quantifier, boundVars, _))
     case PredicateApp(name, args) =>
@@ -91,8 +81,7 @@ private[formula] trait Skolemization:
     case fm       => State.pure(fm)
 
   private def replaceTermsWithSkolemFunctions(using
-      existentialVars: ExistentialVars,
-      skolemSuffix: SkolemSuffix
+      existentialVars: ExistentialVars
   ): Skolemize[Term] =
     case v: Var if existentialVars.contains(v) =>
       State:
@@ -101,13 +90,12 @@ private[formula] trait Skolemization:
             generateSymbolName("e", takenNames.modify(_ ++ universalVars.map(_.name)))
           (
             (takenNames.modify(_ + functionName), universalVars),
-            FunctionApp(s"${functionName}_$skolemSuffix", universalVars.toList)
+            FunctionApp(functionName, universalVars.toList)
           )
     case fm => State.pure(fm)
 
   private def skolemizeFListM(fList: FList)(using
-      ExistentialVars,
-      SkolemSuffix
+      ExistentialVars
   ): State[StateData, List[Formula]] =
     State: stateData =>
       val (updatedTakenNames, skolemizedComponents) = fList.components
@@ -117,9 +105,3 @@ private[formula] trait Skolemization:
             (takenNamesAcc.modify(_ ++ takenNames.raw), fm :: fms)
 
       ((updatedTakenNames, stateData._2), skolemizedComponents.reverse)
-
-  object SkolemSuffix:
-    def apply(value: Int): SkolemSuffix =
-      value
-
-  extension (skolemSuffix: SkolemSuffix) def raw: Int = skolemSuffix

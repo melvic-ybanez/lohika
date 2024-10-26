@@ -3,7 +3,6 @@ package com.melvic.lohika.prover.programs
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.Formatter.*
-import com.melvic.lohika.formula.Formula.SkolemSuffix
 import com.melvic.lohika.formula.{Clauses, Formula}
 import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.prover.algebras.Prover
@@ -28,7 +27,7 @@ object ProverProgram:
       _ <- Prover[F].write(
         s"Convert the premises and the negated conclusion into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
       )
-      cnfs      <- Prover[F].convertAllToCnfs(formulas)(using SkolemSuffix(1))
+      cnfs      <- Prover[F].convertAllToCnfs(formulas)
       clauses   <- Prover[F].splitAllIntoClauses(cnfs)
       clauseSet <- Prover[F].updateClauseSet(Clauses.empty, clauses)
       result    <- resolveRecursively(premises, conclusion, clauses)

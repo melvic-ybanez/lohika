@@ -73,7 +73,6 @@ private[formula] trait Standardization:
   private def standardizeFListM(fList: FList)(using AllFreeVars): State[AllBoundVars, FList.Args] =
     convertFListM(fList)(standardizeM)
 
-  //noinspection ConvertibleToMethodValue
   private[formula] def freeVars(using quantifiedNames: TakenNames): Expression => AllFreeVars =
     Expression.freeVarNames(_).map(Var(_))
 

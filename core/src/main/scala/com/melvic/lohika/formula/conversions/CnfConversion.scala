@@ -6,13 +6,15 @@ import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.{Cnf, Formula}
 
 private[formula] trait CnfConversion:
-  //noinspection ConvertibleToMethodValue
-  def toCnf(using SkolemSuffix): Formula => Cnf =
-    toCnfRaw andThen:
+  def toCnf: Formula => Cnf =
+    fm => toCnfAll(List(fm)).head
+
+  def toCnfAll: List[Formula] => List[Cnf] =
+    toCnfAllRaw(_).map:
       case or: Or if or.components.forall(isLiteral) =>
-        COr(or.components.map(toCnf(_).asInstanceOf[CLiteral]))
+        COr(toCnfAll(or.components).map(_.asInstanceOf[CLiteral]))
       case and: And if and.components.forall(isClause) =>
-        CAnd(and.components.map(toCnf(_).asInstanceOf[Clause]))
+        CAnd(toCnfAll(and.components).map(_.asInstanceOf[CLiteral]))
       case Not(predicateApp: PredicateApp) => CNot(predicateApp)
       case predicateApp: PredicateApp      => predicateApp
       case fm                              => CAnd(Nil)
@@ -27,10 +29,10 @@ private[formula] trait CnfConversion:
     case CNot(p)                 => !fromCnf(p)
     case predicate: PredicateApp => predicate
 
-  private[formula] def toCnfRaw(using SkolemSuffix): Endo[Formula] =
+  private[formula] def toCnfRaw: Endo[Formula] =
     fm => toCnfAllRaw(List(fm)).head
 
-  private[formula] def toCnfAllRaw(fms: List[Formula])(using SkolemSuffix): List[Formula] =
+  private[formula] def toCnfAllRaw(fms: List[Formula]): List[Formula] =
     skolemizeAll(
       standardizeAll(
         fms.map(

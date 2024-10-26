@@ -11,31 +11,31 @@ import com.melvic.lohika.formula.Formula.*
 
 class ProofSpec extends AnyFlatSpec with should.Matchers:
   "A" should "be provable from A | B" in:
-    contradiction("A |= A | B", "!A")
+    contradiction("A |= A | B", "A")
 
   "A & C" should "not be provable from A & !C" in:
     exhaustion("A & !C |= A & C")
 
   "A | B" should "be provable from A & C" in:
-    contradiction("A & C |= A | B", "!A")
+    contradiction("A & C |= A | B", "A")
 
   "C" should "be provable from A => B, B => C, and A" in:
     contradiction("A => B, B => C, A |= C", "!A")
 
   "P | R" should "be provable from P | Q, !Q | R" in:
-    contradiction("P | Q, !Q | R |= P | R", "!P")
+    contradiction("P | Q, !Q | R |= P | R", "P")
 
   "A | C" should "not be provable from A => B, and B | C" in:
     exhaustion("A => B, B | C |= A | C")
 
   "Q" should "be provable from !P | Q and P" in:
-    contradiction("!P | Q, P |= Q", "!Q")
+    contradiction("!P | Q, P |= Q", "P")
 
   "R" should "be provable from P | Q, !Q | R, and !P" in:
-    contradiction("P | Q, !Q | R, !P |= R", "!P")
+    contradiction("P | Q, !Q | R, !P |= R", "P")
 
   "B | C" should "be provable from A | B, !A" in:
-    contradiction("A | B, !A |= B | C", "!B")
+    contradiction("A | B, !A |= B | C", "!A")
 
   "A | !C" should "be provable from A => B and B => C" in:
     result("A => B, B => C |= A | !C") should be(Right(Exhaustion))

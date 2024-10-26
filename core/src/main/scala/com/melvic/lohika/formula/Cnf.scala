@@ -27,6 +27,6 @@ object Cnf extends CnfGivens:
 sealed trait CnfGivens:
   given [C <: Cnf](using Formatter): Show[C] = Show.show(Formula.fromCnf(_).show)
 
-  given (using SkolemSuffix): Conversion[String, Clause] = Formula.toCnf(_) match
+  given Conversion[String, Clause] = Formula.toCnf(_) match
     case clause: Clause => clause
     case _              => COr(Nil)

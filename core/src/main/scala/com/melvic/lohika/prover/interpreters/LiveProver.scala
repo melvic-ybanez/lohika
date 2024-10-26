@@ -1,13 +1,13 @@
 package com.melvic.lohika.prover.interpreters
 
-import cats.Functor
+import cats.{Functor, Id}
 import cats.data.WriterT
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.formula.Cnf.*
-import com.melvic.lohika.formula.Formula.{SkolemSuffix, PredicateApp}
+import com.melvic.lohika.formula.Formula.PredicateApp
 import com.melvic.lohika.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.meta.{Entailment, Equivalence}
 import com.melvic.lohika.parsers.Parser
@@ -33,24 +33,19 @@ object LiveProver:
       if cnfs.isEmpty then WriterT((Nil, Clauses.empty).asRight)
       else step(show"${itemNumber}Extract all the clauses from $cnfs", Clauses.fromCnfs(cnfs))
 
-    override def convertAllToCnfs(formulae: List[Formula])(using
-        skolemSuffix: SkolemSuffix
-    ): Steps[List[Cnf]] =
+    override def convertAllToCnfs(formulae: List[Formula]): Steps[List[Cnf]] =
       formulae match
         case Nil => subStep("No formulae to convert".emphasize, Nil)
         case _ =>
           val cnfsString = if formulae.size > 1 then "their CNFs" else "its CNF"
-          val cnfs = formulae.zipWithIndex.foldLeft(
-            List(show"$indent* Convert $formulae into $cnfsString:"),
-            List.empty[Cnf]
-          ):
-            case (step, (formula, i)) =>
-              given SkolemSuffix = SkolemSuffix(i + skolemSuffix.raw)
-              step.flatMap: cnfs =>
-                val cnf = Formula.toCnf(formula)
-                (s"$indent$indent* " + Equivalence(formula, cnf).show :: Nil, cnf :: cnfs)
+          val cnfs = Formula.toCnfAll(formulae)
 
-          WriterT(cnfs.asRight)
+          subStep(show"Convert $formulae into $cnfsString:", depth = 1).flatMap: _ =>
+            formulae
+              .zip(cnfs)
+              .map((fm, cnf) => subStep(Equivalence(fm, cnf).show, depth = 2))
+              .sequence
+              .map(_ => cnfs)
 
     override def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): Steps[Clauses] =
       val newClauseSet = clauseSet ++ newClauses
@@ -97,10 +92,13 @@ object LiveProver:
   def step[A](description: String, value: A): Steps[A] =
     WriterT((description :: Nil, value).asRight)
 
-  def subStep[A](description: String, value: A): Steps[A] =
-    step(s"$indent* $description", value)
-
   def step[A](value: A): Steps[A] = WriterT((Nil, value).asRight)
+
+  def subStep[A](description: String, value: A, depth: Int = 1): Steps[A] =
+    step(s"${indent * depth}* $description", value)
+
+  def subStep(description: String, depth: Int): Steps[Unit] =
+    subStep(description, (), depth)
 
   def resolvePair: (Clause, Clause) => Option[Derived | Contradiction] =
     case (lit1: CLiteral, lit2: CLiteral) => complementary(lit1, lit2).map(Contradiction(_, _))

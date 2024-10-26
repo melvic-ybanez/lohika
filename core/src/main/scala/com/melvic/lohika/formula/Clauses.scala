@@ -2,10 +2,10 @@ package com.melvic.lohika.formula
 
 import cats.*
 import cats.implicits.*
+import com.melvic.lohika.*
 import com.melvic.lohika.formula.Cnf.*
 import com.melvic.lohika.formula.Formula
-import com.melvic.lohika.formula.Formula.{SkolemSuffix, given}
-import com.melvic.lohika.*
+import com.melvic.lohika.formula.Formula.given
 
 import scala.annotation.targetName
 
@@ -25,10 +25,10 @@ object Clauses extends ClausesGivens:
   def fromCnfs: List[Cnf] => Clauses =
     _.map(fromCnf).combineAll
 
-  def fromFormula(using SkolemSuffix): Formula => Clauses =
+  def fromFormula: Formula => Clauses =
     Formula.toCnf andThen fromCnf
 
-  def fromAllFormulae(using SkolemSuffix): List[Formula] => Clauses =
+  def fromAllFormulae: List[Formula] => Clauses =
     fms => fromCnfs(fms.map(Formula.toCnf))
 
   extension (self: Clauses)
