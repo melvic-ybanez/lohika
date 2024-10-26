@@ -13,7 +13,6 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
 - [Screenshots and Demos](#screenshots-and-demos)
-- [Important Things to Note](#important-things-to-note)
 - [License](#license)
 
 ## Most Relevant Features
@@ -101,16 +100,11 @@ Lohika's proof generator algorithm is explained in the following steps:
 
 Here's what Lohika currently looks like:
 
-<img width="1728" alt="fol_support" src="https://github.com/user-attachments/assets/c161990a-549d-44be-b66e-e9ba72d0368f">
+<img width="1728" alt="entailment-wide-standardization-and-skolemization" src="https://github.com/user-attachments/assets/57d5fc8c-433c-4abc-99be-7b2619f81a38">
 
 And here's a link to a sample video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
 
-## Important Things to Note
-
-1. At the time of this writing, I discourage you to name your constants, functions,
-    and existential variables with numerical suffixes preceded by an underscore (e.g. `f_1`). 
-    The reason being that they might clash with generated Skolem constants and functions.  
-    See [this issue](https://github.com/melvic-ybanez/lohika/issues/31) and [this release](https://github.com/melvic-ybanez/lohika/releases/tag/v0.2.1) for more information.
+**Note:** The video above is already outdated. See [this](https://github.com/melvic-ybanez/lohika/issues/32) issue and upload an updated video.
 
 ## License
 
