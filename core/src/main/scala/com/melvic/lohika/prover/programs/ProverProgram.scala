@@ -21,21 +21,17 @@ object ProverProgram:
     for
       entailment @ Entailment(premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
       _ <- Prover[F].write(
-        s"Convert all premises into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
-      )
-      premiseCnfs    <- Prover[F].convertAllToCnfs(premises)(using SkolemSuffix(1))
-      premiseClauses <- Prover[F].splitAllIntoClauses(premiseCnfs)
-      clauses        <- Prover[F].updateClauseSet(Clauses.empty, premiseClauses)
-      _ <- Prover[F].write(
         s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
       )
       negatedConclusion <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
-      _                 <- Prover[F].write("Convert the negated conclusion into CNF:")
-      given SkolemSuffix = SkolemSuffix(premises.length + 1)
-      negatedPropCnf     <- Prover[F].convertToCnf(negatedConclusion)
-      negatedPropClauses <- Prover[F].splitIntoClauses(negatedPropCnf)
-      clauses            <- Prover[F].updateClauseSet(clauses, negatedPropClauses)
-      result             <- resolveRecursively(premises, conclusion, clauses)
+      formulas = premises ++ List(negatedConclusion)
+      _ <- Prover[F].write(
+        s"Convert the premises and the negated conclusion into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
+      )
+      cnfs      <- Prover[F].convertAllToCnfs(formulas)(using SkolemSuffix(1))
+      clauses   <- Prover[F].splitAllIntoClauses(cnfs)
+      clauseSet <- Prover[F].updateClauseSet(Clauses.empty, clauses)
+      result    <- resolveRecursively(premises, conclusion, clauses)
     yield (entailment, result)
 
   def resolveRecursively[F[_]: Prover: Monad](

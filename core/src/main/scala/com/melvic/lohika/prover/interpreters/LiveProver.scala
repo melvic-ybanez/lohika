@@ -56,7 +56,7 @@ object LiveProver:
       val newClauseSet = clauseSet ++ newClauses
       if newClauseSet.isEmpty then subStep("Empty clause set".emphasize, newClauseSet)
       else
-        write(show"Add $newClauses to the clause set. Here's the new clause set:")
+        write(show"Add $newClauses to the clause set. We now have:")
           .flatMap(_ => subStep(newClauseSet.show, newClauseSet))
 
     override def transform(lhs: Formula, rhs: Formula): Steps[Formula] =

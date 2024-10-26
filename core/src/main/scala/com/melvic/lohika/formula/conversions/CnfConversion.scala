@@ -6,6 +6,7 @@ import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.{Cnf, Formula}
 
 private[formula] trait CnfConversion:
+  //noinspection ConvertibleToMethodValue
   def toCnf(using SkolemSuffix): Formula => Cnf =
     toCnfRaw andThen:
       case or: Or if or.components.forall(isLiteral) =>
@@ -27,6 +28,14 @@ private[formula] trait CnfConversion:
     case predicate: PredicateApp => predicate
 
   private[formula] def toCnfRaw(using SkolemSuffix): Endo[Formula] =
-    eliminateBiconditionals andThen eliminateImplications andThen moveNegationsInside andThen
-      simplifyNegations andThen standardize andThen toPnf andThen skolemize andThen
-      dropUniversalQuantifiers andThen distributeOrOverAnds andThen flattenOrsAndAnds
+    fm => toCnfAllRaw(List(fm)).head
+
+  private[formula] def toCnfAllRaw(fms: List[Formula])(using SkolemSuffix): List[Formula] =
+    skolemizeAll(
+      standardizeAll(
+        fms.map(
+          eliminateBiconditionals andThen eliminateImplications andThen moveNegationsInside andThen
+            simplifyNegations
+        )
+      ).map(toPnf)
+    ).map(dropUniversalQuantifiers andThen distributeOrOverAnds andThen flattenOrsAndAnds)

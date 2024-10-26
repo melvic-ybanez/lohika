@@ -11,31 +11,31 @@ import com.melvic.lohika.formula.Formula.*
 
 class ProofSpec extends AnyFlatSpec with should.Matchers:
   "A" should "be provable from A | B" in:
-    contradiction("A |= A | B", "A")
+    contradiction("A |= A | B", "!A")
 
   "A & C" should "not be provable from A & !C" in:
     exhaustion("A & !C |= A & C")
 
   "A | B" should "be provable from A & C" in:
-    contradiction("A & C |= A | B", "A")
+    contradiction("A & C |= A | B", "!A")
 
   "C" should "be provable from A => B, B => C, and A" in:
     contradiction("A => B, B => C, A |= C", "!A")
 
   "P | R" should "be provable from P | Q, !Q | R" in:
-    contradiction("P | Q, !Q | R |= P | R", "Q")
+    contradiction("P | Q, !Q | R |= P | R", "!P")
 
   "A | C" should "not be provable from A => B, and B | C" in:
     exhaustion("A => B, B | C |= A | C")
 
   "Q" should "be provable from !P | Q and P" in:
-    contradiction("!P | Q, P |= Q", "P")
+    contradiction("!P | Q, P |= Q", "!Q")
 
   "R" should "be provable from P | Q, !Q | R, and !P" in:
-    contradiction("P | Q, !Q | R, !P |= R", "P")
+    contradiction("P | Q, !Q | R, !P |= R", "!P")
 
   "B | C" should "be provable from A | B, !A" in:
-    contradiction("A | B, !A |= B | C", "!A")
+    contradiction("A | B, !A |= B | C", "!B")
 
   "A | !C" should "be provable from A => B and B => C" in:
     result("A => B, B => C |= A | !C") should be(Right(Exhaustion))
@@ -52,7 +52,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("P => Q, Q <=> R, P |= R", "R")
 
   "A => B, B => C, !C |= !A" should "hold" in:
-    contradiction("A => B, B => C, !C |= !A", "!C")
+    contradiction("A => B, B => C, !C |= !A", "!A")
 
   "P <=> Q, Q => R, P |= R" should "hold" in:
     contradiction("P <=> Q, Q => R, P |= R", "R")
@@ -64,7 +64,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("P <=> Q, Q => R, R |= P")
 
   "P => Q, R => P, R |= Q" should "hold" in:
-    contradiction("P => Q, R => P, R |= Q", "!P")
+    contradiction("P => Q, R => P, R |= Q", "Q")
 
   "P => Q, Q => R, R => S, P |= S" should "hold" in:
     contradiction("P => Q, Q => R, R => S, P |= S", "R")
@@ -90,7 +90,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     exhaustion("A:xE:yP(x, y), A:xE:y!P(x, y) |= Q(a)")
 
   "Provable first-order entailments" should "result to contradictions" in:
-    contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)", "P".of("a"), CNot("P".of("x")))
+    contradiction("A:x(P(x) => Q(x)), P(a) |= Q(a)")
     contradiction("E:x(P(x) & Q(x)) |= E:xP(x)")
     contradiction("A:x(P(x) | Q(x)), !P(a) |= Q(a)")
     contradiction("P(a) & Q(b) |= P(a)")
@@ -111,10 +111,10 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("A:xE:y[P(x, y) => E:z[!R(z) => Q(x)]], A:x!Q(x), !R(w) |= A:aE:b!P(a, b)")
 
   "Modus Ponens" should "be provable" in:
-    contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)", "P".of("a"), CNot("P".of("a")))
+    contradiction("P(a) & (P(a) => Q(a)) |=  Q(a)")
 
   "Contrapositive" should "be provable" in:
-    contradiction("A:x(P(x) => Q(x)), !Q(a) |= !P(a)", CNot("Q".of("a")), "Q".of("x"))
+    contradiction("A:x(P(x) => Q(x)), !Q(a) |= !P(a)")
 
   def contradiction(entailment: String): Unit =
     result(entailment) should matchPattern:
