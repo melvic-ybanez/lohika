@@ -4,15 +4,13 @@ import cats.implicits.*
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import scalafx.beans.property.StringProperty
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
 import scalafx.scene.Scene
 import scalafx.scene.control.*
 import scalafx.scene.layout.{BorderPane, VBox}
-import scalafx.scene.web.WebView
+import scalafx.stage.Stage
 
 class MainScene extends Scene:
   private val entailmentProp = new StringProperty("")

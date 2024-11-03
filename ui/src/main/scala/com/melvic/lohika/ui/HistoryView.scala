@@ -2,12 +2,12 @@ package com.melvic.lohika.ui
 
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
-import scalafx.Includes.when
 import scalafx.collections.ObservableBuffer
 import scalafx.geometry.Insets
+import scalafx.scene.Cursor
 import scalafx.scene.control.{ListCell, ListView}
-import scalafx.scene.layout.{BorderPane, StackPane}
 import scalafx.scene.web.WebView
+import scalafx.stage.Stage
 
 class HistoryView(items: ObservableBuffer[String]) extends ListView(items):
   cellFactory = (_: ListView[String]) =>
@@ -38,4 +38,12 @@ class HistoryView(items: ObservableBuffer[String]) extends ListView(items):
 
         hover.onChange: (_, _, isHovered) =>
           val bgColor = if isHovered then "4D4D56" else "333333"
-          itemView.engine.executeScript(s"document.body.style.backgroundColor = '#$bgColor';")
+          setJsStyle("backgroundColor", s"#$bgColor")
+
+        onMouseEntered = _ =>
+          setJsStyle("cursor", "pointer")
+        onMouseExited = _ =>
+          setJsStyle("cursor", "default")
+
+        def setJsStyle(attr: String, value: String): Unit =
+          itemView.engine.executeScript(s"document.body.style.$attr = '$value';")
