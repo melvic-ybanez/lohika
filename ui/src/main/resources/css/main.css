@@ -11,16 +11,14 @@
     -fx-font-family: Helvetica;
     -fx-font-size: 1.3em;
     -fx-padding: 15px;
-    -fx-text-fill: #46bcde;
     -fx-prompt-text-fill: #8E98A4;
-
-    -fx-background-color: #333333;
-        /* Remove focus border. See https://stackoverflow.com/a/28853294 */
-        /*-fx-outer-border, -fx-inner-border, -fx-body-color;*/
 }
 
 .main-io-text-field:focused {
     -fx-background-color: #333333;
-        /* Remove focus border. See https://stackoverflow.com/a/28853294 */
-        /*-fx-outer-border, -fx-inner-border, -fx-body-color;*/
+}
+
+.dark {
+    -fx-background-color: #333333;
+    -fx-text-fill: #46bcde;
 }

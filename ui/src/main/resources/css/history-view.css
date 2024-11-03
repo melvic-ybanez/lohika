@@ -1,0 +1,13 @@
+body {
+    background-color: #333333;
+    margin: 0 0 0 15px;
+    padding: 0px;
+    display: flex;
+    height: 100%;
+    align-items: center;
+}
+
+.formula {
+  color: #6FD08C;
+  font-size: 1.1em;
+}

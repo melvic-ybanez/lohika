@@ -1,6 +1,6 @@
 package com.melvic.lohika.ui
 
-import atlantafx.base.theme.{PrimerDark, PrimerLight}
+import atlantafx.base.theme.{NordDark, PrimerDark, PrimerLight}
 import javafx.application.Application
 import scalafx.application.JFXApp3
 import scalafx.geometry.Insets
@@ -18,7 +18,7 @@ import scala.language.implicitConversions
 object Main extends JFXApp3:
 
   override def start(): Unit =
-    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet)
+    Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet)
 
     stage = new JFXApp3.PrimaryStage:
       title = "Lohika"

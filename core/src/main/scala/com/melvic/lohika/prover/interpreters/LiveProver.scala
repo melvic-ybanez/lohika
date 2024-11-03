@@ -26,7 +26,7 @@ object LiveProver:
   import Clauses.given
   import com.melvic.lohika.Givens.given
 
-  type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
+  type Steps[X] = WriterT[[X] =>> Either[String, X], List[String], X]
 
   given liveProver: Prover[Steps] with
     override def splitAllIntoClauses(cnfs: List[Cnf]): Steps[Clauses] =
