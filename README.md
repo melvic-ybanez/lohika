@@ -20,10 +20,9 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 ### Proof Generation
 
 The user can enter a string in the form `P |= Q`, where `P` is
-a set of comma-separated _premises_, and `Q` is the _conclusion_ to prove.
-
-If you want Lohika to prove that a proposition is a tautology, just exclude the premises
-by omitting the `P |=` part.
+a set of comma-separated _premises_, and `Q` is the _conclusion_ to prove. If no premises are 
+provided (i.e. the `P |=` part is omitted), Lohika will show whether the given proposition 
+is a _tautology_.
 
 Here are some examples to try:
 
@@ -64,7 +63,8 @@ must be true.
 
 Lohika's proof generator algorithm is explained in the following steps:
 
-1. Convert the premises into their
+1. Negate the conclusion.
+1. Convert the premises and the negated conclusion into their
    corresponding [conjunctive normal forms (CNFs)](https://en.wikipedia.org/wiki/Conjunctive_normal_form). The following preparatory steps are needed before we can convert to CNF:
    1. Conditionals elimination (both implications and bi-conditionals).
    1. Conversion to [Negation Normal Form (NNF)](https://en.wikipedia.org/wiki/Negation_normal_form).
@@ -75,17 +75,14 @@ Lohika's proof generator algorithm is explained in the following steps:
    1. Dropping of universal quantifiers. All remaining variables at this point are assumed to be universally bound.
    
    Once those steps are completed, we can proceed with the classic CNF conversion as if the formulas weren't in first-order.
-1. Add all the clauses from the premises' CNFs to the _clause set_.
-1. Negate the conclusion.
-1. Convert the negated conclusion into CNF (following all the necessary conversions mentioned above).
-1. Add the negated conclusion's CNF to the clause set.
+1. Add all the clauses from the resulting CNFs to the _clause set_.
 1. Choose a pair with which we can apply the **resolution rule** to either derive a new clause or find **complementary literals**.
 
    If it's the former, the new clause is added to the clause set, and we apply resolution for a new selected pair. If, however,
    complementary literals are found, we take that as a contradiction, and the proof is complete.
 
    If we have exhausted all possible options (i.e. tried all possible pairs) and found no contradictions and derived no new clauses, we conclude
-   that the proposition to prove does not follow from the premises (not provable). 
+   that the proposition to prove does not follow from the premises (not semantically valid). 
 
 ## Install and Run Lohika
 
