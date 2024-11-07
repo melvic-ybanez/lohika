@@ -8,11 +8,10 @@ import org.fxmisc.richtext.CodeArea
 import scalafx.Includes.*
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Orientation
-import scalafx.scene.{Cursor, Scene}
 import scalafx.scene.control.{Button, SplitPane}
-import scalafx.scene.effect.ColorInput
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.{AnchorPane, BorderPane}
+import scalafx.scene.layout.AnchorPane
+import scalafx.scene.{Cursor, Scene}
 
 class MainScene extends Scene:
   val entailmentProp = new StringProperty("")
