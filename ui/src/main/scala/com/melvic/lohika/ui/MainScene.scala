@@ -4,12 +4,13 @@ import cats.implicits.*
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
+import org.fxmisc.richtext.CodeArea
+import scalafx.Includes.*
 import scalafx.beans.property.StringProperty
-import scalafx.geometry.Insets
+import scalafx.geometry.Orientation
 import scalafx.scene.Scene
-import scalafx.scene.control.TextField
-import scalafx.scene.input.ScrollEvent
-import scalafx.scene.layout.{BorderPane, VBox}
+import scalafx.scene.control.SplitPane
+import scalafx.scene.layout.BorderPane
 
 class MainScene extends Scene:
   val entailmentProp = new StringProperty("")
@@ -18,24 +19,17 @@ class MainScene extends Scene:
   solutionsView.init()
   stylesheets.add(getClass.getResource("/css/main.css").toExternalForm)
 
-  root = new BorderPane:
-    center = new BorderPane:
-      center = solutionsView
-      padding = Insets(30)
+  root = new SplitPane:
+    styleClass = Seq("editor-split")
+    orientation = Orientation.Vertical
 
-    top = new VBox:
-      children = Seq(
-        new InputText:
-          promptText =
-            s"""Logical Entailment (e.g. "A => B, B => C |= A | !C" to mean "${Unicode.applyToText(
-                "A => B, B => C |= A | !C"
-              )}")"""
-          text <==> entailmentProp
-
-          onAction = _ =>
-            if entailmentProp.value.nonEmpty then handleInput()
-            else solutionsView.engine.loadContent("")
-      )
+    items.addAll(
+      new BorderPane {
+        center = new EditorView:
+          entailmentProp <== textProperty()
+      },
+      solutionsView
+    )
 
     def handleInput(): Unit =
       val rawEntailment = Unicode.removeFromText(entailmentProp.value)
@@ -49,10 +43,5 @@ class MainScene extends Scene:
           val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
           solutionsView.setSolutionContent(Right(entailmentElem, solution))
 
-class InputText extends TextField:
-  styleClass += "main-io-text-field"
-  text.onChange: (_, _, _) =>
-    // unapply them first so we can re-apply with the correct priority (e.g. |= before |)
-    val rawText = Unicode.removeFromText(text.value)
-
-    text = Unicode.applyToText(rawText)
+class EditorView extends CodeArea:
+  getStyleClass.add("editor")
