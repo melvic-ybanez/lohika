@@ -5,7 +5,7 @@
 .editor {
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-    -fx-border-color: #46bcde;
+    -fx-border-color: transparent;
     -fx-border-width: 0.1px;
 
     -fx-padding: 15px;
@@ -17,6 +17,12 @@
     -fx-font-family: Helvetica;
     -fx-font-size: 1.3em;
     -fx-fill: #46bcde;
+}
+
+.editor-icon {
+    -fx-background-color: transparent;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
 }
 
 .styled-text-area .caret {

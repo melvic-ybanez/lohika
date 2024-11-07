@@ -56,4 +56,4 @@ class SolutionsView extends WebView:
          |""".stripMargin
 
   def init(): Unit =
-    engine.setUserStyleSheetLocation(getClass.getResource("/css/solutions_view.css").toExternalForm)
+    engine.setUserStyleSheetLocation(Resources.cssPath("solutions_view.css"))

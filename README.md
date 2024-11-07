@@ -13,6 +13,7 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
 - [Screenshots and Demos](#screenshots-and-demos)
+- [Icons](#icons)
 - [License](#license)
 
 ## Most Relevant Features
@@ -102,6 +103,12 @@ Here's what Lohika currently looks like:
 And here's a link to a sample video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
 
 **Note:** The video above is already outdated. See [this](https://github.com/melvic-ybanez/lohika/issues/32) issue and upload an updated video.
+
+## Icons
+
+This project uses icons download from the following sources:
+
+* Uicons by <a href="https://www.flaticon.com/uicons">Flaticon</a>
 
 ## License
 
