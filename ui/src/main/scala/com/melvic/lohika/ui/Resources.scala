@@ -5,7 +5,8 @@ object Resources:
     getClass.getResource(path).toExternalForm
 
   def cssPath(path: String): String =
-    fromPath(s"/css/$path")
+    val fullPath = if path.endsWith(".css") then path else path + ".css"
+    fromPath(s"/css/$fullPath")
 
   def iconPath(path: String): String =
     fromPath(s"/icons/$path")

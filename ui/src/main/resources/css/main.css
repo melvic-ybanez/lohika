@@ -2,37 +2,6 @@
     -fx-background-color: #333333;
 }
 
-.editor {
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-border-color: transparent;
-    -fx-border-width: 0.1px;
-
-    -fx-padding: 15px;
-    -fx-prompt-text-fill: #8E98A4;
-    -fx-background-color: #333333;
-}
-
-.text {
-    -fx-font-family: Helvetica;
-    -fx-font-size: 1.3em;
-    -fx-fill: #46bcde;
-}
-
-.editor-icon {
-    -fx-background-color: transparent;
-    -fx-border-radius: 0;
-    -fx-border-color: transparent;
-}
-
-.styled-text-area .caret {
-    -fx-stroke: #46bcde;
-}
-
-.editor:focused {
-    -fx-background-color: #333333;
-}
-
 .editor-split > .split-pane-divider {
     -fx-background-color: #A979B9;
     -fx-padding: 1;

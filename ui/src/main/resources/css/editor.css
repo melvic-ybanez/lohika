@@ -1,0 +1,29 @@
+.editor {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0.1px;
+
+    -fx-padding: 15px;
+    -fx-background-color: #333333;
+}
+
+.styled-text-area .caret {
+    -fx-stroke: #46bcde;
+}
+
+.text {
+    -fx-fill: #46bcde;
+    -fx-font-family: Helvetica;
+    -fx-font-size: 1.3em;
+}
+
+.editor-icon {
+    -fx-background-color: transparent;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
+}
+
+.editor:focused {
+    -fx-background-color: #333333;
+}
