@@ -15,7 +15,7 @@
 .text {
     -fx-fill: #46bcde;
     -fx-font-family: Helvetica;
-    -fx-font-size: 1.3em;
+    -fx-font-size: 20px;
 }
 
 .editor-icon {
@@ -34,4 +34,9 @@
 
 .parens {
     -fx-fill: #e5c454;
+}
+
+.quantifiers {
+    // for now it has the same color as the operator's
+    -fx-fill: #6FD08C;
 }

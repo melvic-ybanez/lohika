@@ -1,10 +1,9 @@
 package com.melvic.lohika.ui
 
-import org.fxmisc.richtext.{CodeArea, LineNumberFactory}
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
-import scalafx.scene.layout.AnchorPane
+import org.fxmisc.richtext.{CodeArea, LineNumberFactory}
 import scalafx.Includes.*
-import scalafx.scene.control.Label
+import scalafx.scene.layout.AnchorPane
 
 import java.util
 import java.util.Collections
@@ -13,10 +12,10 @@ import scala.util.matching.Regex
 class EditorPane(mainScene: MainScene) extends AnchorPane:
   stylesheets += Resources.cssPath("editor")
 
-  val runButton = new Icon("run.png"):
+  val runButton: Icon = new Icon("run.png"):
     onAction = _ => mainScene.handleInput()
 
-  val editorArea = new EditorView:
+  val editorArea: EditorView = new EditorView:
     mainScene.entailmentProp <== textProperty()
 
   children.addAll(editorArea, runButton)
@@ -41,15 +40,22 @@ class EditorView extends CodeArea:
     node
 
   object GroupNames:
+    val Quantifiers = "QUANTIFIERS"
     val Operator = "OPERATOR"
     val Parens = "PARENS"
 
   object Patterns:
-    val Operator = raw"(<=>|=>|&|!|\||A:|E:)"
+    val Quantifiers = raw"(A:|E:)"
+    val Operator = raw"(<=>|=>|&|!|\|)"
     val Parens = raw"(\(|\)|\[|\])"
 
   val fullPattern: Regex =
-    s"(?<${GroupNames.Operator}>${Patterns.Operator})|(?<${GroupNames.Parens}>${Patterns.Parens})".r
+    val rTable = List(
+      GroupNames.Operator    -> Patterns.Operator,
+      GroupNames.Parens      -> Patterns.Parens,
+      GroupNames.Quantifiers -> Patterns.Quantifiers
+    )
+    rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r
 
   def syntaxHighlighting(text: String): StyleSpans[util.Collection[String]] =
     val spansBuilder = StyleSpansBuilder[util.Collection[String]]()
@@ -60,6 +66,7 @@ class EditorView extends CodeArea:
         Option(rMatch.group(GroupNames.Operator))
           .map(_ => "operator")
           .orElse(Option(rMatch.group(GroupNames.Parens)).map(_ => "parens"))
+          .orElse(Option(rMatch.group(GroupNames.Quantifiers)).map(_ => "quantifiers"))
       spansBuilder.add(Collections.emptyList(), rMatch.start - lastEnd)
       spansBuilder.add(Collections.singleton(styleClass.orNull), rMatch.end - rMatch.start)
       rMatch.end
