@@ -30,10 +30,16 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
 class EditorView extends CodeArea:
   getStyleClass.add("editor")
 
-  val operatorGroupName = "OPERATOR"
+  object GroupNames:
+    val Operator = "OPERATOR"
+    val Parens = "PARENS"
 
-  val operatorPattern = raw"(<=>|=>|&|!|\||A:|E:)"
-  val fullPattern: Regex = s"(?<$operatorGroupName>$operatorPattern)".r
+  object Patterns:
+    val Operator = raw"(<=>|=>|&|!|\||A:|E:)"
+    val Parens = raw"(\(|\)|\[|\])"
+
+  val fullPattern: Regex =
+    s"(?<${GroupNames.Operator}>${Patterns.Operator})|(?<${GroupNames.Parens}>${Patterns.Parens})".r
 
   def syntaxHighlighting(text: String): StyleSpans[util.Collection[String]] =
     val spansBuilder = StyleSpansBuilder[util.Collection[String]]()
@@ -41,7 +47,9 @@ class EditorView extends CodeArea:
 
     val lastEnd = allMatches.foldLeft(0): (lastEnd, rMatch) =>
       val styleClass =
-        Option(rMatch.group(operatorGroupName)).map(_ => "operator")
+        Option(rMatch.group(GroupNames.Operator))
+          .map(_ => "operator")
+          .orElse(Option(rMatch.group(GroupNames.Parens)).map(_ => "parens"))
       spansBuilder.add(Collections.emptyList(), rMatch.start - lastEnd)
       spansBuilder.add(Collections.singleton(styleClass.orNull), rMatch.end - rMatch.start)
       rMatch.end

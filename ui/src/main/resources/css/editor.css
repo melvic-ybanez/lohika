@@ -31,3 +31,7 @@
 .operator {
     -fx-fill: #6FD08C;
 }
+
+.parens {
+    -fx-fill: #e5c454;
+}
