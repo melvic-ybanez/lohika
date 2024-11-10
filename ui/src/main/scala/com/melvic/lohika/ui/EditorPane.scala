@@ -1,9 +1,10 @@
 package com.melvic.lohika.ui
 
-import org.fxmisc.richtext.CodeArea
+import org.fxmisc.richtext.{CodeArea, LineNumberFactory}
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
 import scalafx.scene.layout.AnchorPane
 import scalafx.Includes.*
+import scalafx.scene.control.Label
 
 import java.util
 import java.util.Collections
@@ -29,6 +30,15 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
 
 class EditorView extends CodeArea:
   getStyleClass.add("editor")
+  setParagraphGraphicFactory: line =>
+    val node = LineNumberFactory.get(this).apply(line)
+    node.setStyle:
+      s"""
+         |-fx-background-color: #333333;
+         |-fx-text-fill: #88E7DC;
+         |-fx-padding: 0 15px 0 0;
+         |""".stripMargin
+    node
 
   object GroupNames:
     val Operator = "OPERATOR"
