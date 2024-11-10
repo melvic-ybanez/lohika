@@ -27,3 +27,7 @@
 .editor:focused {
     -fx-background-color: #333333;
 }
+
+.operator {
+    -fx-fill: #6FD08C;
+}

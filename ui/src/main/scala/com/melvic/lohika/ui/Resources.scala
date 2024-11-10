@@ -10,5 +10,3 @@ object Resources:
 
   def iconPath(path: String): String =
     fromPath(s"/icons/$path")
-
-

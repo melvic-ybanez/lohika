@@ -6,11 +6,10 @@ import com.melvic.lohika.prover.programs.ProverProgram
 import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Orientation
+import scalafx.scene.Scene
 import scalafx.scene.control.*
-import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.input.KeyCombination
 import scalafx.scene.layout.{AnchorPane, BorderPane}
-import scalafx.scene.{Cursor, Scene}
 
 class MainScene extends Scene:
   self =>
