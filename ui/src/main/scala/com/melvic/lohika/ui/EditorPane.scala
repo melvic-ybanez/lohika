@@ -1,8 +1,9 @@
 package com.melvic.lohika.ui
 
+import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
-import org.fxmisc.richtext.{CodeArea, LineNumberFactory}
 import scalafx.Includes.*
+import scalafx.scene.control.Label
 import scalafx.scene.layout.AnchorPane
 
 import java.util
@@ -29,15 +30,6 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
 
 class EditorView extends CodeArea:
   getStyleClass.add("editor")
-  setParagraphGraphicFactory: line =>
-    val node = LineNumberFactory.get(this).apply(line)
-    node.setStyle:
-      s"""
-         |-fx-background-color: #333333;
-         |-fx-text-fill: #88E7DC;
-         |-fx-padding: 0 15px 0 0;
-         |""".stripMargin
-    node
 
   object GroupNames:
     val Quantifiers = "QUANTIFIERS"
@@ -77,3 +69,14 @@ class EditorView extends CodeArea:
   plainTextChanges().subscribe: change =>
     val highlighting = syntaxHighlighting(getText)
     setStyleSpans(0, highlighting)
+    setParagraphGraphicFactory: line =>
+      val linesCount = getParagraphs.size()
+      val lineText = (line + 1).toString
+      val paddingLength = linesCount.toString.length - lineText.length
+      new Label(" " * paddingLength + lineText):
+        style = s"""
+             |-fx-background-color: #333333;
+             |-fx-text-fill: #88E7DC;
+             |-fx-padding: 0 30px 0 0;
+             |-fx-font-family: Monospaced;
+             |""".stripMargin
