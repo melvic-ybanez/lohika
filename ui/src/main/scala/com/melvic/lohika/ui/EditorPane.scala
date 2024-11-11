@@ -1,5 +1,6 @@
 package com.melvic.lohika.ui
 
+import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
 import scalafx.Includes.*
@@ -19,14 +20,16 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   val editorArea: EditorView = new EditorView:
     mainScene.entailmentProp <== textProperty()
 
-  children.addAll(editorArea, runButton)
+  val editorAreaPane = new VirtualizedScrollPane(editorArea)
+
+  children.addAll(editorAreaPane, runButton)
 
   AnchorPane.setTopAnchor(runButton, 10.0)
   AnchorPane.setRightAnchor(runButton, 20.0)
-  AnchorPane.setTopAnchor(editorArea, 20.0)
-  AnchorPane.setRightAnchor(editorArea, 0.0)
-  AnchorPane.setLeftAnchor(editorArea, 0.0)
-  AnchorPane.setBottomAnchor(editorArea, 0.0)
+  AnchorPane.setTopAnchor(editorAreaPane, 20.0)
+  AnchorPane.setRightAnchor(editorAreaPane, 0.0)
+  AnchorPane.setLeftAnchor(editorAreaPane, 0.0)
+  AnchorPane.setBottomAnchor(editorAreaPane, 0.0)
 
 class EditorView extends CodeArea:
   getStyleClass.add("editor")
