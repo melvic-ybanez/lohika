@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Fira Code";
+    src: url("/fonts/FiraCode-Regular.ttf");
+}
+
 .editor {
     -fx-background-radius: 0;
     -fx-border-radius: 0;
@@ -14,7 +19,7 @@
 
 .text {
     -fx-fill: #46bcde;
-    -fx-font-family: Helvetica;
+    -fx-font-family: "Fira Code";
     -fx-font-size: 20px;
 }
 

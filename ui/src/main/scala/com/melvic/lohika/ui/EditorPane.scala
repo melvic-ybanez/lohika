@@ -33,43 +33,11 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   AnchorPane.setLeftAnchor(editorAreaPane, 0.0)
   AnchorPane.setBottomAnchor(editorAreaPane, 0.0)
 
-class EditorView extends CodeArea:
-  getStyleClass.add("editor")
+class EditorView extends CodeArea with SyntaxHighlighting:
+  init()
 
-  object GroupNames:
-    val Quantifiers = "QUANTIFIERS"
-    val Operator = "OPERATOR"
-    val Parens = "PARENS"
-
-  object Patterns:
-    val Quantifiers = raw"(A:|E:)"
-    val Operator = raw"(<=>|=>|&|!|\|)"
-    val Parens = raw"(\(|\)|\[|\])"
-
-  val fullPattern: Regex =
-    val rTable = List(
-      GroupNames.Operator    -> Patterns.Operator,
-      GroupNames.Parens      -> Patterns.Parens,
-      GroupNames.Quantifiers -> Patterns.Quantifiers
-    )
-    rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r
-
-  def syntaxHighlighting(text: String): StyleSpans[util.Collection[String]] =
-    val spansBuilder = StyleSpansBuilder[util.Collection[String]]()
-    val allMatches = fullPattern.findAllMatchIn(text)
-
-    val lastEnd = allMatches.foldLeft(0): (lastEnd, rMatch) =>
-      val styleClass =
-        Option(rMatch.group(GroupNames.Operator))
-          .map(_ => "operator")
-          .orElse(Option(rMatch.group(GroupNames.Parens)).map(_ => "parens"))
-          .orElse(Option(rMatch.group(GroupNames.Quantifiers)).map(_ => "quantifiers"))
-      spansBuilder.add(Collections.emptyList(), rMatch.start - lastEnd)
-      spansBuilder.add(Collections.singleton(styleClass.orNull), rMatch.end - rMatch.start)
-      rMatch.end
-
-    spansBuilder.add(Collections.emptyList(), text.length - lastEnd)
-    spansBuilder.create()
+  def init(): Unit =
+    getStyleClass.add("editor")
 
   plainTextChanges().subscribe: change =>
     val highlighting = syntaxHighlighting(getText)
@@ -96,3 +64,39 @@ class EditorView extends CodeArea:
         val newIndent = if previousLine.trim.isEmpty then "" else " " * 4
         insertText(getCaretPosition, prevIndent + newIndent)
   )
+
+private trait SyntaxHighlighting:
+  object GroupNames:
+    val Quantifiers = "QUANTIFIERS"
+    val Operator = "OPERATOR"
+    val Parens = "PARENS"
+
+  object Patterns:
+    val Quantifiers = raw"(A:|E:)"
+    val Operator = raw"(<=>|=>|&|!|\|)"
+    val Parens = raw"(\(|\)|\[|\])"
+
+  val fullPattern: Regex =
+    val rTable = List(
+      GroupNames.Operator -> Patterns.Operator,
+      GroupNames.Parens -> Patterns.Parens,
+      GroupNames.Quantifiers -> Patterns.Quantifiers
+    )
+    rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r
+
+  def syntaxHighlighting(text: String): StyleSpans[util.Collection[String]] =
+    val spansBuilder = StyleSpansBuilder[util.Collection[String]]()
+    val allMatches = fullPattern.findAllMatchIn(text)
+
+    val lastEnd = allMatches.foldLeft(0): (lastEnd, rMatch) =>
+      val styleClass =
+        Option(rMatch.group(GroupNames.Operator))
+          .map(_ => "operator")
+          .orElse(Option(rMatch.group(GroupNames.Parens)).map(_ => "parens"))
+          .orElse(Option(rMatch.group(GroupNames.Quantifiers)).map(_ => "quantifiers"))
+      spansBuilder.add(Collections.emptyList(), rMatch.start - lastEnd)
+      spansBuilder.add(Collections.singleton(styleClass.orNull), rMatch.end - rMatch.start)
+      rMatch.end
+
+    spansBuilder.add(Collections.emptyList(), text.length - lastEnd)
+    spansBuilder.create()
