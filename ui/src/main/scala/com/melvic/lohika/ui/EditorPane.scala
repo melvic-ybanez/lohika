@@ -1,10 +1,12 @@
 package com.melvic.lohika.ui
 
+import javafx.scene.input.KeyCode
 import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
 import scalafx.Includes.*
 import scalafx.scene.control.Label
+import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout.AnchorPane
 
 import java.util
@@ -83,3 +85,14 @@ class EditorView extends CodeArea:
              |-fx-padding: 0 30px 0 0;
              |-fx-font-family: Monospaced;
              |""".stripMargin
+
+  addEventHandler(
+    KeyEvent.KeyPressed,
+    event =>
+      if event.getCode() == KeyCode.ENTER then
+        val previousLine = getParagraph(getCurrentParagraph - 1).getText
+
+        val prevIndent = previousLine.takeWhile(_.isWhitespace)
+        val newIndent = if previousLine.trim.isEmpty then "" else " " * 4
+        insertText(getCaretPosition, prevIndent + newIndent)
+  )
