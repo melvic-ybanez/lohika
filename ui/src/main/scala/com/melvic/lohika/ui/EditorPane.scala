@@ -33,14 +33,14 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   AnchorPane.setLeftAnchor(editorAreaPane, 0.0)
   AnchorPane.setBottomAnchor(editorAreaPane, 0.0)
 
-class EditorView extends CodeArea with SyntaxHighlighting:
+class EditorView extends CodeArea:
   init()
 
   def init(): Unit =
     getStyleClass.add("editor")
 
-  plainTextChanges().subscribe: change =>
-    val highlighting = syntaxHighlighting(getText)
+  plainTextChanges().subscribe: _ =>
+    val highlighting = EditorView.syntaxHighlight(getText)
     setStyleSpans(0, highlighting)
     setParagraphGraphicFactory: line =>
       val linesCount = getParagraphs.size()
@@ -61,11 +61,11 @@ class EditorView extends CodeArea with SyntaxHighlighting:
         val previousLine = getParagraph(getCurrentParagraph - 1).getText
 
         val prevIndent = previousLine.takeWhile(_.isWhitespace)
-        val newIndent = if previousLine.trim.isEmpty then "" else " " * 4
+        val newIndent = if previousLine.trim.isEmpty then "" else " " * 2
         insertText(getCaretPosition, prevIndent + newIndent)
   )
 
-private trait SyntaxHighlighting:
+object EditorView:
   object GroupNames:
     val Quantifiers = "QUANTIFIERS"
     val Operator = "OPERATOR"
@@ -84,7 +84,7 @@ private trait SyntaxHighlighting:
     )
     rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r
 
-  def syntaxHighlighting(text: String): StyleSpans[util.Collection[String]] =
+  def syntaxHighlight(text: String): StyleSpans[util.Collection[String]] =
     val spansBuilder = StyleSpansBuilder[util.Collection[String]]()
     val allMatches = fullPattern.findAllMatchIn(text)
 

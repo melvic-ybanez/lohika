@@ -1,5 +1,6 @@
 package com.melvic.lohika.ui.symbols
 
+// TODO: Might have to remove this
 object Unicode extends Symbols:
   val And: String = "\u2227"
   val Or: String = "\u2228"
