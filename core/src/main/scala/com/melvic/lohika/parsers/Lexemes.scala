@@ -1,8 +1,8 @@
 package com.melvic.lohika.parsers
 
 object Lexemes:
-  val Iff = "<=>"
-  val Imply = "=>"
+  val Iff = "<->"
+  val Imply = "->"
   val Or = "|"
   val And = "&"
   val Not = "!"

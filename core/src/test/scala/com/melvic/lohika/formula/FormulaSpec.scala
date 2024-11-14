@@ -19,4 +19,4 @@ class FormulaSpec extends BaseSpec:
     "A & (B & C)" ==== "(A & B) & C"
 
   it should "have lower precedence than disjunction" in:
-    "(A | B) => (C | D)" ==== "A | B => C | D"
+    "(A | B) -> (C | D)" ==== "A | B -> C | D"

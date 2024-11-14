@@ -51,8 +51,8 @@ class FormulaParserSpec extends BaseSpec:
     parseSuccess("A|B|C", Or.of("A", "B", "C"))
 
   it should "accept lower precedence components if they are inside parens" in:
-    parseSuccess("(A => B) | C", ("A" ==> "B") | "C")
-    parseSuccess("(A <=> B) | C", ("A" <==> "B") | "C")
+    parseSuccess("(A -> B) | C", ("A" --> "B") | "C")
+    parseSuccess("(A <-> B) | C", ("A" <--> "B") | "C")
 
   "Conjunctions" should "be separated by &" in:
     parseSuccess("A & B", "A" & "B")
@@ -66,8 +66,8 @@ class FormulaParserSpec extends BaseSpec:
 
   it should "accept lower precedence components if they are inside parens" in:
     parseSuccess("(A | B) & C", ("A" | "B") & "C")
-    parseSuccess("(A => B) & C", ("A" ==> "B") & "C")
-    parseSuccess("(A <=> B) & C", ("A" <==> "B") & "C")
+    parseSuccess("(A -> B) & C", ("A" --> "B") & "C")
+    parseSuccess("(A <-> B) & C", ("A" <--> "B") & "C")
     parseSuccess("(A | B) & (C | D)", ("A" | "B") & ("C" | "D"))
 
   it should "accept quantified constituents" in:
@@ -76,52 +76,52 @@ class FormulaParserSpec extends BaseSpec:
       thereExists("x")("P".of("x") | forall("y")("Q".of("x", "y"))) & "R".of("x", "z")
     )
 
-  "Implication" should "be connected by =>" in:
-    parseSuccess("A => B", "A" ==> "B")
+  "Implication" should "be connected by ->" in:
+    parseSuccess("A -> B", "A" --> "B")
 
   it should "support grouping by parenthesis" in:
-    parseSuccess("(A => B) => C", ("A" ==> "B") ==> "C")
-    parseSuccess("A => (B => C) => D", "A" ==> (("B" ==> "C") ==> "D"))
+    parseSuccess("(A -> B) -> C", ("A" --> "B") --> "C")
+    parseSuccess("A -> (B -> C) -> D", "A" --> (("B" --> "C") --> "D"))
 
   it should "be right associative" in:
-    parseSuccess("A => B => C", "A" ==> ("B" ==> "C"))
-    "A => (B => C)" === "A => B => C"
+    parseSuccess("A -> B -> C", "A" --> ("B" --> "C"))
+    "A -> (B -> C)" === "A -> B -> C"
 
   it should "have lower precedence than disjunction" in:
-    parseSuccess("A | B => C | D", ("A" | "B") ==> ("C" | "D"))
+    parseSuccess("A | B -> C | D", ("A" | "B") --> ("C" | "D"))
 
   it should "accept lower precedence components if they are inside parens" in:
-    parseSuccess("(A <=> B) => C", ("A" <==> "B") ==> "C")
+    parseSuccess("(A <-> B) -> C", ("A" <--> "B") --> "C")
 
-  "Biconditional" should "be connected by <=>" in:
-    parseSuccess("A <=> B", "A" <==> "B")
+  "Biconditional" should "be connected by <->" in:
+    parseSuccess("A <-> B", "A" <--> "B")
 
   it should "have lower precedence than implication" in:
-    parseSuccess("A <=> B => C", "A" <==> ("B" ==> "C"))
+    parseSuccess("A <-> B -> C", "A" <--> ("B" --> "C"))
 
   it should "support chaining" in:
-    parseSuccess("A <=> B <=> C", Iff.of("A", "B", "C"))
+    parseSuccess("A <-> B <-> C", Iff.of("A", "B", "C"))
 
   "Forall" should "take a set of first-order variables and a matrix" in:
-    parseSuccess("A:x,y(P => Q)", forall("x", "y")("P" ==> "Q"))
+    parseSuccess("A:x,y(P -> Q)", forall("x", "y")("P" --> "Q"))
     parseSuccess("A:x(Q)", forall("x")("Q"))
     parseSuccess("A:xP(x)", forall("x")("P".of("x")))
-    parseSuccess("A:xE:y(P(x) => Q(y))", forall("x")(thereExists("y")("P".of("x") ==> "Q".of("y"))))
-    parseSuccess("A:xE:yP(x) => Q(y)", forall("x")(thereExists("y")("P".of("x"))) ==> "Q".of("y"))
-    parseFailure("A:(P => Q)")
-    parseFailure("A:X(P => Q)")
+    parseSuccess("A:xE:y(P(x) -> Q(y))", forall("x")(thereExists("y")("P".of("x") --> "Q".of("y"))))
+    parseSuccess("A:xE:yP(x) -> Q(y)", forall("x")(thereExists("y")("P".of("x"))) --> "Q".of("y"))
+    parseFailure("A:(P -> Q)")
+    parseFailure("A:X(P -> Q)")
 
   "Exists" should "take a set of variables and a matrix" in:
-    parseSuccess("E:x,y(P => Q)", thereExists("x", "y")("P" ==> "Q"))
+    parseSuccess("E:x,y(P -> Q)", thereExists("x", "y")("P" --> "Q"))
     parseSuccess("E:x(Q)", thereExists("x")("Q"))
     parseSuccess("E:xP(x)", thereExists("x")("P".of("x")))
-    parseSuccess("E:xA:y(P(x) => Q(y))", thereExists("x")(forall("y")("P".of("x") ==> "Q".of("y"))))
-    parseFailure("E:(P => Q)")
-    parseFailure("E:X(P => Q)")
+    parseSuccess("E:xA:y(P(x) -> Q(y))", thereExists("x")(forall("y")("P".of("x") --> "Q".of("y"))))
+    parseFailure("E:(P -> Q)")
+    parseFailure("E:X(P -> Q)")
 
   "Predicates" should "be able to take arguments" in:
     parseSuccess("P(x)", "P".of("x"))
-    parseSuccess("E:x,y(P(x, y) => Q(y))", thereExists("x", "y")("P".of("x", "y") ==> "Q".of("y")))
+    parseSuccess("E:x,y(P(x, y) -> Q(y))", thereExists("x", "y")("P".of("x", "y") --> "Q".of("y")))
 
   it should "only take terms as arguments" in:
     parseFailure("P(X)")

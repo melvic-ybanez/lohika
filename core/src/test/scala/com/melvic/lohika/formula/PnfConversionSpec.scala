@@ -17,7 +17,7 @@ class PnfConversionSpec extends BaseSpec with FormulaMappingSupport:
         )
         .raw
     )
-    "E:x(P(x) => A:yQ(y, x))" ====> "E:xA:y(!P(x) | Q(y, x))"
+    "E:x(P(x) -> A:yQ(y, x))" ====> "E:xA:y(!P(x) | Q(y, x))"
 
   it should "standardize the formula if necessary" in:
     given FormulaMapper =

@@ -197,10 +197,10 @@ object Formula extends FormulaGivens with Conversions:
     def |(other: Formula): Or = Or.of(self, other)
 
     @targetName("implies")
-    def ==>(other: Formula): Imply = Imply(self, other)
+    def -->(other: Formula): Imply = Imply(self, other)
 
     @targetName("ifAndOnlyIf")
-    def <==>(other: Formula): Iff = Iff.of(self, other)
+    def <-->(other: Formula): Iff = Iff.of(self, other)
 
     @targetName("not")
     def unary_! : Not = Not(self)

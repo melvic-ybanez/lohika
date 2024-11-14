@@ -22,10 +22,10 @@ private[formula] trait Conversions
 
   def eliminateBiconditionals: Formula => NoIff =
     def recurse: Endo[Formula] =
-      case Iff(p, q, Nil) => recurse((p ==> q) & (q ==> p))
+      case Iff(p, q, Nil) => recurse((p --> q) & (q --> p))
       case Iff(p, q, rs) =>
-        val iffs = rs.foldLeft(List(p <==> q)):
-          case (iffs @ (Iff(_, q, _) :: _), r) => (q <==> r) :: iffs
+        val iffs = rs.foldLeft(List(p <--> q)):
+          case (iffs @ (Iff(_, q, _) :: _), r) => (q <--> r) :: iffs
         recurse(And.fromList(iffs.reverse))
       case fm => convertBy(recurse)(fm)
 
@@ -98,7 +98,7 @@ private[formula] trait Conversions
     case Iff(p, q, rs) => Iff(f(p), f(q), rs.map(f))
 
   def convertImplication: Convert[Imply] = f =>
-    case Imply(p, q) => f(p) ==> f(q)
+    case Imply(p, q) => f(p) --> f(q)
 
   def convertDisjunction: Convert[Or] = f =>
     case Or(p, q, rs) => Or(f(p), f(q), rs.map(f))
