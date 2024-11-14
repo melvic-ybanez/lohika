@@ -98,7 +98,7 @@ Lohika's proof generator algorithm is explained in the following steps:
 
 Here's what Lohika currently looks like:
 
-<img width="1728" alt="entailment-wide-standardization-and-skolemization" src="https://github.com/user-attachments/assets/57d5fc8c-433c-4abc-99be-7b2619f81a38">
+<img width="1728" alt="editor" src="https://github.com/user-attachments/assets/f84f2da5-6a2b-4476-8008-db6040285f44">
 
 And here's a link to a sample video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
 
