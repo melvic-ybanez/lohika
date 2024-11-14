@@ -8,7 +8,7 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 
 - [Most Relevant Features](#most-relevant-features)
     - [Proof Generation](#proof-generation)
-    - [MathJax and Unicodes](#mathjax-and-unicodes)
+    - [MathJax](#mathjax)
     - [Supported Logical Symbols](#supported-logical-symbols)
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
@@ -27,9 +27,9 @@ is a _tautology_.
 
 Here are some examples to try:
 
-* `A:a,b[P(a, b) & Q(b) => P(a, b)]` (no premises)
+* `A:a,b[P(a, b) & Q(b) -> P(a, b)]` (no premises)
 * `P(a) |= E:xP(x)`
-* `E:xP(x), A:x(P(x) => Q(x)) |= E:xQ(x)`
+* `E:xP(x), A:x(P(x) -> Q(x)) |= E:xQ(x)`
 
 Lohika's output is a series of steps that show whether the conclusion follows from the
 premises, or is a tautology. How Lohika does this is explained
@@ -37,10 +37,9 @@ in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works). Som
 are also rendered as links to Wikipedia pages (though they will be loaded within Lohika's UI directly when clicked, since
 Lohika uses [ScalaFX](https://github.com/scalafx/scalafx)'s `WebView`). 
 
-### MathJax and Unicodes
+### MathJax
 
-The logical symbols will be replaced by their Unicode equivalent in the input field as the user is writing
-his statement. The solution's formulas, on the other hand, will be rendered using [MathJax](https://www.mathjax.org/). You
+The formulas in the Solutions View will be rendered using [MathJax](https://www.mathjax.org/). You
 can see this in action in the [Screenshots and Demos](#screenshots-and-demos) section.
 
 ### Supported Logical Symbols
