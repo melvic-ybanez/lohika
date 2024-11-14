@@ -29,7 +29,7 @@ lazy val core = (project in file("core"))
 lazy val ui = (project in file("ui"))
   .settings(
     name := "ui",
-    libraryDependencies ++= scalaFx,
+    libraryDependencies ++= Dependencies.ui,
     assembly / assemblyJarName := "lohika-ui-0.3.0.jar",
     assembly / mainClass := Some("com.melvic.lohika.ui.Main"),
     assembly / assemblyMergeStrategy := commonMergeStrategy

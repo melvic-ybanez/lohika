@@ -10,9 +10,10 @@ object Dependencies {
 
   lazy val cats = Seq("org.typelevel" %% "cats-core" % "2.12.0")
 
-  lazy val scalaFx = Seq(
+  lazy val ui = Seq(
     "org.scalafx" %% "scalafx" % "21.0.0-R32",
     "io.github.mkpaz" % "atlantafx-base" % "2.0.1",
-    "org.commonmark" % "commonmark" % "0.21.0"
+    "org.commonmark" % "commonmark" % "0.21.0",
+    "org.fxmisc.richtext" % "richtextfx" % "0.11.3"
   )
 }
