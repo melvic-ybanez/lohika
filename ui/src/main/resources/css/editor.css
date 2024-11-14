@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "Fira Code";
-    src: url("/fonts/FiraCode-Regular.ttf");
+    font-family: "Monaspace Radon";
+    src: url("/fonts/MonaspaceRadon-Regular.otf");
 }
 
 .editor {
@@ -19,7 +19,7 @@
 
 .text {
     -fx-fill: #46bcde;
-    -fx-font-family: "Fira Code";
+    -fx-font-family: "Monaspace Radon";
     -fx-font-size: 20px;
 }
 
