@@ -84,7 +84,7 @@ object EditorView:
 
   object Patterns:
     val Quantifiers = raw"(A:|E:)"
-    val Operator = raw"(<->|->|&|!|\|)"
+    val Operator = raw"(<->|->|<-|&|!|\|)"
     val Parens = raw"(\(|\)|\[|\])"
 
   val fullPattern: Regex =
