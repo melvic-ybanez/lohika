@@ -65,12 +65,16 @@ class EditorView extends CodeArea:
 
     val prevIndent = prevLine.takeWhile(_.isWhitespace)
     val trimmedPrevLine = prevLine.trim
-    val newIndent =
+    val additionalIndent =
       if trimmedPrevLine.isEmpty || trimmedPrevLine.endsWith(Lexemes.StmtDelimiter) ||
-        trimmedPrevLine.endsWith(Lexemes.PremisesDelimiter)
+        (trimmedPrevLine.endsWith(Lexemes.PremisesDelimiter) && prevIndent.nonEmpty)
       then ""
       else " " * 2
-    insertText(getCaretPosition, prevIndent + newIndent)
+
+    val currentIndentCount =
+      getParagraph(getCurrentParagraph).getText.takeWhile(_.isWhitespace).length
+    insertText(getCaretPosition, prevIndent + additionalIndent)
+    deleteText(getCaretPosition, getCaretPosition + currentIndentCount)
 
 object EditorView:
   object GroupNames:
