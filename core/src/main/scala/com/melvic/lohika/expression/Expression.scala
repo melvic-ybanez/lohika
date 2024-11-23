@@ -20,7 +20,7 @@ object Expression extends ExpressionGivens with PrettyPrinting:
    * represented by [[PredicateApp]] but without any arguments.
    */
   final case class Var(name: String)
-  final case class Const(name: String)
+  final case class Const(name: String)  // maybe this could also just be a nullary function?
 
   case object True
   case object False
@@ -64,6 +64,6 @@ object Expression extends ExpressionGivens with PrettyPrinting:
     case Not(p)          => collect(f)(p)
     case fm              => Monoid[F[A]].empty
 
-private sealed trait ExpressionGivens:
+private trait ExpressionGivens:
   given showExpr[E <: Expression](using Formatter): Show[E] =
     Show.show(Expression.prettyPrint(_).formula)

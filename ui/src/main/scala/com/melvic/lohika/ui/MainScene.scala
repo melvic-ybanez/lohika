@@ -44,6 +44,6 @@ class MainScene extends Scene:
         val mdSteps = steps.map: step =>
           if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
           else step + "."
-        val entailmentElem = MathJax.applyToText(entailment.show)
+        val entailmentElem = MathJax.applyToText(entailment.toDirect.show)
         val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
         solutionsView.setSolutionContent(Right(entailmentElem, solution))

@@ -18,7 +18,7 @@ object ProverProgram:
       rawEntailment: String
   )(using Formatter): F[(Entailment, ResolutionResult)] =
     for
-      entailment @ Entailment(premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
+      entailment @ Entailment(_, premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
       _ <- Prover[F].write(
         s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
       )
