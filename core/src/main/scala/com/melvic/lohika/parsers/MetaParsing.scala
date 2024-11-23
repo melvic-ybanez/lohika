@@ -15,7 +15,7 @@ private[parsers] trait MetaParsing:
   def entailment[$: P]: P[Entailment] =
     (definitions.? ~ (Parser.formula.rep(
       min = 1,
-      sep = ","
+      sep = Lexemes.PremisesDelimiter
     ) ~ Lexemes.Entailment).? ~ Parser.formula ~ End).map:
       case (None, None, conclusion)              => Entailment.direct(Nil, conclusion)
       case (Some(definitions), None, conclusion) => Entailment(definitions.toList, Nil, conclusion)
@@ -24,7 +24,7 @@ private[parsers] trait MetaParsing:
         Entailment(definitions.toList, premises.toList, conclusion)
 
   def definition[$: P]: P[Definition] =
-    P(identifier ~ Lexemes.DefOp ~ Parser.expression).map(Definition.apply)
+    P(identifier ~ Lexemes.DefinedAs ~ Parser.expression).map(Definition.apply)
 
   def definitions[$: P]: P[Seq[Definition]] =
     definition.rep(min = 1, sep = Lexemes.StmtDelimiter) ~ Parser.stmtDelimiter

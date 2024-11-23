@@ -12,7 +12,7 @@ final case class Definition(identifier: Identifier, expression: Expression)
 
 object Definition:
   given (using Formatter): Show[Definition] = Show.show:
-    case Definition(id, expr) => show"$id ${Lexemes.DefOp} $expr"
+    case Definition(id, expr) => show"$id ${Lexemes.DefinedAs} $expr"
 
 /**
  * Abstractions over expressions.
