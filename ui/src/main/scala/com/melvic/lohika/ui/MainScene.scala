@@ -1,6 +1,7 @@
 package com.melvic.lohika.ui
 
 import cats.implicits.*
+import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
 import com.melvic.lohika.ui.symbols.{MathJax, Unicode}
@@ -38,12 +39,16 @@ class MainScene extends Scene:
 
   def handleInput(): Unit =
     val rawEntailment = Unicode.removeFromText(entailmentProp.value)
+
+    def handleDirect(entailment: Direct, steps: List[String]): Unit =
+      val mdSteps = steps.map: step =>
+        if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
+        else step + "."
+      val entailmentElem = MathJax.applyToText(entailment.show)
+      val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
+      solutionsView.setSolutionContent(Right(entailmentElem, solution))
+
     ProverProgram.prove[Steps](rawEntailment).run match
-      case Left(error) => solutionsView.setSolutionContent(Left(error))
-      case Right(steps, (entailment, _)) =>
-        val mdSteps = steps.map: step =>
-          if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
-          else step + "."
-        val entailmentElem = MathJax.applyToText(entailment.toDirect.show)
-        val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
-        solutionsView.setSolutionContent(Right(entailmentElem, solution))
+      case Left(error)                            => solutionsView.setSolutionContent(Left(error))
+      case Right(steps, (entailment: Direct, _))  => handleDirect(entailment, steps)
+      case Right(steps, (entailment: Derived, _)) => handleDirect(entailment.toDirect, steps)

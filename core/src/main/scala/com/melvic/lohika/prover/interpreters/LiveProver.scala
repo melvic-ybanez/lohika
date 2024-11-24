@@ -134,3 +134,5 @@ object LiveProver:
     override def itemNumber: String = "1. "
 
     override def formula: Format = text => s"<span class='formula'>\\\\($text\\\\)</span>"
+
+    override def newline: String = "\n\n"

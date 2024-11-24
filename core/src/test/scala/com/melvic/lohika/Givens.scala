@@ -12,3 +12,5 @@ trait Givens:
     override def link(target: String): Format = identity
 
     override def itemNumber: String = ""
+
+    override def newline: String = "\n"

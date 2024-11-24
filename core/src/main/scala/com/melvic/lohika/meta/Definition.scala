@@ -1,6 +1,7 @@
 package com.melvic.lohika.meta
 
 import cats.*
+import cats.data.NonEmptyList
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.expression.Expression
@@ -13,6 +14,9 @@ final case class Definition(identifier: Identifier, expression: Expression)
 object Definition:
   given (using Formatter): Show[Definition] = Show.show:
     case Definition(id, expr) => show"$id ${Lexemes.DefinedAs} $expr"
+
+  given (using formatter: Formatter): Show[NonEmptyList[Definition]] = Show.show:
+    _.map(_.show).toList.mkString(Lexemes.StmtDelimiter + formatter.newline)
 
 /**
  * Abstractions over expressions.

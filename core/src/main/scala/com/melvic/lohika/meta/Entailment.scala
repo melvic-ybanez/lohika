@@ -1,32 +1,36 @@
 package com.melvic.lohika.meta
 
 import cats.*
+import cats.data.NonEmptyList
 import cats.implicits.*
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.Formatter
+import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.parsers.Lexemes
 
-final case class Entailment(
-    definitions: List[Definition],
-    premises: List[Formula],
-    conclusion: Formula
-):
-  def toDirect: Entailment =
-    this.copy(definitions = Nil)
+type Entailment = Derived | Direct
 
 object Entailment:
-  def direct(premises: List[Formula], conclusion: Formula): Entailment =
-    Entailment(Nil, premises, conclusion)
+  final case class Derived(
+      definitions: NonEmptyList[Definition],
+      premises: List[Formula],
+      conclusion: Formula
+  ):
+    val toDirect: Direct = Direct(premises, conclusion)
 
-  given (using formatter: Formatter): Show[List[Definition]] = Show.show:
-    _.map(_.show).mkString(Lexemes.StmtDelimiter + "\n\n")
+  final case class Direct(premises: List[Formula], conclusion: Formula)
 
-  given (using formatter: Formatter): Show[Entailment] = Show.show:
-    case Entailment(Nil, Nil, conclusion) => conclusion.show
-    case Entailment(definitions, Nil, conclusion) =>
-      show"$definitions${Lexemes.StmtDelimiter}\n\n$conclusion"
-    case Entailment(Nil, premises, conclusion) =>
+  def unapply(entailment: Entailment): (List[Definition], List[Formula], Formula) =
+    entailment match
+      case Direct(premises, conclusion)               => (Nil, premises, conclusion)
+      case Derived(definitions, premises, conclusion) => (definitions.toList, premises, conclusion)
+
+  given [E <: Entailment](using formatter: Formatter): Show[E] = Show.show:
+    case Direct(Nil, conclusion) => conclusion.show
+    case Derived(definitions, Nil, conclusion) =>
+      show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}$conclusion"
+    case Direct(premises, conclusion) =>
       // Disable the formatter for the formula so that it won't
       // accidentally format the premises and the conclusion separately.
       // Otherwise, it will screw up the rendering (due to extra html tags).
@@ -40,10 +44,12 @@ object Entailment:
 
         def itemNumber: String = formatter.itemNumber
 
+        def newline: String = formatter.newline
+
         override def formula: Format = identity
 
       formatter.formula(
         show"${premises.map(_.show).mkString(", ")} ${Lexemes.Entailment} $conclusion"
       )
-    case entailment @ Entailment(definitions, _, _) =>
-      show"$definitions${Lexemes.StmtDelimiter}\n\n${entailment.toDirect}"
+    case entailment @ Derived(definitions, _, _) =>
+      show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}${entailment.toDirect}"
