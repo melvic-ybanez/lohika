@@ -16,6 +16,6 @@ object Lexemes:
   val Const = "'"
   val LeftBracket = "["
   val RightBracket = "]"
-  val DefinedAs = "<-"
+  val DefinedAs = ":="
   val StmtDelimiter = ";"
   val PremisesDelimiter = ","

@@ -29,11 +29,13 @@ private[parsers] trait MetaParsing:
       case (Some(definitions), Some(premises), conclusion) =>
         Derived(NonEmptyList.fromList(definitions.toList).get, premises.toList, conclusion)
 
-  def definition[$: P]: P[Definition] =
-    P(formulaId ~ Lexemes.DefinedAs ~ Parser.formula).map(FormulaDef.apply)
+  def definition[$: P]: P[Definition] = formulaDef // TODO: include term-def here
 
   def definitions[$: P]: P[Seq[Definition]] =
     definition.rep(min = 1, sep = Lexemes.StmtDelimiter) ~ Parser.stmtDelimiter
+
+  def formulaDef[$: P]: P[FormulaDef] =
+    P(formulaId ~ Lexemes.DefinedAs ~ Parser.formula).map(FormulaDef.apply)
 
   def formulaId[$: P]: P[PredicateApp] =
     Parser.predicateApp | Parser.propVar

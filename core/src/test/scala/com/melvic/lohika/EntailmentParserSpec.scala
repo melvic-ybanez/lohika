@@ -12,7 +12,7 @@ import fastparse.Parsed
 class EntailmentParserSpec extends BaseSpec:
   "Entailments" should "support formula definitions" in:
     parseSuccess(
-      "P <- R & T; Q <- X; P -> Q",
+      "P := R & T; Q := X; P -> Q",
       Derived(
         NonEmptyList.of(
           FormulaDef(nullary("P"), "R" & "T"),
@@ -25,8 +25,8 @@ class EntailmentParserSpec extends BaseSpec:
 
     parseSuccess(
       s"""
-         |P <- R & T;
-         |Q <- X;
+         |P := R & T;
+         |Q := X;
          |P | Q |= P -> Q
          |""".stripMargin.trim,
       Derived(

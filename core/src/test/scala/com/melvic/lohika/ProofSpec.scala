@@ -118,12 +118,12 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
 
   "Derived Entailments" should "be unfoldable given propositional variable definitions" in:
     contradiction(s"""
-         |R <- P -> Q;
+         |R := P -> Q;
          |P & R |= Q
          |""".stripMargin.trim)
     contradiction(s"""
-         |P <- A -> B;
-         |Q <- B -> C;
+         |P := A -> B;
+         |Q := B -> C;
          |P, Q, A, !D |= C | D
          |""".stripMargin.trim)
 
