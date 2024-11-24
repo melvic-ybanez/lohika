@@ -5,30 +5,21 @@ import cats.data.NonEmptyList
 import cats.implicits.*
 import com.melvic.lohika.Formatter
 import com.melvic.lohika.expression.Expression
-import com.melvic.lohika.expression.Expression.{Const, given}
-import com.melvic.lohika.formula.Formula.{FunctionApp, PredicateApp}
+import com.melvic.lohika.expression.Expression.{Const, FunctionApp, Term, given}
+import com.melvic.lohika.formula.Formula
+import com.melvic.lohika.formula.Formula.PredicateApp
+import com.melvic.lohika.meta.Definition.{FormulaDef, TermDef}
 import com.melvic.lohika.parsers.Lexemes
 
-final case class Definition(identifier: Identifier, expression: Expression)
+type Definition = TermDef | FormulaDef
 
 object Definition:
+  final case class TermDef(id: Const | FunctionApp, term: Term)
+  final case class FormulaDef(id: PredicateApp, formula: Formula)
+
   given (using Formatter): Show[Definition] = Show.show:
-    case Definition(id, expr) => show"$id ${Lexemes.DefinedAs} $expr"
+    case TermDef(id, term)       => show"$id ${Lexemes.DefinedAs} $term"
+    case FormulaDef(id, formula) => show"$id ${Lexemes.DefinedAs} $formula"
 
   given (using formatter: Formatter): Show[NonEmptyList[Definition]] = Show.show:
     _.map(_.show).toList.mkString(Lexemes.StmtDelimiter + formatter.newline)
-
-/**
- * Abstractions over expressions.
- *
- * Note: [[Const]] could also just be replaced by nullary functions, and therefore removed here,
- * like how propositional vars are nullary predicates, but let's just keep things as they are for
- * now.
- */
-type Identifier = PredicateApp | FunctionApp | Const
-
-object Identifier:
-  given (using Formatter): Show[Identifier] = Show.show:
-    case pred: PredicateApp => pred.show
-    case func: FunctionApp => func.show
-    case const: Const => const.show

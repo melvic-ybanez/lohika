@@ -6,6 +6,7 @@ import cats.implicits.*
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.Formatter
+import com.melvic.lohika.meta.Definition.FormulaDef
 import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.parsers.Lexemes
 
@@ -25,6 +26,13 @@ object Entailment:
     entailment match
       case Direct(premises, conclusion)               => (Nil, premises, conclusion)
       case Derived(definitions, premises, conclusion) => (definitions.toList, premises, conclusion)
+
+  def unfold: Entailment => Direct =
+    case direct: Direct => direct
+    case Derived(definitions, premises, conclusion) =>
+      given definitionList: List[FormulaDef] = definitions.toList.collect:
+        case fm: FormulaDef => fm
+      Direct(premises.map(Formula.unfold), Formula.unfold(conclusion))
 
   given [E <: Entailment](using formatter: Formatter): Show[E] = Show.show:
     case Direct(Nil, conclusion) => conclusion.show

@@ -15,29 +15,17 @@ type Expression = Formula | Term
 object Expression extends ExpressionGivens with PrettyPrinting:
   type Term = Var | Const | True.type | False.type | FunctionApp
 
+  final case class FunctionApp(name: String, args: List[Term])
+
   /**
    * Represents a first-order variable. Propositional variables are considered nullary predicates,
    * represented by [[PredicateApp]] but without any arguments.
    */
   final case class Var(name: String)
-  final case class Const(name: String)  // maybe this could also just be a nullary function?
+  final case class Const(name: String) // maybe this could also just be a nullary function?
 
   case object True
   case object False
-
-  object Term:
-    /**
-     * Unifies the two terms.
-     *
-     * Note: This isn't a fail-fast implementation
-     */
-    def unify: Endo[(Term, Term)] =
-      case (_: Var, term) => (term, term)
-      case (term, _: Var) => (term, term)
-      case (FunctionApp(f, fArgs), FunctionApp(g, gArgs)) =>
-        val (newFArgs, newGArgs) = unifyApp((f, fArgs), (g, gArgs))
-        (FunctionApp(f, newFArgs), FunctionApp(g, gArgs))
-      case terms => terms
 
   def unifyApp: ((String, List[Term]), (String, List[Term])) => (List[Term], List[Term]) =
     case ((f, fArgs), (g, gArgs)) if f == g && fArgs.length == gArgs.length =>
@@ -63,6 +51,24 @@ object Expression extends ExpressionGivens with PrettyPrinting:
     case Imply(p, q)     => collect(f)(p) |+| collect(f)(q)
     case Not(p)          => collect(f)(p)
     case fm              => Monoid[F[A]].empty
+
+  object Term:
+    /**
+     * Unifies the two terms.
+     *
+     * Note: This isn't a fail-fast implementation
+     */
+    def unify: Endo[(Term, Term)] =
+      case (_: Var, term) => (term, term)
+      case (term, _: Var) => (term, term)
+      case (FunctionApp(f, fArgs), FunctionApp(g, gArgs)) =>
+        val (newFArgs, newGArgs) = unifyApp((f, fArgs), (g, gArgs))
+        (FunctionApp(f, newFArgs), FunctionApp(g, gArgs))
+      case terms => terms
+
+  object FunctionApp:
+    def unary(name: String, arg: Term): FunctionApp =
+      FunctionApp(name, arg :: Nil)
 
 private trait ExpressionGivens:
   given showExpr[E <: Expression](using Formatter): Show[E] =

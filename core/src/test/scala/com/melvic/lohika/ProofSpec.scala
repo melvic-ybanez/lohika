@@ -116,6 +116,17 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "Contrapositive" should "be provable" in:
     contradiction("A:x(P(x) -> Q(x)), !Q(a) |= !P(a)")
 
+  "Derived Entailments" should "be unfoldable given propositional variable definitions" in:
+    contradiction(s"""
+         |R <- P -> Q;
+         |P & R |= Q
+         |""".stripMargin.trim)
+    contradiction(s"""
+         |P <- A -> B;
+         |Q <- B -> C;
+         |P, Q, A, !D |= C | D
+         |""".stripMargin.trim)
+
   def contradiction(entailment: String): Unit =
     result(entailment) should matchPattern:
       case Right(Contradiction(_, _)) =>

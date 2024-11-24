@@ -1,6 +1,7 @@
 package com.melvic.lohika.ui
 
 import cats.implicits.*
+import com.melvic.lohika.meta.Entailment
 import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.prover.programs.ProverProgram
@@ -51,4 +52,4 @@ class MainScene extends Scene:
     ProverProgram.prove[Steps](rawEntailment).run match
       case Left(error)                            => solutionsView.setSolutionContent(Left(error))
       case Right(steps, (entailment: Direct, _))  => handleDirect(entailment, steps)
-      case Right(steps, (entailment: Derived, _)) => handleDirect(entailment.toDirect, steps)
+      case Right(steps, (entailment: Derived, _)) => handleDirect(Entailment.unfold(entailment), steps)

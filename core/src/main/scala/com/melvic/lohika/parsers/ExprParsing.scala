@@ -2,7 +2,6 @@ package com.melvic.lohika.parsers
 
 import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.expression.Expression.*
-import com.melvic.lohika.formula.Formula.FunctionApp
 import com.melvic.lohika.parsers.Parser.alphabetic
 import fastparse.*
 import fastparse.MultiLineWhitespace.*
