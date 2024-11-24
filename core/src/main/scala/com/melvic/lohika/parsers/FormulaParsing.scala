@@ -4,11 +4,8 @@ import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.parsers.Parser.{alphabetic, args, firstOrderVar}
-import fastparse.{P, Parsed}
-import fastparse.{parse as fastParse, *}
 import fastparse.MultiLineWhitespace.*
-
-import scala.collection.immutable.Seq as sep
+import fastparse.{P, Parsed, parse as fastParse, *}
 
 private[parsers] trait FormulaParsing:
   def parseFormula(input: String): Parsed[Formula] =
@@ -54,13 +51,13 @@ private[parsers] trait FormulaParsing:
       Lexemes.LeftBracket ~ formula ~ Lexemes.RightBracket
     )
 
-  def nullaryPred[$: P]: P[PredicateApp] =
+  def propVar[$: P]: P[PredicateApp] =
     P(alphabetic(_.isUpper) ~ alphabetic(_ => true).rep(min = 0).!).map: (firstChar, rest) =>
       PredicateApp.nullary(firstChar + rest)
 
-  def predicate[$: P]: P[PredicateApp] = P(nullaryPred ~ args).map:
+  def predicateApp[$: P]: P[PredicateApp] = P(propVar ~ args).map:
     case (PredicateApp.Nullary(name), args) => PredicateApp(name, args)
 
   def highestPrecedence[$: P]: P[Formula] = P(
-    forall | thereExists | grouping | not | predicate | nullaryPred
+    forall | thereExists | grouping | not | predicateApp | propVar
   )

@@ -11,6 +11,7 @@ trait Symbols:
   def Entailment: String
   def Forall: String
   def ThereExists: String
+  def DefinedAs: String
 
   /**
    * Maps texts to symbols.
@@ -28,7 +29,8 @@ trait Symbols:
     Lexemes.Iff         -> Iff,
     Lexemes.Imply       -> Imply,
     Lexemes.Forall      -> Forall,
-    Lexemes.ThereExists -> ThereExists
+    Lexemes.ThereExists -> ThereExists,
+    Lexemes.DefinedAs   -> DefinedAs
   )
 
   def applyToText(text: String): String =

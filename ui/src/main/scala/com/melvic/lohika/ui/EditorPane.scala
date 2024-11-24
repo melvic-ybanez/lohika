@@ -1,5 +1,6 @@
 package com.melvic.lohika.ui
 
+import com.melvic.lohika.parsers.Lexemes
 import javafx.scene.input.KeyCode
 import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
@@ -56,14 +57,24 @@ class EditorView extends CodeArea:
 
   addEventHandler(
     KeyEvent.KeyPressed,
-    event =>
-      if event.getCode() == KeyCode.ENTER then
-        val previousLine = getParagraph(getCurrentParagraph - 1).getText
-
-        val prevIndent = previousLine.takeWhile(_.isWhitespace)
-        val newIndent = if previousLine.trim.isEmpty then "" else " " * 2
-        insertText(getCaretPosition, prevIndent + newIndent)
+    event => if event.getCode() == KeyCode.ENTER then autoIndent()
   )
+
+  def autoIndent(): Unit =
+    val prevLine = getParagraph(getCurrentParagraph - 1).getText
+
+    val prevIndent = prevLine.takeWhile(_.isWhitespace)
+    val trimmedPrevLine = prevLine.trim
+    val additionalIndent =
+      if trimmedPrevLine.isEmpty || trimmedPrevLine.endsWith(Lexemes.StmtDelimiter) ||
+        (trimmedPrevLine.endsWith(Lexemes.PremisesDelimiter) && prevIndent.nonEmpty)
+      then ""
+      else " " * 2
+
+    val currentIndentCount =
+      getParagraph(getCurrentParagraph).getText.takeWhile(_.isWhitespace).length
+    insertText(getCaretPosition, prevIndent + additionalIndent)
+    deleteText(getCaretPosition, getCaretPosition + currentIndentCount)
 
 object EditorView:
   object GroupNames:
@@ -73,13 +84,13 @@ object EditorView:
 
   object Patterns:
     val Quantifiers = raw"(A:|E:)"
-    val Operator = raw"(<->|->|&|!|\|)"
+    val Operator = raw"(<->|->|:=|&|!|\|=|\|)"
     val Parens = raw"(\(|\)|\[|\])"
 
   val fullPattern: Regex =
     val rTable = List(
-      GroupNames.Operator -> Patterns.Operator,
-      GroupNames.Parens -> Patterns.Parens,
+      GroupNames.Operator    -> Patterns.Operator,
+      GroupNames.Parens      -> Patterns.Parens,
       GroupNames.Quantifiers -> Patterns.Quantifiers
     )
     rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r

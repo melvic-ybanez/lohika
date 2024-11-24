@@ -5,6 +5,7 @@ import cats.implicits.*
 import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.formula.{Clauses, Formula}
 import com.melvic.lohika.meta.Entailment
+import com.melvic.lohika.meta.Entailment.Direct
 import com.melvic.lohika.prover.algebras.Prover
 import com.melvic.lohika.prover.algebras.Prover.*
 import com.melvic.lohika.{Formatter, Links}
@@ -18,7 +19,8 @@ object ProverProgram:
       rawEntailment: String
   )(using Formatter): F[(Entailment, ResolutionResult)] =
     for
-      entailment @ Entailment(premises, conclusion) <- Prover[F].parseEntailment(rawEntailment)
+      entailment <- Prover[F].parseEntailment(rawEntailment)
+      Direct(premises, conclusion) = Entailment.unfold(entailment)
       _ <- Prover[F].write(
         s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
       )

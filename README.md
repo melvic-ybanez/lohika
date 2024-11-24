@@ -8,12 +8,13 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 
 - [Most Relevant Features](#most-relevant-features)
     - [Proof Generation](#proof-generation)
+    - [Editor View](#editor-view)
     - [MathJax](#mathjax)
     - [Supported Logical Symbols](#supported-logical-symbols)
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
 - [Screenshots and Demos](#screenshots-and-demos)
-- [Icons](#icons)
+- [Icons](#icons)‹
 - [License](#license)
 
 ## Most Relevant Features
@@ -37,6 +38,12 @@ in [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works). Som
 are also rendered as links to Wikipedia pages (though they will be loaded within Lohika's UI directly when clicked, since
 Lohika uses [ScalaFX](https://github.com/scalafx/scalafx)'s `WebView`). 
 
+### Editor View
+
+Lohika supports a simple _editor view/pane_ that allows the user to enter complicated logical entailments. For now,
+it only contains the most basic features such as syntax-highlighting, auto-indentation, and line numbering, but
+there are plans to improve it in the future (e.g. support for file and directory view).
+
 ### MathJax
 
 The formulas in the Solutions View will be rendered using [MathJax](https://www.mathjax.org/). You
@@ -44,16 +51,17 @@ can see this in action in the [Screenshots and Demos](#screenshots-and-demos) se
 
 ### Supported Logical Symbols
 
-| Symbol                 | How to write them | Example               |
-|------------------------|-------------------|-----------------------|
-| Negation               | `!`               | `!P`                  |
-| Disjunction            | `\|`              | `P \| Q`              |
-| Conjunction            | `&`               | `P & Q`               |
-| Implication            | `->`              | `P -> Q`              |
-| Biconditional          | `<->`             | `P <-> Q`             |
-| Entailment             | `\|=`             | `P \|= Q`             |
-| Universal Quantifier   | `A:`              | `A:x,y(P(x) -> Q(y))` |
-| Existential Quantifier | `E:`              | `E:a,bR(a,b)`         |
+| Symbol                 | How to write them  | Example               |
+|------------------------|--------------------|-----------------------|
+| Negation               | `!`                | `!P`                  |
+| Disjunction            | `\|`               | `P \| Q`              |
+| Conjunction            | `&`                | `P & Q`               |
+| Implication            | `->`               | `P -> Q`              |
+| Biconditional          | `<->`              | `P <-> Q`             |
+| Entailment             | `\|=`              | `P \|= Q`             |
+| Universal Quantifier   | `A:`               | `A:x,y(P(x) -> Q(y))` |
+| Existential Quantifier | `E:`               | `E:a,bR(a,b)`         |
+| Define-as Operator     | `:=`               | `A := P & R`          | 
 
 ## How Lohika's Proof Generator Works
 
@@ -63,6 +71,8 @@ must be true.
 
 Lohika's proof generator algorithm is explained in the following steps:
 
+1. **Unfold** the entailment. Unfolding in Lohika means replacing any defined terms and formulas 
+    with their corresponding definitions.
 1. Negate the conclusion.
 1. Convert the premises and the negated conclusion into their
    corresponding [conjunctive normal forms (CNFs)](https://en.wikipedia.org/wiki/Conjunctive_normal_form). The following preparatory steps are needed before we can convert to CNF:
@@ -97,7 +107,7 @@ Lohika's proof generator algorithm is explained in the following steps:
 
 Here's what Lohika currently looks like:
 
-<img width="1728" alt="editor" src="https://github.com/user-attachments/assets/f84f2da5-6a2b-4476-8008-db6040285f44">
+<img width="1728" alt="propvar_definitions" src="https://github.com/user-attachments/assets/6d9982c0-da6f-4906-a19c-00ecca2cd641">
 
 And here's a link to a sample video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
 

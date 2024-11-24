@@ -10,3 +10,4 @@ object Unicode extends Symbols:
   val Entailment: String = "\u22A8"
   val Forall: String = "\u2200"
   val ThereExists: String = "\u2203"
+  val DefinedAs: String = "\u2190"

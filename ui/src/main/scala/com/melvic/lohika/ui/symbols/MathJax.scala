@@ -9,3 +9,4 @@ object MathJax extends Symbols:
   val Entailment: String = "\\models"
   val Forall: String = "\\forall "
   val ThereExists: String = "\\exists "
+  val DefinedAs: String = "\\leftarrow"

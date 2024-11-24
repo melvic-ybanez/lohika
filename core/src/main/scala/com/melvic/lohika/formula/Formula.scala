@@ -6,6 +6,7 @@ import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import com.melvic.lohika.formula.conversions.Conversions
+import com.melvic.lohika.meta.Definition.FormulaDef
 import com.melvic.lohika.parsers.Lexemes
 
 import scala.annotation.targetName
@@ -25,7 +26,6 @@ object Formula extends FormulaGivens with Conversions:
   final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
   final case class PredicateApp(name: String, args: List[Term])
-  final case class FunctionApp(name: String, args: List[Term])
 
   type Property = Formula => Boolean
 
@@ -42,6 +42,18 @@ object Formula extends FormulaGivens with Conversions:
     def boundVars: BoundVars
 
     def matrix: Formula
+
+  def unfold(using definitions: List[FormulaDef]): Endo[Formula] =
+    case predicate @ PredicateApp(name, Nil) =>
+      definitions
+        .find {
+          case FormulaDef(PredicateApp(`name`, Nil), _) =>
+            true
+          case _ => false
+        }
+        .map(_.formula)
+        .getOrElse(predicate)
+    case fm => convertBy(unfold)(fm)
 
   def isInCnf: Property =
     case fm if isLiteral(fm) => true
@@ -169,10 +181,6 @@ object Formula extends FormulaGivens with Conversions:
     object Nullary:
       def unapply(predicate: PredicateApp): Option[String] =
         Option.when(predicate.args.isEmpty)(predicate.name)
-
-  object FunctionApp:
-    def unary(name: String, arg: Term): FunctionApp =
-      FunctionApp(name, arg :: Nil)
 
   object Imply:
     def of(p: Formula, qs: Formula*): Imply =

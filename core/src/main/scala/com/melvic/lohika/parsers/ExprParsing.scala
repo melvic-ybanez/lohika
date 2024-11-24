@@ -1,12 +1,14 @@
 package com.melvic.lohika.parsers
 
+import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.expression.Expression.*
-import com.melvic.lohika.formula.Formula.FunctionApp
 import com.melvic.lohika.parsers.Parser.alphabetic
 import fastparse.*
 import fastparse.MultiLineWhitespace.*
 
 private[parsers] trait ExprParsing:
+  def expression[$: P]: P[Expression] = Parser.formula | Parser.term
+  
   def term[$: P]: P[Term] = constants | functionApp | firstOrderVar
 
   def functionApp[$: P]: P[FunctionApp] = P(firstOrderVar ~ args).map:
@@ -25,7 +27,7 @@ private[parsers] trait ExprParsing:
   def falseConst[$: P]: P[False.type] =
     P(Lexemes.False).map(_ => False)
 
-  def constApp[$: P]: P[Const] = (Lexemes.Const ~ firstOrderVar).map:
+  def namedConst[$: P]: P[Const] = (Lexemes.Const ~ firstOrderVar).map:
     case Var(name) => Const(name)
 
-  def constants[$: P]: P[Const | True.type | False.type] = P(constApp | trueConst | falseConst)
+  def constants[$: P]: P[Const | True.type | False.type] = P(namedConst | trueConst | falseConst)
