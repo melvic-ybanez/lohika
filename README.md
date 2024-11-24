@@ -14,7 +14,7 @@ generate a proof. If premises are provided in the input, Lohika will attempt to 
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
 - [Screenshots and Demos](#screenshots-and-demos)
-- [Icons](#icons)‹
+- [Icons](#icons)
 - [License](#license)
 
 ## Most Relevant Features
