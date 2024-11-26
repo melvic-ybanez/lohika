@@ -83,7 +83,7 @@ private[formula] trait Standardization:
   def generateSymbolName(base: String, taken: TakenNames): String =
     @tailrec
     def findNewCharLastLetter(suggested: Char, visitedZ: Boolean): Option[Char] =
-      if suggested == 'z' && visitedZ then None // second z-visit
+      if suggested.toInt > 'z'.toInt || suggested == 'z' && visitedZ then None
       else if taken.contains(suggested.toString) then
         val firstZVisit = suggested == 'z'
         val newSuggestion = if firstZVisit then 'a' else (suggested.toInt + 1).toChar
@@ -94,7 +94,7 @@ private[formula] trait Standardization:
       .map(base.init + _)
       .getOrElse:
         val lastDigit = base.reverse.takeWhile(_.isDigit).reverse
-        if lastDigit.isEmpty then base + "1"
+        if lastDigit.isEmpty then base + "_1"
         else base.take(base.length - lastDigit.length) + (lastDigit.toInt + 1)
 
   object TakenNames:
