@@ -50,6 +50,7 @@ class MainScene extends Scene:
       solutionsView.setSolutionContent(Right(entailmentElem, solution))
 
     ProverProgram.prove[Steps](rawEntailment).run match
-      case Left(error)                            => solutionsView.setSolutionContent(Left(error))
-      case Right(steps, (entailment: Direct, _))  => handleDirect(entailment, steps)
-      case Right(steps, (entailment: Derived, _)) => handleDirect(Entailment.unfold(entailment), steps)
+      case Left(error)                           => solutionsView.setSolutionContent(Left(error))
+      case Right(steps, (entailment: Direct, _)) => handleDirect(entailment, steps)
+      case Right(steps, (entailment: Derived, _)) =>
+        handleDirect(Entailment.unfold(entailment), steps)

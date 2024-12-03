@@ -8,7 +8,7 @@ import fastparse.MultiLineWhitespace.*
 
 private[parsers] trait ExprParsing:
   def expression[$: P]: P[Expression] = Parser.formula | Parser.term
-  
+
   def term[$: P]: P[Term] = constants | functionApp | firstOrderVar
 
   def functionApp[$: P]: P[FunctionApp] = P(firstOrderVar ~ args).map:
@@ -19,7 +19,13 @@ private[parsers] trait ExprParsing:
       .map(Var.apply)
 
   def args[$: P]: P[List[Term]] =
-    P(Lexemes.LeftParen ~ term.rep(min = 1, sep = ",") ~ Lexemes.RightParen).map(_.toList)
+    csvInParens[$, Term](term)
+
+  def params[$: P]: P[List[Var]] =
+    csvInParens(firstOrderVar)
+
+  def csvInParens[$: P, A](item: => P[A]): P[List[A]] =
+    P(Lexemes.LeftParen ~ item.rep(min = 1, sep = ",") ~ Lexemes.RightParen).map(_.toList)
 
   def trueConst[$: P]: P[True.type] =
     P(Lexemes.True).map(_ => True)

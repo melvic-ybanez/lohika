@@ -6,7 +6,7 @@ import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import com.melvic.lohika.formula.conversions.Conversions
-import com.melvic.lohika.meta.Definition.FormulaDef
+import com.melvic.lohika.meta.Definition.{FormulaDef, PropId, PredId}
 import com.melvic.lohika.parsers.Lexemes
 
 import scala.annotation.targetName
@@ -46,13 +46,11 @@ object Formula extends FormulaGivens with Conversions:
   def unfold(using definitions: List[FormulaDef]): Endo[Formula] =
     case predicate @ PredicateApp(name, Nil) =>
       definitions
-        .find {
-          case FormulaDef(PredicateApp(`name`, Nil), _) =>
-            true
-          case _ => false
+        .collectFirst { case FormulaDef(PropId(`name`), formula) =>
+          formula
         }
-        .map(_.formula)
         .getOrElse(predicate)
+    // TODO: handle case for PredId
     case fm => convertBy(unfold)(fm)
 
   def isInCnf: Property =

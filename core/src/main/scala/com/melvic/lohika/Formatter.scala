@@ -14,7 +14,7 @@ trait Formatter {
   def indent: String = " " * 4
 
   def formula: Format = emphasize
-  
+
   def newline: String
 }
 

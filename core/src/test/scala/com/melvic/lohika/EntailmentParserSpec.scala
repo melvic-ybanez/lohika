@@ -3,7 +3,7 @@ package com.melvic.lohika
 import cats.data.NonEmptyList
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.PredicateApp.nullary
-import com.melvic.lohika.meta.Definition.FormulaDef
+import com.melvic.lohika.meta.Definition.{FormulaDef, PropId}
 import com.melvic.lohika.meta.Entailment.Derived
 import com.melvic.lohika.meta.{Definition, Entailment}
 import com.melvic.lohika.parsers.Parser
@@ -15,8 +15,8 @@ class EntailmentParserSpec extends BaseSpec:
       "P := R & T; Q := X; P -> Q",
       Derived(
         NonEmptyList.of(
-          FormulaDef(nullary("P"), "R" & "T"),
-          FormulaDef(nullary("Q"), "X")
+          FormulaDef(PropId("P"), "R" & "T"),
+          FormulaDef(PropId("Q"), "X")
         ),
         Nil,
         "P" --> "Q"
@@ -31,8 +31,8 @@ class EntailmentParserSpec extends BaseSpec:
          |""".stripMargin.trim,
       Derived(
         NonEmptyList.of(
-          FormulaDef(nullary("P"), "R" & "T"),
-          FormulaDef(nullary("Q"), "X")
+          FormulaDef(PropId("P"), "R" & "T"),
+          FormulaDef(PropId("Q"), "X")
         ),
         List(nullary("P") | nullary("Q")),
         "P" --> "Q"
