@@ -139,7 +139,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction(
       s"""
          |P(a, b) := Q(b, a);
-         |R(x) := S(x) & A:xS(x);
+         |R(x) := S(x) & A:xS(x) & P(x, x);
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
          |""".stripMargin.trim)
 

@@ -47,16 +47,18 @@ object Formula extends FormulaGivens with Conversions:
     case predicate @ PredicateApp(name, Nil) =>
       definitions
         .collectFirst { case FormulaDef(PropId(`name`), formula) =>
-          formula
+          unfold(formula)
         }
         .getOrElse(predicate)
     case predicate @ PredicateApp(name, args) =>
       definitions
         .collectFirst { case FormulaDef(PredId(`name`, params), formula) =>
-          params
-            .zip(args)
-            .foldLeft(formula):
-              case (formula, (param, arg)) => Formula.substitute(param, arg)(formula)
+          unfold(
+            params
+              .zip(args)
+              .foldLeft(formula):
+                case (formula, (param, arg)) => Formula.substitute(param, arg)(formula)
+          )
         }
         .getOrElse(predicate)
     case fm => convertBy(unfold)(fm)
