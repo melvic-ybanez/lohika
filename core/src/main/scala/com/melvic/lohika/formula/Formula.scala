@@ -50,8 +50,22 @@ object Formula extends FormulaGivens with Conversions:
           formula
         }
         .getOrElse(predicate)
-    // TODO: handle case for PredId
+    case predicate @ PredicateApp(name, args) =>
+      definitions
+        .collectFirst { case FormulaDef(PredId(`name`, params), formula) =>
+          params
+            .zip(args)
+            .foldLeft(formula):
+              case (formula, (param, arg)) => Formula.substitute(param, arg)(formula)
+        }
+        .getOrElse(predicate)
     case fm => convertBy(unfold)(fm)
+
+  def substitute(variable: Var, term: Term): Endo[Formula] =
+    case PredicateApp(name, args) =>
+      PredicateApp(name, args.map(Expression.substituteTerm(variable, term)))
+    case quantified: Quantified => quantified
+    case fm: Formula            => convertBy(substitute(variable, term))(fm)
 
   def isInCnf: Property =
     case fm if isLiteral(fm) => true

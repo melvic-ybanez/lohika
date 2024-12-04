@@ -134,6 +134,14 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
          |
          |PremiseA, PremiseB, PremiseC |= Conclusion
          |""".stripMargin.trim)
+    
+  it should "be unfoldable given predicate definitions" in:
+    contradiction(
+      s"""
+         |P(a, b) := Q(b, a);
+         |R(x) := S(x) & A:xS(x);
+         |A:x, y[P(x, y)], R(y) |= Q(b, c)
+         |""".stripMargin.trim)
 
   def contradiction(entailment: String): Unit =
     result(entailment) should matchPattern:

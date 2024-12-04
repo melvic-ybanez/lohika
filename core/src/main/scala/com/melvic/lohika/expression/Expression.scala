@@ -27,6 +27,15 @@ object Expression extends ExpressionGivens with PrettyPrinting:
   case object True
   case object False
 
+  def substitute[E <: Expression](variable: Var, term: Term): Endo[Expression] =
+    case expr: Term  => substituteTerm(variable, term)(expr)
+    case fm: Formula => Formula.substitute(variable, term)(fm)
+
+  def substituteTerm(variable: Var, term: Term): Endo[Term] =
+    case Var(name) if name == variable.name => term
+    case FunctionApp(name, args) => FunctionApp(name, args.map(substituteTerm(variable, term)))
+    case term: Term              => term
+
   def unifyApp: ((String, List[Term]), (String, List[Term])) => (List[Term], List[Term]) =
     case ((f, fArgs), (g, gArgs)) if f == g && fArgs.length == gArgs.length =>
       fArgs.zip(gArgs).map(Term.unify).unzip
