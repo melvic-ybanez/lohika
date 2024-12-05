@@ -116,7 +116,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
   "Contrapositive" should "be provable" in:
     contradiction("A:x(P(x) -> Q(x)), !Q(a) |= !P(a)")
 
-  "Derived Entailments" should "be unfoldable given propositional variable definitions" in:
+  "Derived Entailments" should "unfold given propositional variable definitions" in:
     contradiction(s"""
          |R := P -> Q;
          |P & R |= Q
@@ -135,7 +135,7 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
          |PremiseA, PremiseB, PremiseC |= Conclusion
          |""".stripMargin.trim)
     
-  it should "be unfoldable given predicate definitions" in:
+  it should "unfold given predicate definitions" in:
     contradiction(
       s"""
          |P(a, b) := Q(b, a);

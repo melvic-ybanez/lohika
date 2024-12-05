@@ -29,8 +29,8 @@ object BaseSpec extends BaseSpec:
       case (Parsed.Failure(label, _, _), _) => parseFailure(input1, label)
       case (_, Parsed.Failure(label, _, _)) => parseFailure(input2, label)
 
-  def parseFailure(input: String, label: String): Unit =
-    assert(false, s"Unable to parse $input. Details: $label")
+  def parseFailure(input: String, details: String): Unit =
+    assert(false, s"Unable to parse $input. Details: $details")
 
   extension (self: String)
     @targetName("assertEqualFormulae")
