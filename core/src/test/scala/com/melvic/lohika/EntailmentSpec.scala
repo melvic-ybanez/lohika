@@ -28,7 +28,7 @@ class EntailmentSpec extends BaseSpec:
       "A:x, yQ(y, x) |= Q(b, c)"
     )
 
-  it should "unfold recursively" in :
+  it should "unfold recursively" in:
     assertUnfoldedEquals(
       s"""
          |P(a, b) := Q(b, a);

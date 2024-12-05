@@ -134,10 +134,9 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
          |
          |PremiseA, PremiseB, PremiseC |= Conclusion
          |""".stripMargin.trim)
-    
+
   it should "unfold given predicate definitions" in:
-    contradiction(
-      s"""
+    contradiction(s"""
          |P(a, b) := Q(b, a);
          |R(x) := S(x) & A:xS(x) & P(x, x);
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
