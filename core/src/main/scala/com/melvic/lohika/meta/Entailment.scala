@@ -30,8 +30,7 @@ object Entailment:
   def unfold: Entailment => Direct =
     case direct: Direct => direct
     case Derived(definitions, premises, conclusion) =>
-      given definitionList: List[FormulaDef] = definitions.toList.collect:
-        case fm: FormulaDef => fm
+      given definitionList: List[Definition] = definitions.toList
       Direct(premises.map(Formula.unfold), Formula.unfold(conclusion))
 
   given [E <: Entailment](using formatter: Formatter): Show[E] = Show.show:

@@ -7,6 +7,8 @@ import com.melvic.lohika.Formatter.*
 import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
+import com.melvic.lohika.meta.Definition
+import com.melvic.lohika.meta.Definition.*
 
 import scala.collection.immutable.Set
 
@@ -28,13 +30,8 @@ object Expression extends ExpressionGivens with PrettyPrinting:
   case object False
 
   def substitute[E <: Expression](variable: Var, term: Term): Endo[Expression] =
-    case expr: Term  => substituteTerm(variable, term)(expr)
+    case expr: Term  => Term.substitute(variable, term)(expr)
     case fm: Formula => Formula.substitute(variable, term)(fm)
-
-  def substituteTerm(variable: Var, term: Term): Endo[Term] =
-    case Var(name) if name == variable.name => term
-    case FunctionApp(name, args) => FunctionApp(name, args.map(substituteTerm(variable, term)))
-    case term: Term              => term
 
   def unifyApp: ((String, List[Term]), (String, List[Term])) => (List[Term], List[Term]) =
     case ((f, fArgs), (g, gArgs)) if f == g && fArgs.length == gArgs.length =>
@@ -74,6 +71,26 @@ object Expression extends ExpressionGivens with PrettyPrinting:
         val (newFArgs, newGArgs) = unifyApp((f, fArgs), (g, gArgs))
         (FunctionApp(f, newFArgs), FunctionApp(g, gArgs))
       case terms => terms
+
+    def substitute(variable: Var, term: Term): Endo[Term] =
+      case Var(name) if name == variable.name => term
+      case FunctionApp(name, args) => FunctionApp(name, args.map(substitute(variable, term)))
+      case term: Term              => term
+
+    def unfold(using definitions: List[Definition]): Endo[Term] =
+      case function @ FunctionApp(name, args) =>
+        val unfoldedArgs = args.map(unfold)
+        definitions
+          .collectFirst { case TermDef(FuncId(`name`, params), term) =>
+            unfold(
+              params
+                .zip(unfoldedArgs)
+                .foldLeft(term):
+                  case (term, (param, arg)) => Term.substitute(param, arg)(term)
+            )
+          }
+          .getOrElse(FunctionApp(name, unfoldedArgs))
+      case term => term
 
   object FunctionApp:
     def unary(name: String, arg: Term): FunctionApp =

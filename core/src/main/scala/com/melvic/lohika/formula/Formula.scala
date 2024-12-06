@@ -6,7 +6,8 @@ import com.melvic.lohika.expression.Expression.{Term, Var}
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.formula.Formula.Quantified.BoundVars
 import com.melvic.lohika.formula.conversions.Conversions
-import com.melvic.lohika.meta.Definition.{FormulaDef, PropId, PredId}
+import com.melvic.lohika.meta.Definition
+import com.melvic.lohika.meta.Definition.{FormulaDef, PredId, PropId}
 import com.melvic.lohika.parsers.Lexemes
 
 import scala.annotation.targetName
@@ -43,7 +44,7 @@ object Formula extends FormulaGivens with Conversions:
 
     def matrix: Formula
 
-  def unfold(using definitions: List[FormulaDef]): Endo[Formula] =
+  def unfold(using definitions: List[Definition]): Endo[Formula] =
     case predicate @ PredicateApp(name, Nil) =>
       definitions
         .collectFirst { case FormulaDef(PropId(`name`), formula) =>
@@ -51,21 +52,22 @@ object Formula extends FormulaGivens with Conversions:
         }
         .getOrElse(predicate)
     case predicate @ PredicateApp(name, args) =>
+      val unfoldedArgs = args.map(Term.unfold)
       definitions
         .collectFirst { case FormulaDef(PredId(`name`, params), formula) =>
           unfold(
             params
-              .zip(args)
+              .zip(unfoldedArgs)
               .foldLeft(formula):
                 case (formula, (param, arg)) => Formula.substitute(param, arg)(formula)
           )
         }
-        .getOrElse(predicate)
+        .getOrElse(PredicateApp(name, unfoldedArgs))
     case fm => convertBy(unfold)(fm)
 
   def substitute(variable: Var, term: Term): Endo[Formula] =
     case PredicateApp(name, args) =>
-      PredicateApp(name, args.map(Expression.substituteTerm(variable, term)))
+      PredicateApp(name, args.map(Term.substitute(variable, term)))
     case quantified: Quantified => quantified
     case fm: Formula            => convertBy(substitute(variable, term))(fm)
 

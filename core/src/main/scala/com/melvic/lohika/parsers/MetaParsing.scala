@@ -1,10 +1,10 @@
 package com.melvic.lohika.parsers
 
 import cats.data.NonEmptyList
-import com.melvic.lohika.expression.Expression.{Const, FunctionApp}
+import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.PredicateApp
-import com.melvic.lohika.meta.Definition.{FormulaDef, FormulaId, PredId, PropId}
+import com.melvic.lohika.meta.Definition.*
 import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.meta.{Definition, Entailment}
 import fastparse.*
@@ -29,13 +29,16 @@ private[parsers] trait MetaParsing:
       case (Some(definitions), Some(premises), conclusion) =>
         Derived(NonEmptyList.fromList(definitions.toList).get, premises.toList, conclusion)
 
-  def definition[$: P]: P[Definition] = formulaDef // TODO: include term-def here
+  def definition[$: P]: P[Definition] = formulaDef | termDef
 
   def definitions[$: P]: P[Seq[Definition]] =
     definition.rep(min = 1, sep = Lexemes.StmtDelimiter) ~ Parser.stmtDelimiter
 
   def formulaDef[$: P]: P[FormulaDef] =
     P(formulaId ~ Lexemes.DefinedAs ~ Parser.formula).map(FormulaDef.apply)
+
+  def termDef[$: P]: P[TermDef] =
+    P(funcId ~ Lexemes.DefinedAs ~ Parser.term).map(TermDef.apply)
 
   def propId[$: P]: P[PropId] =
     Parser.propVar.map(app => PropId(app.name))
@@ -44,3 +47,6 @@ private[parsers] trait MetaParsing:
     case (PredicateApp.Nullary(name), params) => PredId(name, params)
 
   def formulaId[$: P]: P[FormulaId] = predId | propId
+
+  def funcId[$: P]: P[FuncId] = P(Parser.firstOrderVar ~ Parser.params).map:
+    case (Var(name), params) => FuncId(name, params)

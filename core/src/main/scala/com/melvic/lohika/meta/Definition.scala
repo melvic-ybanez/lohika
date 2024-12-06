@@ -16,10 +16,11 @@ type Definition = TermDef | FormulaDef
 object Definition:
   final case class PredId(name: String, params: List[Var])
   final case class PropId(name: String)
+  final case class FuncId(name: String, params: List[Var])
 
   type FormulaId = PredId | PropId
 
-  final case class TermDef(id: Const | FunctionApp, term: Term)
+  final case class TermDef(id: FuncId, term: Term)
   final case class FormulaDef(id: FormulaId, formula: Formula)
 
   given (using Formatter): Show[Definition] = Show.show:
@@ -34,6 +35,9 @@ object Definition:
 
   given (using Formatter): Show[PropId] = Show.show:
     case PropId(name) => Var(name).show
+
+  given (using Formatter): Show[FuncId] = Show.show:
+    case FuncId(name, params) => FunctionApp(name, params).show
 
   given (using Formatter): Show[FormulaId] = Show.show:
     case predId: PredId => predId.show

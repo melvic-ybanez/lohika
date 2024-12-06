@@ -28,6 +28,24 @@ class EntailmentSpec extends BaseSpec:
       "A:x, yQ(y, x) |= Q(b, c)"
     )
 
+  it should "unfold given function definitions" in:
+    assertUnfoldedEquals(
+      s"""
+         |f(x, y) := g(h(y), x);
+         |A:a,bP(f(a, b))
+         |""".stripMargin.trim,
+      "A:a,bP(g(h(b), a))"
+    )
+    assertUnfoldedEquals(
+      s"""
+         |f(x, y) := g(h(y), x);
+         |R(x, y) := P(y, x);
+         |
+         |R(s, f('r, 'u)) |= A:a,bP(f(a, b))
+         |""".stripMargin.trim,
+      "P(g(h('u), 'r), s) |= A:a,bP(g(h(b), a))"
+    )
+
   it should "unfold recursively" in:
     assertUnfoldedEquals(
       s"""
@@ -36,6 +54,15 @@ class EntailmentSpec extends BaseSpec:
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
          |""".stripMargin.trim,
       "A:x, yQ(y, x), S(y) & A:xS(x) & Q(y, y) |= Q(b, c)"
+    )
+    assertUnfoldedEquals(
+      s"""
+         |f(x, y) := g(x, y);
+         |r(a, b) := w(f(a, a), b);
+         |
+         |A:s,tP(r(s, t))
+         |""".stripMargin.trim,
+      "A:s,tP(w(g(s, s), t))"
     )
 
   def parse(input: String): Option[Entailment] =
