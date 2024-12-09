@@ -76,7 +76,7 @@ class EntailmentSpec extends BaseSpec:
          |PremiseC := !R(w);    # `w` is a free variable
          |
          |Conclusion := A:aE:b!P(a, b);
-         |PremiseA, PremiseB, PremiseC |= Conclusion.   # the entailment to prove
+         |PremiseA, PremiseB, PremiseC |= Conclusion   # the entailment to prove
          |""".stripMargin,
       "A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]], A:x!Q(x), !R(w) |= A:aE:b!P(a, b)"
     )
