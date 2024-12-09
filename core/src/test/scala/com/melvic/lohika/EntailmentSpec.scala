@@ -9,7 +9,6 @@ class EntailmentSpec extends BaseSpec:
   "Derived entailments" should "unfold given propositional definitions" in:
     assertUnfoldedEquals(
       s"""
-        |# define the premises
         |PremiseA := A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]];
         |PremiseB := A:x!Q(x);
         |PremiseC := !R(w);
@@ -65,6 +64,21 @@ class EntailmentSpec extends BaseSpec:
          |A:s,tP(r(s, t))
          |""".stripMargin,
       "A:s,tP(w(g(s, s), t))"
+    )
+
+
+  "Comments" should "be skipped" in:
+    assertUnfoldedEquals(
+      s"""
+         |# define the premises
+         |PremiseA := A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]];
+         |PremiseB := A:x!Q(x);
+         |PremiseC := !R(w);    # `w` is a free variable
+         |
+         |Conclusion := A:aE:b!P(a, b);
+         |PremiseA, PremiseB, PremiseC |= Conclusion.   # the entailment to prove
+         |""".stripMargin,
+      "A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]], A:x!Q(x), !R(w) |= A:aE:b!P(a, b)"
     )
 
   def parse(input: String): Option[Entailment] =
