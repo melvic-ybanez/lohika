@@ -9,9 +9,11 @@ class EntailmentSpec extends BaseSpec:
   "Derived entailments" should "unfold given propositional definitions" in:
     assertUnfoldedEquals(
       s"""
+        |# define the premises
         |PremiseA := A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]];
         |PremiseB := A:x!Q(x);
         |PremiseC := !R(w);
+        |
         |Conclusion := A:aE:b!P(a, b);
         |
         |PremiseA, PremiseB, PremiseC |= Conclusion

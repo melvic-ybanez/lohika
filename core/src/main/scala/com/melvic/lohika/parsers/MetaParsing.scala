@@ -8,7 +8,7 @@ import com.melvic.lohika.meta.Definition.*
 import com.melvic.lohika.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.meta.{Definition, Entailment}
 import fastparse.*
-import fastparse.MultiLineWhitespace.*
+import fastparse.ScriptWhitespace.*
 
 /**
  * Parsing support for meta-logical constructs
