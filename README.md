@@ -107,7 +107,7 @@ Lohika's proof generator algorithm is explained in the following steps:
 
 Here's what Lohika currently looks like:
 
-<img width="1728" alt="propvar_definitions" src="https://github.com/user-attachments/assets/6d9982c0-da6f-4906-a19c-00ecca2cd641">
+<img width="1728" alt="comments" src="https://github.com/user-attachments/assets/635b2266-dda5-4e1c-b093-fc3e88337298">
 
 And here's a link to a sample video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
 
