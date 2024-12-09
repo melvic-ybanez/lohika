@@ -67,6 +67,7 @@ class EditorView extends CodeArea:
     val trimmedPrevLine = prevLine.trim
     val additionalIndent =
       if trimmedPrevLine.isEmpty || trimmedPrevLine.endsWith(Lexemes.StmtDelimiter) ||
+        trimmedPrevLine.startsWith(Lexemes.Comment) ||
         (trimmedPrevLine.endsWith(Lexemes.PremisesDelimiter) && prevIndent.nonEmpty)
       then ""
       else " " * 2
@@ -81,17 +82,20 @@ object EditorView:
     val Quantifiers = "QUANTIFIERS"
     val Operator = "OPERATOR"
     val Parens = "PARENS"
+    val Comment = "COMMENT"
 
   object Patterns:
     val Quantifiers = raw"(A:|E:)"
     val Operator = raw"(<->|->|:=|&|!|\|=|\|)"
     val Parens = raw"(\(|\)|\[|\])"
+    val Comment = "#.*"
 
   val fullPattern: Regex =
     val rTable = List(
       GroupNames.Operator    -> Patterns.Operator,
       GroupNames.Parens      -> Patterns.Parens,
-      GroupNames.Quantifiers -> Patterns.Quantifiers
+      GroupNames.Quantifiers -> Patterns.Quantifiers,
+      GroupNames.Comment     -> Patterns.Comment
     )
     rTable.map((op, pat) => s"(?<$op>$pat)").mkString("|").r
 
@@ -105,6 +109,7 @@ object EditorView:
           .map(_ => "operator")
           .orElse(Option(rMatch.group(GroupNames.Parens)).map(_ => "parens"))
           .orElse(Option(rMatch.group(GroupNames.Quantifiers)).map(_ => "quantifiers"))
+          .orElse(Option(rMatch.group(GroupNames.Comment)).map(_ => "comment"))
       spansBuilder.add(Collections.emptyList(), rMatch.start - lastEnd)
       spansBuilder.add(Collections.singleton(styleClass.orNull), rMatch.end - rMatch.start)
       rMatch.end

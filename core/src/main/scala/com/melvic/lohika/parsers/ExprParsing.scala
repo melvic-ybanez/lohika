@@ -4,7 +4,7 @@ import com.melvic.lohika.expression.Expression
 import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.parsers.Parser.alphabetic
 import fastparse.*
-import fastparse.MultiLineWhitespace.*
+import Parser.whitespace
 
 private[parsers] trait ExprParsing:
   def expression[$: P]: P[Expression] = Parser.formula | Parser.term

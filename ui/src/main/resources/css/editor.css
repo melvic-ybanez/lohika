@@ -45,3 +45,7 @@
     // for now it has the same color as the operator's
     -fx-fill: #6FD08C;
 }
+
+.comment {
+    -fx-fill: gray;
+}

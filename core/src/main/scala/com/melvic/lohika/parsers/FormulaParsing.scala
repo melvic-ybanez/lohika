@@ -4,8 +4,8 @@ import com.melvic.lohika.expression.Expression.*
 import com.melvic.lohika.formula.Formula
 import com.melvic.lohika.formula.Formula.*
 import com.melvic.lohika.parsers.Parser.{alphabetic, args, firstOrderVar}
-import fastparse.MultiLineWhitespace.*
 import fastparse.{P, Parsed, parse as fastParse, *}
+import Parser.whitespace
 
 private[parsers] trait FormulaParsing:
   def parseFormula(input: String): Parsed[Formula] =

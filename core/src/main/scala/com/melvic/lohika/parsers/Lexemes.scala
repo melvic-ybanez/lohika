@@ -19,3 +19,4 @@ object Lexemes:
   val DefinedAs = ":="
   val StmtDelimiter = ";"
   val PremisesDelimiter = ","
+  val Comment = "#"
