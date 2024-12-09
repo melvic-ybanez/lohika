@@ -28,7 +28,7 @@ class EntailmentParserSpec extends BaseSpec:
          |P := R & T;
          |Q := X;
          |P | Q |= P -> Q
-         |""".stripMargin.trim,
+         |""".stripMargin,
       Derived(
         NonEmptyList.of(
           FormulaDef(PropId("P"), "R" & "T"),

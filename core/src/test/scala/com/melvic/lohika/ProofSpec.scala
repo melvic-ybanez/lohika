@@ -120,12 +120,12 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction(s"""
          |R := P -> Q;
          |P & R |= Q
-         |""".stripMargin.trim)
+         |""".stripMargin)
     contradiction(s"""
          |P := A -> B;
          |Q := B -> C;
          |P, Q, A, !D |= C | D
-         |""".stripMargin.trim)
+         |""".stripMargin)
     contradiction(s"""
          |PremiseA := A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]];
          |PremiseB := A:x!Q(x);
@@ -133,14 +133,14 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
          |Conclusion := A:aE:b!P(a, b);
          |
          |PremiseA, PremiseB, PremiseC |= Conclusion
-         |""".stripMargin.trim)
+         |""".stripMargin)
 
   it should "unfold given predicate definitions" in:
     contradiction(s"""
          |P(a, b) := Q(b, a);
          |R(x) := S(x) & A:xS(x) & P(x, x);
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
-         |""".stripMargin.trim)
+         |""".stripMargin)
 
   def contradiction(entailment: String): Unit =
     result(entailment) should matchPattern:

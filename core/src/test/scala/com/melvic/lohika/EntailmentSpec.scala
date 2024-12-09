@@ -15,7 +15,7 @@ class EntailmentSpec extends BaseSpec:
         |Conclusion := A:aE:b!P(a, b);
         |
         |PremiseA, PremiseB, PremiseC |= Conclusion
-        |""".stripMargin.trim,
+        |""".stripMargin,
       "A:xE:y[P(x, y) -> E:z[!R(z) -> Q(x)]], A:x!Q(x), !R(w) |= A:aE:b!P(a, b)"
     )
 
@@ -24,7 +24,7 @@ class EntailmentSpec extends BaseSpec:
       s"""
         |P(a, b) := Q(b, a);
         |A:x, y[P(x, y)] |= Q(b, c)
-        |""".stripMargin.trim,
+        |""".stripMargin,
       "A:x, yQ(y, x) |= Q(b, c)"
     )
 
@@ -33,7 +33,7 @@ class EntailmentSpec extends BaseSpec:
       s"""
          |f(x, y) := g(h(y), x);
          |A:a,bP(f(a, b))
-         |""".stripMargin.trim,
+         |""".stripMargin,
       "A:a,bP(g(h(b), a))"
     )
     assertUnfoldedEquals(
@@ -42,7 +42,7 @@ class EntailmentSpec extends BaseSpec:
          |R(x, y) := P(y, x);
          |
          |R(s, f('r, 'u)) |= A:a,bP(f(a, b))
-         |""".stripMargin.trim,
+         |""".stripMargin,
       "P(g(h('u), 'r), s) |= A:a,bP(g(h(b), a))"
     )
 
@@ -52,7 +52,7 @@ class EntailmentSpec extends BaseSpec:
          |P(a, b) := Q(b, a);
          |R(x) := S(x) & A:xS(x) & P(x, x);
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
-         |""".stripMargin.trim,
+         |""".stripMargin,
       "A:x, yQ(y, x), S(y) & A:xS(x) & Q(y, y) |= Q(b, c)"
     )
     assertUnfoldedEquals(
@@ -61,7 +61,7 @@ class EntailmentSpec extends BaseSpec:
          |r(a, b) := w(f(a, a), b);
          |
          |A:s,tP(r(s, t))
-         |""".stripMargin.trim,
+         |""".stripMargin,
       "A:s,tP(w(g(s, s), t))"
     )
 
