@@ -15,7 +15,7 @@ import fastparse.ScriptWhitespace.*
  */
 private[parsers] trait MetaParsing:
   def parseEntailment(input: String): Parsed[Entailment] =
-    parse(input, entailment(using _))
+    parse(input.trim, entailment(using _))
 
   def entailment[$: P]: P[Entailment] =
     (definitions.? ~ (Parser.formula.rep(
