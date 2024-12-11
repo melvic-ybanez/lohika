@@ -1,6 +1,7 @@
 package com.melvic.lohika.ui
 
 import atlantafx.base.theme.PrimerDark
+import com.melvic.lohika.controllers.Eval
 import javafx.application.Application
 import scalafx.application.JFXApp3
 
@@ -13,6 +14,6 @@ object Main extends JFXApp3:
 
     stage = new JFXApp3.PrimaryStage:
       title = "Lohika"
-      scene = new MainScene
+      scene = new MainScene(Eval.live)
 
     stage.maximized = true

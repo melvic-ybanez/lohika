@@ -1,6 +1,6 @@
 package com.melvic.lohika.ui
 
-import com.melvic.lohika.parsers.Lexemes
+import com.melvic.lohika.core.parsers.Lexemes
 import javafx.scene.input.KeyCode
 import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
@@ -18,7 +18,7 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   stylesheets += Resources.cssPath("editor")
 
   val runButton: Icon = new Icon("run.png"):
-    onAction = _ => mainScene.handleInput()
+    onAction = _ => mainScene.run()
 
   val editorArea: EditorView = new EditorView:
     mainScene.entailmentProp <== textProperty()

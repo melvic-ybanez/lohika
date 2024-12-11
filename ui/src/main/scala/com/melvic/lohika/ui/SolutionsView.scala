@@ -1,5 +1,6 @@
 package com.melvic.lohika.ui
 
+import com.melvic.lohika.controllers.Eval
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import scalafx.scene.web.WebView
@@ -11,7 +12,7 @@ class SolutionsView extends WebView:
   minWidth = 600
   minHeight = 600
 
-  def setSolutionContent(content: Either[String, (String, String)]): Unit =
+  def setSolutionContent(content: Eval.Result): Unit =
     val htmlBody = content match
       case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>

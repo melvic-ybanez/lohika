@@ -36,4 +36,12 @@ lazy val ui = (project in file("ui"))
     assembly / mainClass := Some("com.melvic.lohika.ui.Main"),
     assembly / assemblyMergeStrategy := commonMergeStrategy
   )
+  .dependsOn(controllers)
+
+lazy val controllers = (project in file("controllers"))
+  .settings(
+    name := "controllers",
+    assembly / assemblyJarName := s"lohika-controllers-$Version.jar",
+    assembly / assemblyMergeStrategy := commonMergeStrategy
+  )
   .dependsOn(core)
