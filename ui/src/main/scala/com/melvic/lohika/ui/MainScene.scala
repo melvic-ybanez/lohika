@@ -1,23 +1,20 @@
 package com.melvic.lohika.ui
 
-import cats.implicits.*
-import com.melvic.lohika.core.meta.Entailment
-import Entailment.{Derived, Direct}
-import com.melvic.lohika.controllers.{Eval, FileManager}
 import com.melvic.lohika.controllers.symbols.Unicode
-import com.melvic.lohika.core.prover.interpreters.LiveProver.{Steps, given}
-import com.melvic.lohika.core.prover.programs.ProverProgram
+import com.melvic.lohika.controllers.{Eval, FileManager}
+import com.melvic.lohika.core.meta.Entailment
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Orientation
 import scalafx.scene.Scene
 import scalafx.scene.control.*
 import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyCombination}
-import scalafx.scene.layout.{AnchorPane, BorderPane}
+import scalafx.scene.layout.BorderPane
 import scalafx.stage.{FileChooser, Stage}
 
 class MainScene(stage: Stage, eval: Eval, fileManager: FileManager) extends Scene:
   self =>
   val entailmentProp = new StringProperty("")
+  val selectedTitle = new StringProperty("Untitled")
   val solutionsView = SolutionsView()
   lazy val fileChooser = FileChooser()
 
@@ -26,15 +23,15 @@ class MainScene(stage: Stage, eval: Eval, fileManager: FileManager) extends Scen
 
   root = new BorderPane:
     top = new MenuBar:
-      val fileMenu = new Menu("File"):
-        val saveMenuItem = new MenuItem("Save..."):
+      val fileMenu: Menu = new Menu("File"):
+        val saveMenuItem: MenuItem = new MenuItem("Save..."):
           onAction = _ => save()
           accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.ShortcutDown)
 
         items = List(saveMenuItem)
 
-      val runMenu = new Menu("Run"):
-        val runMenuItem = new MenuItem("Run Logical Query"):
+      val runMenu: Menu = new Menu("Run"):
+        val runMenuItem: MenuItem = new MenuItem("Run Logical Query"):
           onAction = _ => run()
           accelerator = KeyCombination.keyCombination("Ctrl+R")
 
@@ -46,7 +43,7 @@ class MainScene(stage: Stage, eval: Eval, fileManager: FileManager) extends Scen
       styleClass = Seq("editor-split")
       orientation = Orientation.Vertical
 
-      items.addAll(EditorPane(self), solutionsView)
+      items.addAll(EditorTabPane(self), solutionsView)
 
   def rawContent: String =
     Unicode.removeFromText(entailmentProp.value)
@@ -56,4 +53,5 @@ class MainScene(stage: Stage, eval: Eval, fileManager: FileManager) extends Scen
 
   def save(): Unit =
     Option(fileChooser.showSaveDialog(stage)).foreach: selectedFile =>
-      fileManager.save(rawContent, selectedFile.getAbsolutePath)
+      fileManager.save(rawContent, selectedFile.getAbsolutePath).foreach: fileWithExtension =>
+        selectedTitle.set(fileWithExtension.getName)
