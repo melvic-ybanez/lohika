@@ -12,7 +12,12 @@ import com.melvic.lohika.core.formula.{Clauses, Cnf, Formula}
 import com.melvic.lohika.core.meta.{Entailment, Equivalence}
 import com.melvic.lohika.core.parsers.Parser
 import com.melvic.lohika.core.prover.algebras.Prover
-import com.melvic.lohika.core.prover.algebras.Prover.{Contradiction, Derived, Exhaustion, ResolutionResult}
+import com.melvic.lohika.core.prover.algebras.Prover.{
+  Contradiction,
+  Derived,
+  Exhaustion,
+  ResolutionResult
+}
 import fastparse.Parsed
 
 import scala.annotation.tailrec
