@@ -66,7 +66,6 @@ class EntailmentSpec extends BaseSpec:
       "A:s,tP(w(g(s, s), t))"
     )
 
-
   "Comments" should "be skipped" in:
     assertUnfoldedEquals(
       s"""

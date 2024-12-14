@@ -10,7 +10,7 @@ import com.melvic.lohika.core.parsers.Lexemes
 
 private[expression] trait PrettyPrinting:
   def prettyPrint(expr: Expression)(using
-                                    parentPrecedence: Int = Precedence.Default
+      parentPrecedence: Int = Precedence.Default
   ): String =
     given currentPrecedence: Int = precedence(expr)
 

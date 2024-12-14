@@ -9,10 +9,14 @@ trait FileManager:
 object FileManager:
   val FileExtension: String = ".lhk"
 
-  def live: FileManager = (script, path) =>
-    val fileWithExtension = File(
-      if path.endsWith(FileExtension) then path else path + FileExtension
-    )
+  def live: FileManager = LiveFileManager()
+
+  def toFileWithExtension(path: String): File =
+    File(if path.endsWith(FileExtension) then path else path + FileExtension)
+
+class LiveFileManager extends FileManager:
+  def save(script: String, path: String): Try[File] =
+    val fileWithExtension = FileManager.toFileWithExtension(path)
     Using(BufferedWriter(FileWriter(fileWithExtension, false))): writer =>
       writer.write(script)
       fileWithExtension

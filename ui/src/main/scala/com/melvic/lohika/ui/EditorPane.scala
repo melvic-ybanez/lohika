@@ -6,8 +6,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.model.{StyleSpans, StyleSpansBuilder}
 import scalafx.Includes.*
-import scalafx.scene.control.TabPane.TabClosingPolicy.Unavailable
-import scalafx.scene.control.{Label, Tab, TabPane}
+import scalafx.scene.control.Label
 import scalafx.scene.input.KeyEvent
 import scalafx.scene.layout.AnchorPane
 
