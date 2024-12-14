@@ -33,7 +33,12 @@ class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager) exte
           onAction = _ => fileEventHandler.save()
           accelerator = KeyCodeCombination(KeyCode.S, KeyCombination.ShortcutDown)
 
-        items = List(saveMenuItem)
+        val saveAsMenuItem: MenuItem = new MenuItem("Save As..."):
+          onAction = _ => fileEventHandler.saveAs()
+          accelerator =
+            KeyCodeCombination(KeyCode.S, KeyCombination.ShortcutDown, KeyCombination.ShiftDown)
+
+        items = List(saveMenuItem, saveAsMenuItem)
 
       val runMenu: Menu = new Menu("Run"):
         val runMenuItem: MenuItem = new MenuItem("Run Logical Query"):
