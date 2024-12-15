@@ -34,6 +34,10 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   AnchorPane.setLeftAnchor(editorAreaPane, 0.0)
   AnchorPane.setBottomAnchor(editorAreaPane, 0.0)
 
+  def withContent(content: String): EditorPane =
+    editorArea.replaceText(content)
+    this
+
 class EditorView extends CodeArea:
   init()
 

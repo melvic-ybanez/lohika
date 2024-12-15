@@ -11,27 +11,50 @@ class FileEventHandler(mainScene: MainScene):
   import mainScene.*
 
   def save(): Unit =
-    if selectedPathProp.isEmpty.get() then saveAs()
+    if editorTabPane.selectedPathProp.isEmpty.get() then saveAs()
     else
-      val selectedPath = selectedPathProp.get()
-      val selectedFileWithExtension = FileManager.toFileWithExtension(selectedPath)
+      val selectedPath = editorTabPane.selectedPathProp.get()
+      val selectedFileWithExtension = FileManager.toExtendedFile(selectedPath)
       if selectedFileWithExtension.exists() then
         fileManager
           .save(rawContent, selectedFileWithExtension.getAbsolutePath)
           .foreach: _ =>
-            selectedTitleProp.set(selectedFileWithExtension.getName)
+            editorTabPane.selectedTitleProp.set(selectedFileWithExtension.getName)
 
   def saveAs(): Unit =
     Option(fileChooser.showSaveDialog(stage)).foreach: selectedFile =>
       saveSelected(selectedFile): fullPath =>
         fileManager
           .save(rawContent, fullPath)
-          .foreach: fileWithExtension =>
-            selectedTitleProp.set(fileWithExtension.getName)
-            selectedPathProp.set(fullPath)
+          .fold(
+            error =>
+              new Alert(AlertType.Error) {
+                title = "Error Saving File"
+                headerText = s"Unable to save $fullPath."
+                contentText = s"Message: ${error.getMessage}."
+              }.showAndWait(),
+            extendedFile =>
+              editorTabPane.selectedTitleProp.set(extendedFile.getName)
+              editorTabPane.selectedPathProp.set(fullPath)
+          )
+
+  def open(): Unit =
+    Option(fileChooser.showOpenDialog(stage)).foreach: selectedFile =>
+      val fullPath = selectedFile.getAbsolutePath
+      fileManager
+        .open(fullPath)
+        .fold(
+          error =>
+            new Alert(AlertType.Error) {
+              title = "Error Opening File"
+              headerText = s"Unable to open $fullPath."
+              contentText = s"Message: ${error.getMessage}"
+            }.showAndWait(),
+          script => editorTabPane.openTab(selectedFile.getName, script, fullPath)
+        )
 
   private def saveSelected(file: File)(f: String => Unit): Unit =
-    val extendedFile = FileManager.toFileWithExtension(file.getAbsolutePath)
+    val extendedFile = FileManager.toExtendedFile(file.getAbsolutePath)
     if extendedFile.exists then
       val alert = new Alert(AlertType.Confirmation):
         title = "Duplicate File"
