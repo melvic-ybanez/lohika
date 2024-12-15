@@ -20,8 +20,7 @@ class EditorPane(mainScene: MainScene) extends AnchorPane:
   val runButton: Icon = new Icon("run.png"):
     onAction = _ => mainScene.run()
 
-  val editorArea: EditorView = new EditorView:
-    mainScene.entailmentProp <== textProperty()
+  val editorArea: EditorView = new EditorView
 
   val editorAreaPane = new VirtualizedScrollPane(editorArea)
 

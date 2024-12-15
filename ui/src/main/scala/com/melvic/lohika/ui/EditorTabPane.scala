@@ -42,3 +42,6 @@ class EditorTab(mainScene: MainScene) extends Tab:
   setContent(editorPane)
   setOnCloseRequest: _ =>
     if getTabPane.getTabs.size == 1 then Platform.exit()
+
+  setOnSelectionChanged: _ =>
+    mainScene.entailmentProp <== editorPane.editorArea.textProperty()
