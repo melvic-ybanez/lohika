@@ -13,11 +13,11 @@ h3 {
 a {
   font-style: italic;
   text-decoration: none;
-  color: #e57254;
+  color: #e5c454;
 }
 
 a:hover {
-  color: #e5c454;
+  color: #e57254;
 }
 
 .formula {

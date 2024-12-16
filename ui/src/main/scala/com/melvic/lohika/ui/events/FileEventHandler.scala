@@ -1,9 +1,8 @@
 package com.melvic.lohika.ui.events
 
-import com.melvic.lohika.controllers.FileManager
 import com.melvic.lohika.ui.MainScene
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, ButtonBar, ButtonType, TextInputDialog}
+import scalafx.scene.control.{Alert, ButtonBar, ButtonType}
 
 import java.io.File
 
