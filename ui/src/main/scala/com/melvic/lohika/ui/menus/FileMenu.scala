@@ -8,7 +8,7 @@ import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyCombination}
 class FileMenu(mainScene: MainScene) extends Menu("File"):
   val fileEventHandler = FileEventHandler(mainScene)
 
-  val newMenuItem: MenuItem = new MenuItem(s"New ${Config.AppName} File"):
+  val newMenuItem: MenuItem = new MenuItem(s"New ${Config.AppName} Script"):
     onAction = _ => mainScene.editorTabPane.newUntitled()
     accelerator = KeyCodeCombination(KeyCode.N, KeyCombination.ShortcutDown)
 
