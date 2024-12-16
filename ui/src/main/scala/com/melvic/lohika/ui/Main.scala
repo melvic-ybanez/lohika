@@ -11,9 +11,10 @@ object Main extends JFXApp3:
 
   override def start(): Unit =
     Application.setUserAgentStylesheet(NordDark().getUserAgentStylesheet)
+    val config = Config.live
 
     stage = new JFXApp3.PrimaryStage:
-      title = Config.AppName
-      scene = new MainScene(this, Eval.live, FileManager.live)
+      title = config.appName
+      scene = new MainScene(this, Eval.live, FileManager.live, config)
 
     stage.maximized = true

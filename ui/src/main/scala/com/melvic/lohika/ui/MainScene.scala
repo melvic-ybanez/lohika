@@ -2,17 +2,17 @@ package com.melvic.lohika.ui
 
 import com.melvic.lohika.controllers.symbols.Unicode
 import com.melvic.lohika.controllers.{Eval, FileManager}
-import com.melvic.lohika.ui.events.FileEventHandler
 import com.melvic.lohika.ui.menus.FileMenu
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Orientation
 import scalafx.scene.Scene
 import scalafx.scene.control.*
-import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyCombination}
+import scalafx.scene.input.KeyCombination
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.{FileChooser, Stage}
 
-class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager) extends Scene:
+class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, config: Config)
+    extends Scene:
   self =>
 
   lazy val solutionsView = SolutionsView()
@@ -28,7 +28,7 @@ class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager) exte
 
   root = new BorderPane:
     top = new MenuBar:
-      val fileMenu: Menu = FileMenu(self)
+      val fileMenu: Menu = FileMenu(self, config)
       val runMenu: Menu = new Menu("Run"):
         val runMenuItem: MenuItem = new MenuItem("Run Logical Query"):
           onAction = _ => run()

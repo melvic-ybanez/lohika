@@ -1,5 +1,9 @@
 package com.melvic.lohika.ui
 
-// TODO: We might want to fetch the values from a configuration file
+trait Config:
+  val appName: String
+
 object Config:
-  val AppName: String = "Lohika"
+  // TODO: We might want to fetch the values from a configuration file
+  def live: Config = new Config:
+    val appName: String = "Lohika"

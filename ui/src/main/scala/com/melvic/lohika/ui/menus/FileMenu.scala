@@ -5,10 +5,10 @@ import com.melvic.lohika.ui.events.FileEventHandler
 import scalafx.scene.control.{Menu, MenuItem}
 import scalafx.scene.input.{KeyCode, KeyCodeCombination, KeyCombination}
 
-class FileMenu(mainScene: MainScene) extends Menu("File"):
+class FileMenu(mainScene: MainScene, config: Config) extends Menu("File"):
   val fileEventHandler = FileEventHandler(mainScene)
 
-  val newMenuItem: MenuItem = new MenuItem(s"New ${Config.AppName} Script"):
+  val newMenuItem: MenuItem = new MenuItem(s"New ${config.appName} Script"):
     onAction = _ => mainScene.editorTabPane.newUntitled()
     accelerator = KeyCodeCombination(KeyCode.N, KeyCombination.ShortcutDown)
 
