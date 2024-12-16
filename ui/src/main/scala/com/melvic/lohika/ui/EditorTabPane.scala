@@ -3,14 +3,17 @@ package com.melvic.lohika.ui
 import javafx.scene.control.Tab
 import scalafx.Includes.*
 import scalafx.application.Platform
-import scalafx.beans.property.StringProperty
+import scalafx.beans.property.{IntegerProperty, StringProperty}
 import scalafx.scene.control.TabPane
 
 class EditorTabPane(mainScene: MainScene) extends TabPane:
-  def openUntitled(): Unit =
-    openTab("Untitled", "", "")
+  val untitledCount: IntegerProperty = IntegerProperty(0)
 
-  def openTab(title: String, script: String, path: String): Unit =
+  def newUntitled(): Unit =
+    untitledCount.value += 1
+    newTab(s"Untitled${untitledCount.get()}${mainScene.fileManager.fileExtension}", "", "")
+
+  def newTab(title: String, script: String, path: String): Unit =
     val tab = EditorTab(mainScene)
     tab.setText(title)
     tab.editorPane.withContent(script)

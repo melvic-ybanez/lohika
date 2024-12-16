@@ -3,7 +3,7 @@ package com.melvic.lohika.ui.events
 import com.melvic.lohika.controllers.FileManager
 import com.melvic.lohika.ui.MainScene
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.{Alert, ButtonBar, ButtonType}
+import scalafx.scene.control.{Alert, ButtonBar, ButtonType, TextInputDialog}
 
 import java.io.File
 
@@ -14,7 +14,7 @@ class FileEventHandler(mainScene: MainScene):
     if editorTabPane.selectedPathProp.isEmpty.get() then saveAs()
     else
       val selectedPath = editorTabPane.selectedPathProp.get()
-      val selectedFileWithExtension = FileManager.toExtendedFile(selectedPath)
+      val selectedFileWithExtension = fileManager.toExtendedFile(selectedPath)
       if selectedFileWithExtension.exists() then
         fileManager
           .save(rawContent, selectedFileWithExtension.getAbsolutePath)
@@ -50,11 +50,11 @@ class FileEventHandler(mainScene: MainScene):
               headerText = s"Unable to open $fullPath."
               contentText = s"Message: ${error.getMessage}"
             }.showAndWait(),
-          script => editorTabPane.openTab(selectedFile.getName, script, fullPath)
+          script => editorTabPane.newTab(selectedFile.getName, script, fullPath)
         )
 
   private def saveSelected(file: File)(f: String => Unit): Unit =
-    val extendedFile = FileManager.toExtendedFile(file.getAbsolutePath)
+    val extendedFile = fileManager.toExtendedFile(file.getAbsolutePath)
     if extendedFile.exists then
       val alert = new Alert(AlertType.Confirmation):
         title = "Duplicate File"
