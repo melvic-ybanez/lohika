@@ -10,6 +10,8 @@ import scalafx.scene.control.*
 import scalafx.scene.input.KeyCombination
 import scalafx.scene.layout.BorderPane
 import scalafx.stage.{FileChooser, Stage}
+import scalafx.Includes.*
+import scalafx.beans.binding.Bindings
 
 class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, config: Config)
     extends Scene:
@@ -18,21 +20,29 @@ class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, conf
   lazy val solutionsView = SolutionsView()
   lazy val editorTabPane = EditorTabPane(self)
 
-  val entailmentProp: StringProperty = StringProperty("")
+  val scriptProp: StringProperty = StringProperty("")
+  val runnableFileNameProp: StringProperty = StringProperty("")
 
   lazy val fileChooser = FileChooser()
 
   solutionsView.init()
-  editorTabPane.newUntitled()
   stylesheets.add(Resources.cssPath("main.css"))
 
   root = new BorderPane:
     top = new MenuBar:
       val fileMenu: Menu = FileMenu(self, config)
       val runMenu: Menu = new Menu("Run"):
-        val runMenuItem: MenuItem = new MenuItem("Run Logical Query"):
+        val runMenuItem: MenuItem = new MenuItem():
           onAction = _ => run()
           accelerator = KeyCombination.keyCombination("Ctrl+R")
+
+        editorTabPane.selectionModel().selectedItemProperty().onChange: (_, _, _) =>
+          runnableFileNameProp.set(editorTabPane.selectedTitleProp.value)
+
+        runMenuItem.textProperty() <== Bindings.createStringBinding(
+          () => s"Run ${runnableFileNameProp.value}",
+          runnableFileNameProp
+        )
 
         items = List(runMenuItem)
 
@@ -44,8 +54,10 @@ class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, conf
 
       items.addAll(editorTabPane, solutionsView)
 
+  editorTabPane.newUntitled()
+
   def rawContent: String =
-    Unicode.removeFromText(entailmentProp.value)
+    Unicode.removeFromText(scriptProp.value)
 
   def run(): Unit =
     solutionsView.setSolutionContent(eval.run(rawContent))

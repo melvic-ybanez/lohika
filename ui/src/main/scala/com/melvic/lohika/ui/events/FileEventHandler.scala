@@ -18,7 +18,7 @@ class FileEventHandler(mainScene: MainScene):
         fileManager
           .save(rawContent, selectedFileWithExtension.getAbsolutePath)
           .foreach: _ =>
-            editorTabPane.selectedTitleProp.set(selectedFileWithExtension.getName)
+            editorTabPane.updateTabTitle(selectedFileWithExtension.getName)
 
   def saveAs(): Unit =
     Option(fileChooser.showSaveDialog(stage)).foreach: selectedFile =>
@@ -33,7 +33,7 @@ class FileEventHandler(mainScene: MainScene):
                 contentText = s"Message: ${error.getMessage}."
               }.showAndWait(),
             extendedFile =>
-              editorTabPane.selectedTitleProp.set(extendedFile.getName)
+              editorTabPane.updateTabTitle(extendedFile.getName)
               editorTabPane.selectedPathProp.set(fullPath)
           )
 

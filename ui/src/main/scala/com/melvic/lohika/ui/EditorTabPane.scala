@@ -38,6 +38,10 @@ class EditorTabPane(mainScene: MainScene) extends TabPane:
   def selectedTitleProp: StringProperty =
     selectedEditorTab.textProperty()
 
+  def updateTabTitle(title: String): Unit =
+    selectedTitleProp.set(title)
+    mainScene.runnableFileNameProp.set(title)
+
 class EditorTab(mainScene: MainScene) extends Tab:
   val editorPane = EditorPane(mainScene)
   val pathProp: StringProperty = StringProperty("")
@@ -47,4 +51,4 @@ class EditorTab(mainScene: MainScene) extends Tab:
     if getTabPane.getTabs.size == 1 then Platform.exit()
 
   setOnSelectionChanged: _ =>
-    mainScene.entailmentProp <== editorPane.editorArea.textProperty()
+    mainScene.scriptProp <== editorPane.editorArea.textProperty()
