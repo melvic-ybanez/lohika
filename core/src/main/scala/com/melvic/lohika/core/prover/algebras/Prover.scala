@@ -24,8 +24,6 @@ trait Prover[F[_]]:
 
   def updateClauseSet(clauseSet: Clauses, newClauses: Clauses): F[Clauses]
 
-  def transform(lhs: Formula, rhs: Formula): F[Formula]
-
   def resolve(clauseSet: Clauses): F[ResolutionResult]
 
   def write(description: String): F[Unit]

@@ -6,8 +6,8 @@ import org.commonmark.renderer.html.HtmlRenderer
 import scalafx.scene.web.WebView
 
 class SolutionsView extends WebView:
-  val parser: Parser = Parser.builder().build()
-  val renderer: HtmlRenderer = HtmlRenderer.builder().build()
+  lazy val parser: Parser = Parser.builder().build()
+  lazy val renderer: HtmlRenderer = HtmlRenderer.builder().build()
 
   minWidth = 600
   minHeight = 600
@@ -17,7 +17,7 @@ class SolutionsView extends WebView:
       case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>
         val entailmentContent = renderer.render(parser.parse(entailment))
-        val solutionContent = renderer.render(parser.parse(solution))
+        val proofContent = renderer.render(parser.parse(s"_Proof._ $solution"))
 
         s"""
            |<div class="problem-statement">
@@ -25,9 +25,8 @@ class SolutionsView extends WebView:
            |  <div class="entailment">$entailmentContent</div>
            |</div>
            |
-           |<h3 class="solution">Solution:</h3>
-           |<div class="two-column">
-           |  $solutionContent
+           |<div class="proof-content">
+           |  $proofContent
            |</div>
            |""".stripMargin
 

@@ -5,6 +5,7 @@ import com.melvic.lohika.controllers.Eval.Result
 import com.melvic.lohika.controllers.symbols.MathJax
 import com.melvic.lohika.core.meta.Entailment.{Derived, Direct}
 import com.melvic.lohika.core.meta.Entailment
+import com.melvic.lohika.core.prover.interpreters.LiveProver.Steps.Steps
 import com.melvic.lohika.core.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.core.prover.programs.ProverProgram
 
@@ -20,7 +21,7 @@ object Eval:
         if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
         else step + "."
       val entailmentElem = MathJax.applyToText(entailment.show)
-      val solution = MathJax.applyToText(mdSteps.mkString("\n\n"))
+      val solution = MathJax.applyToText(mdSteps.mkString(" "))
       Right(entailmentElem, solution)
 
     ProverProgram.prove[Steps](rawEntailment).run match

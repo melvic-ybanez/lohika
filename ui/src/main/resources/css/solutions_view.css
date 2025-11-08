@@ -24,11 +24,10 @@ a:hover {
   color: #6FD08C;
 }
 
-.two-column {
-    column-count: 2;
-    column-gap: 20px;
-    padding: 10px
-    column-span: all;
+.proof-content {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .problem-statement {
@@ -66,8 +65,4 @@ li, .problem-caption, .entailment, .solution {
 .entailment {
     animation-delay: 0.4s;
     font-size: 1.4em;
-}
-
-.solution {
-    animation-delay: 0.6s;
 }

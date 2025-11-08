@@ -21,14 +21,10 @@ object ProverProgram:
     for
       entailment <- Prover[F].parseEntailment(rawEntailment)
       Direct(premises, conclusion) = Entailment.unfold(entailment)
-      _ <- Prover[F].write(
-        s"Negate the conclusion (${"proof by contradiction".link(Links.ProofByContradiction)}):"
-      )
-      negatedConclusion <- Prover[F].transform(conclusion, !Formula.addImpliedForall(conclusion))
+      _ <- Prover[F].write(s"We use ${"proof by contradiction".link(Links.ProofByContradiction)}.")
+      negatedConclusion = !Formula.addImpliedForall(conclusion)
+      _ <- Prover[F].write(show"Suppose $negatedConclusion")
       formulas = premises ++ List(negatedConclusion)
-      _ <- Prover[F].write(
-        s"Convert the premises and the negated conclusion into their ${"conjunctive normal forms (CNFs)".link(Links.Cnf)}:"
-      )
       cnfs      <- Prover[F].convertAllToCnfs(formulas)
       clauses   <- Prover[F].splitAllIntoClauses(cnfs)
       clauseSet <- Prover[F].updateClauseSet(Clauses.empty, clauses)
@@ -51,13 +47,13 @@ object ProverProgram:
         case contradiction @ Contradiction(clause1, clause2) =>
           for
             _ <- Prover[F].write(
-              show"A ${"contradiction".emphasize} is found: $clause1 and $clause2"
+              show"We have both $clause1 and $clause2. This is a ${"contradiction".emphasize}."
             )
             _ <- proofResult(premises, conclusion, true)
           yield contradiction
         case Derived(left, right, clause) =>
           for
-            _            <- Prover[F].write(show"$left and $right resolves to $clause")
+            _            <- Prover[F].write(show"Since $left and $right, it follows that $clause")
             newClauseSet <- Prover[F].updateClauseSet(clauseSet, Clauses.one(clause))
             result       <- resolveRecursively(premises, conclusion, newClauseSet)
           yield result
@@ -70,10 +66,10 @@ object ProverProgram:
   )(using Formatter): F[Unit] =
     val followsString = if provable then "follows" else "does not follow"
     val notString = if provable then "" else " not"
-    val resultPrefix = "Proof Result".strong + ": "
+    val therefore = "Therefore, "
 
     if premises.isEmpty then
       Prover[F].write(
-        show"$resultPrefix$conclusion is$notString a ${"tautology".link(Links.Tautology)}."
+        show"$therefore$conclusion is$notString a ${"tautology".link(Links.Tautology)}."
       )
-    else Prover[F].write(show"$resultPrefix$conclusion $followsString from $premises")
+    else Prover[F].write(show"$therefore$conclusion ${followsString.strong} from $premises")
