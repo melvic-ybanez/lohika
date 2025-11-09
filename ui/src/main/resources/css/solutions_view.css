@@ -1,9 +1,10 @@
 body {
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-family: "Open Sans";
   color: #46bcde;
   background: #333333;
   padding: 10px;
+  line-height: 1.7em;
 }
 
 h3 {

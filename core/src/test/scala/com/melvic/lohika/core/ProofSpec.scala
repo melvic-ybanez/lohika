@@ -4,6 +4,7 @@ import ProofSpec.result
 import com.melvic.lohika.core.formula.Cnf.{CNot, Clause}
 import com.melvic.lohika.core.formula.Formula.*
 import com.melvic.lohika.core.prover.algebras.Prover.{Contradiction, Exhaustion, ResolutionResult}
+import com.melvic.lohika.core.prover.interpreters.LiveProver.Steps.Steps
 import com.melvic.lohika.core.prover.interpreters.LiveProver.{Steps, given}
 import com.melvic.lohika.core.prover.programs.ProverProgram
 import org.scalatest.flatspec.AnyFlatSpec

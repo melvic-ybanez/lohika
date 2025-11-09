@@ -36,7 +36,7 @@ object LiveProver:
       formulae
         .zip(cnfs)
         .filter((fm, _) => !Formula.isInCnf(fm))
-        .map((fm, cnf) => Steps.text(show"$fm simplifies to $cnf"))
+        .map((fm, cnf) => Steps.text(show"Rewriting $fm, we get $cnf"))
         .sequence
         .map(_ => cnfs)
 
