@@ -1,5 +1,5 @@
 body {
-  font-size: 1.4em;
+  font-size: 1.5em;
   font-family: "Open Sans";
   color: #46bcde;
   background: #333333;
@@ -23,6 +23,10 @@ a:hover {
 
 .formula {
   color: #6FD08C;
+}
+
+.solution-label {
+   font-style: italic
 }
 
 .proof-content {

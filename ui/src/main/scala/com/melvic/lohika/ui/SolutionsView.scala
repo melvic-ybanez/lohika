@@ -16,13 +16,14 @@ class SolutionsView extends WebView:
     val htmlBody = content match
       case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>
-        val entailmentContent = renderer.render(parser.parse(entailment))
-        val proofContent = renderer.render(parser.parse(s"_Proof._ $solution"))
+        val entailmentContent = renderer.render(parser.parse(s"<span class='solution-label'>Proposition.</span> $entailment"))
+        val proofContent = renderer.render(parser.parse(s"<span class='solution-label'>Proof.</span> $solution"))
+
+        println(entailmentContent)
 
         s"""
-           |<div class="problem-statement">
-           |  <h3 class="problem-caption">Show that the following holds:</h3>
-           |  <div class="entailment">$entailmentContent</div>
+           |<div class="proof-content">
+           |  $entailmentContent
            |</div>
            |
            |<div class="proof-content">
