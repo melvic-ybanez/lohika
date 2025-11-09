@@ -19,8 +19,6 @@ class SolutionsView extends WebView:
         val entailmentContent = renderer.render(parser.parse(s"<span class='solution-label'>Proposition.</span> $entailment"))
         val proofContent = renderer.render(parser.parse(s"<span class='solution-label'>Proof.</span> $solution"))
 
-        println(entailmentContent)
-
         s"""
            |<div class="proof-content">
            |  $entailmentContent
