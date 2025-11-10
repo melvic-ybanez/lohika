@@ -1,6 +1,5 @@
 package com.melvic.lohika.core
 
-import com.melvic.lohika.core.Formatter
 import com.melvic.lohika.core.Formatter.Format
 
 trait Givens:
@@ -14,3 +13,5 @@ trait Givens:
     override def itemNumber: String = ""
 
     override def newline: String = "\n"
+
+    override def sentence: Format = identity

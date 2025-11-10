@@ -35,12 +35,6 @@ a:hover {
     margin-right: auto;
 }
 
-.problem-statement {
-    text-align: center;
-    margin: 0;
-    padding: 0;
-}
-
 b, strong {
     color: #A979B9;
 }
@@ -58,16 +52,7 @@ b, strong {
   }
 }
 
-li, .problem-caption, .entailment, .solution {
+.sentence {
   opacity: 0;
   animation: fadeInLineByLine 1s ease forwards;
-}
-
-.problem-caption {
-    animation-delay: 0.2s;
-}
-
-.entailment {
-    animation-delay: 0.4s;
-    font-size: 1.4em;
 }

@@ -17,11 +17,8 @@ object Eval:
 
   def live: Eval = rawEntailment =>
     def handleDirect(entailment: Direct, steps: List[String]): Result =
-      val mdSteps = steps.map: step =>
-        if step.endsWith(".") || step.endsWith(":") || step.trim.startsWith("*") then step
-        else step + "."
       val entailmentElem = MathJax.applyToText(entailment.show)
-      val solution = MathJax.applyToText(mdSteps.mkString(" "))
+      val solution = MathJax.applyToText(steps.mkString(" "))
       Right(entailmentElem, solution)
 
     ProverProgram.prove[Steps](rawEntailment).run match

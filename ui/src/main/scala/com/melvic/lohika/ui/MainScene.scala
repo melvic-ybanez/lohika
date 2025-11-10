@@ -2,6 +2,7 @@ package com.melvic.lohika.ui
 
 import com.melvic.lohika.controllers.symbols.Unicode
 import com.melvic.lohika.controllers.{Eval, FileManager}
+import com.melvic.lohika.core.Formatter
 import com.melvic.lohika.ui.menus.FileMenu
 import scalafx.beans.property.StringProperty
 import scalafx.geometry.Orientation
@@ -13,8 +14,9 @@ import scalafx.stage.{FileChooser, Stage}
 import scalafx.Includes.*
 import scalafx.beans.binding.Bindings
 
-class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, config: Config)
-    extends Scene:
+class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, config: Config)(using
+    formatter: Formatter
+) extends Scene:
   self =>
 
   lazy val solutionsView = SolutionsView()
@@ -36,8 +38,11 @@ class MainScene(val stage: Stage, eval: Eval, val fileManager: FileManager, conf
           onAction = _ => run()
           accelerator = KeyCombination.keyCombination("Ctrl+R")
 
-        editorTabPane.selectionModel().selectedItemProperty().onChange: (_, _, _) =>
-          runnableFileNameProp.set(editorTabPane.selectedTitleProp.value)
+        editorTabPane
+          .selectionModel()
+          .selectedItemProperty()
+          .onChange: (_, _, _) =>
+            runnableFileNameProp.set(editorTabPane.selectedTitleProp.value)
 
         runMenuItem.textProperty() <== Bindings.createStringBinding(
           () => s"Run ${runnableFileNameProp.value}",

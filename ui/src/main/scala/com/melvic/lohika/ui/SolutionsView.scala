@@ -1,6 +1,8 @@
 package com.melvic.lohika.ui
 
 import com.melvic.lohika.controllers.Eval
+import com.melvic.lohika.core.Formatter
+import com.melvic.lohika.core.Formatter.sentence
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import scalafx.scene.web.WebView
@@ -12,12 +14,18 @@ class SolutionsView extends WebView:
   minWidth = 600
   minHeight = 600
 
-  def setSolutionContent(content: Eval.Result): Unit =
+  def setSolutionContent(content: Eval.Result)(using formatter: Formatter): Unit =
     val htmlBody = content match
       case Left(errorMessage) => s"""<div class="centered error">$errorMessage<div>"""
       case Right(entailment, solution) =>
-        val entailmentContent = renderer.render(parser.parse(s"<span class='solution-label'>Proposition.</span> $entailment"))
-        val proofContent = renderer.render(parser.parse(s"<span class='solution-label'>Proof.</span> $solution"))
+        val entailmentContent = renderer.render(
+          parser.parse(
+            s"<span class='solution-label'>${"Proposition".sentence}</span> ${entailment.sentence}"
+          )
+        )
+        val proofContent = renderer.render(
+          parser.parse(s"<span class='solution-label'>${"Proof".sentence}</span> $solution")
+        )
 
         s"""
            |<div class="proof-content">
@@ -29,16 +37,16 @@ class SolutionsView extends WebView:
            |</div>
            |""".stripMargin
 
-    def liAnimation(nth: Int): String =
+    def sentenceAnimation(nth: Int): String =
       s"""
-         |li:nth-child($nth) {
-         |  animation-delay: ${0.2 * nth + 1.2}s;
+         |.sentence:nth-child($nth) {
+         |  animation-delay: ${0.2 * nth}s;
          |}
          |""".stripMargin
 
-    def allLiAnimationStyles: String =
-      val liCount = htmlBody.split("</li>").length - 1
-      (1 to liCount).map(liAnimation).mkString("\n")
+    def allSentenceAnimationStyles: String =
+      val sentenceCount = htmlBody.split("<span class='sentence'>").length - 1
+      (1 to sentenceCount).map(sentenceAnimation).mkString("\n")
 
     engine.loadContent:
       s"""
@@ -48,7 +56,7 @@ class SolutionsView extends WebView:
          |  <meta charset="UTF-8">
          |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
          |  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-         |  <style>$allLiAnimationStyles</style>
+         |  <style>$allSentenceAnimationStyles</style>
          |</head>
          |<body>$htmlBody</body>
          |</html>

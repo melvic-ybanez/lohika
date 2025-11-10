@@ -17,6 +17,8 @@ trait Formatter {
   def formula: Format = emphasize
 
   def newline: String
+
+  def sentence: Format
 }
 
 object Formatter:
@@ -35,6 +37,9 @@ object Formatter:
 
     def formula: FormatterContext =
       summon[Formatter].formula(str)
+
+    def sentence: FormatterContext =
+      summon[Formatter].sentence(str)
 
   def itemNumber: FormatterContext = summon[Formatter].itemNumber
 

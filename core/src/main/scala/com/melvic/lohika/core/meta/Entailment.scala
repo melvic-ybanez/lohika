@@ -56,6 +56,8 @@ object Entailment:
 
         override def formula: Format = identity
 
+        def sentence: Format = formatter.sentence
+
       formatter.formula(
         show"${premises.map(_.show).mkString(", ")} ${Lexemes.Entailment} $conclusion"
       )

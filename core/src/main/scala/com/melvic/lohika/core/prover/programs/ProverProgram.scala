@@ -21,7 +21,7 @@ object ProverProgram:
     for
       entailment <- Prover[F].parseEntailment(rawEntailment)
       Direct(premises, conclusion) = Entailment.unfold(entailment)
-      _ <- Prover[F].write(s"We use ${"proof by contradiction".link(Links.ProofByContradiction)}.")
+      _ <- Prover[F].write(s"We use ${"proof by contradiction".link(Links.ProofByContradiction)}")
       negatedConclusion = !Formula.addImpliedForall(conclusion)
       _ <- Prover[F].write(show"Suppose $negatedConclusion")
       formulas = premises ++ List(negatedConclusion)
@@ -41,13 +41,13 @@ object ProverProgram:
       result <- resolutionResult match
         case Exhaustion =>
           for
-            _ <- Prover[F].write(s"Resolution options ${"exhausted".emphasize}.")
+            _ <- Prover[F].write(s"Resolution options ${"exhausted".emphasize}")
             _ <- proofResult(premises, conclusion, false)
           yield Exhaustion
         case contradiction @ Contradiction(clause1, clause2) =>
           for
             _ <- Prover[F].write(
-              show"We have both $clause1 and $clause2. This is a ${"contradiction".emphasize}."
+              show"We have both $clause1 and $clause2. This is a ${"contradiction".emphasize}"
             )
             _ <- proofResult(premises, conclusion, true)
           yield contradiction

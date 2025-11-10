@@ -103,7 +103,7 @@ object LiveProver:
     type Steps[X] = WriterT[[R] =>> Either[String, R], List[String], X]
 
     def captionedValue[A](description: String, value: A): Steps[A] =
-      WriterT((description :: Nil, value).asRight)
+      WriterT((description.sentence :: Nil, value).asRight)
 
     def text(text: String): Steps[Unit] =
       captionedValue(text, ())
@@ -122,3 +122,5 @@ object LiveProver:
     override def formula: Format = text => s"<span class='formula'>\\\\($text\\\\)</span>"
 
     override def newline: String = "\n\n"
+
+    override def sentence: Format = text => s"<span class='sentence'>$text.</span>"

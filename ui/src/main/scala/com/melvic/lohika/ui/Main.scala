@@ -4,6 +4,7 @@ import atlantafx.base.theme.NordDark
 import com.melvic.lohika.controllers.{Eval, FileManager}
 import javafx.application.Application
 import scalafx.application.JFXApp3
+import com.melvic.lohika.core.prover.interpreters.LiveProver.given 
 
 import scala.language.implicitConversions
 
