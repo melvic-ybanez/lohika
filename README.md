@@ -1,5 +1,7 @@
 # Lohika
 
+![Lohika](https://github.com/user-attachments/assets/79a3fbfe-46e8-41ca-ba16-a06439f2f4cc)
+
 Lohika is a proof generator for entailments and tautologies
 in [first-order logic](https://en.wikipedia.org/wiki/First-order_logic). It takes a logical statement, written in
 first-order logic,
@@ -17,7 +19,6 @@ Otherwise, Lohika will check if the statement is a _tautology_.
     - [Supported Logical Symbols](#supported-logical-symbols)
 - [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)
 - [Install and Run Lohika](#install-and-run-lohika)
-- [Screenshots and Demos](#screenshots-and-demos)
 - [Icons](#icons)
 - [License](#license)
 
@@ -124,18 +125,6 @@ Lohika's proof generator algorithm is explained in the following steps:
     ```shell
    $ java -jar <path-to-lohika>/lohika-ui-<version>.jar
    ```
-
-## Screenshots and Demos
-
-Here's what Lohika currently looks like:
-
-<img width="1728" alt="new_untitled" src="https://github.com/user-attachments/assets/bb7f7c74-5925-4d84-b872-8e28e8eb365f" />
-
-And here's a link to a sample
-video: https://drive.google.com/file/d/10Gyg7z0SSfMt3wRMeieAtYrDw8J0QHEa/view?usp=drive_link
-
-**Note:** The video above is already outdated. See [this](https://github.com/melvic-ybanez/lohika/issues/32) issue and
-upload an updated video.
 
 ## Icons
 

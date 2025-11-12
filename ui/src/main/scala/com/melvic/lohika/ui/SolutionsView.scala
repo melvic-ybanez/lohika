@@ -22,7 +22,7 @@ class SolutionsView extends WebView:
       case Right(entailment, solution) =>
         val entailmentContent = renderer.render(
           parser.parse(
-            s"<span class='solution-label'>${"Proposition".sentence}</span> ${entailment.sentence}"
+            s"<span class='solution-label'>${"Entailment".sentence}</span> ${entailment.sentence}"
           )
         )
         val proofContent = renderer.render(
@@ -30,7 +30,7 @@ class SolutionsView extends WebView:
         )
 
         s"""
-           |<div id="proposition-pane" class="proof-paragraph">
+           |<div id="entailment-pane" class="proof-paragraph">
            |  $entailmentContent
            |</div>
            |
@@ -42,26 +42,26 @@ class SolutionsView extends WebView:
     def sentenceAnimations: String =
       val sentenceCount = SolutionsView.countSentences(htmlBody)
 
-      // suppose there are only 2 sentences in the proposition pane
-      val propositionSentenceCount = 2
+      // suppose there are only 2 sentences in the entailment pane
+      val entailmentSentenceCount = 2
 
       val delayPerSentence = 0.3
 
-      val propositionAnimations = (1 to propositionSentenceCount).map: nth =>
+      val entailmentAnimations = (1 to entailmentSentenceCount).map: nth =>
         s"""
-           |#proposition-pane .sentence:nth-child($nth) {
+           |#entailment-pane .sentence:nth-child($nth) {
            |  animation-delay: ${delayPerSentence * nth}s;
            |}
            |""".stripMargin
 
-      val proofAnimations = (1 to sentenceCount - propositionSentenceCount).map: nth =>
+      val proofAnimations = (1 to sentenceCount - entailmentSentenceCount).map: nth =>
         s"""
            |#proof-pane .sentence:nth-child($nth) {
-           |  animation-delay: ${delayPerSentence * nth + delayPerSentence * propositionSentenceCount}s;
+           |  animation-delay: ${delayPerSentence * nth + delayPerSentence * entailmentSentenceCount}s;
            |}
            |""".stripMargin
 
-      propositionAnimations.mkString("\n") + "\n" + proofAnimations.mkString("\n")
+      entailmentAnimations.mkString("\n") + "\n" + proofAnimations.mkString("\n")
 
     engine.loadContent:
       s"""
