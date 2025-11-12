@@ -7,6 +7,8 @@ import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import scalafx.scene.web.WebView
 
+import scala.annotation.tailrec
+
 class SolutionsView extends WebView:
   lazy val parser: Parser = Parser.builder().build()
   lazy val renderer: HtmlRenderer = HtmlRenderer.builder().build()
@@ -28,25 +30,38 @@ class SolutionsView extends WebView:
         )
 
         s"""
-           |<div class="proof-content">
+           |<div id="proposition-pane" class="proof-paragraph">
            |  $entailmentContent
            |</div>
            |
-           |<div class="proof-content">
+           |<div id="proof-pane" class="proof-paragraph">
            |  $proofContent
            |</div>
            |""".stripMargin
 
-    def sentenceAnimation(nth: Int): String =
-      s"""
-         |.sentence:nth-child($nth) {
-         |  animation-delay: ${0.2 * nth}s;
-         |}
-         |""".stripMargin
+    def sentenceAnimations: String =
+      val sentenceCount = SolutionsView.countSentences(htmlBody)
 
-    def allSentenceAnimationStyles: String =
-      val sentenceCount = htmlBody.split("<span class='sentence'>").length - 1
-      (1 to sentenceCount).map(sentenceAnimation).mkString("\n")
+      // suppose there are only 2 sentences in the proposition pane
+      val propositionSentenceCount = 2
+
+      val delayPerSentence = 0.3
+
+      val propositionAnimations = (1 to propositionSentenceCount).map: nth =>
+        s"""
+           |#proposition-pane .sentence:nth-child($nth) {
+           |  animation-delay: ${delayPerSentence * nth}s;
+           |}
+           |""".stripMargin
+
+      val proofAnimations = (1 to sentenceCount - propositionSentenceCount).map: nth =>
+        s"""
+           |#proof-pane .sentence:nth-child($nth) {
+           |  animation-delay: ${delayPerSentence * nth + delayPerSentence * propositionSentenceCount}s;
+           |}
+           |""".stripMargin
+
+      propositionAnimations.mkString("\n") + "\n" + proofAnimations.mkString("\n")
 
     engine.loadContent:
       s"""
@@ -56,7 +71,7 @@ class SolutionsView extends WebView:
          |  <meta charset="UTF-8">
          |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
          |  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-         |  <style>$allSentenceAnimationStyles</style>
+         |  <style>$sentenceAnimations</style>
          |</head>
          |<body>$htmlBody</body>
          |</html>
@@ -64,3 +79,15 @@ class SolutionsView extends WebView:
 
   def init(): Unit =
     engine.setUserStyleSheetLocation(Resources.cssPath("solutions_view.css"))
+
+object SolutionsView:
+  private def countSentences(paragraph: String): Int =
+    val keyword = "<span class='sentence'>"
+
+    @tailrec
+    def recurse(paragraph: String, count: Int): Int =
+      if paragraph.isEmpty then count
+      else if paragraph.startsWith(keyword) then recurse(paragraph.drop(keyword.length), count + 1)
+      else recurse(paragraph.tail, count)
+
+    recurse(paragraph, 0)
