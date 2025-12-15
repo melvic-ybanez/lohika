@@ -10,7 +10,7 @@ lazy val commonMergeStrategy: String => MergeStrategy = {
   case x                             => MergeStrategy.first
 }
 
-lazy val Version = "0.10.0"
+lazy val Version = "0.11.0-SNAPSHOT"
 
 lazy val root = (project in file("."))
   .settings(

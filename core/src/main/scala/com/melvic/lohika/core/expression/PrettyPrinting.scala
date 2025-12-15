@@ -20,19 +20,17 @@ private[expression] trait PrettyPrinting:
 
     def prettyQuantified(quantifier: String, vars: BoundVars, matrix: Formula): String =
       val prettyQuantification = quantifier + (vars._1 :: vars._2)
-        .map { variable =>
+        .map: variable =>
           // we don't wrap bound vars with parens when declaring them, so we give the
           // parent precedence a lower value (default)
           prettyPrint(variable)(using Precedence.Default)
-        }
         .mkString(",")
 
-      val prettyMatrix = {
+      val prettyMatrix =
         val matrixPrecedence = precedence(matrix)
         val pretty = prettyPrint(matrix)(using Precedence.Default)
         if matrixPrecedence == Precedence.FunctionApp then pretty
         else s"${Lexemes.LeftBracket}$pretty${Lexemes.RightBracket}"
-      }
 
       prettyQuantification + prettyMatrix
 

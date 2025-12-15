@@ -1,6 +1,6 @@
 # Lohika
 
-![Lohika](https://github.com/user-attachments/assets/79a3fbfe-46e8-41ca-ba16-a06439f2f4cc)
+![Lohika](https://github.com/user-attachments/assets/9fc94f81-dec0-4c7a-babe-29d94a7105ac)
 
 Lohika is a proof generator for entailments and tautologies
 in [first-order logic](https://en.wikipedia.org/wiki/First-order_logic). It takes a logical statement, written in

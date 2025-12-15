@@ -3,7 +3,7 @@ package com.melvic.lohika.core
 import com.melvic.lohika.core.Formatter
 import Formatter.Format
 
-trait Formatter {
+trait Formatter:
   def emphasize: Format
 
   def strong: Format
@@ -19,7 +19,6 @@ trait Formatter {
   def newline: String
 
   def sentence: Format
-}
 
 object Formatter:
   type Format = String => String

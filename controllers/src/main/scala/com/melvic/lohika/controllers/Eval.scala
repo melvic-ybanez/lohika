@@ -3,11 +3,12 @@ package com.melvic.lohika.controllers
 import cats.implicits.*
 import com.melvic.lohika.controllers.Eval.Result
 import com.melvic.lohika.controllers.symbols.MathJax
-import com.melvic.lohika.core.meta.Entailment.{Derived, Direct}
+import com.melvic.lohika.core.Formatter.{link, sentence}
+import com.melvic.lohika.core.Links
 import com.melvic.lohika.core.meta.Entailment
-import com.melvic.lohika.core.prover.interpreters.LiveProver.Steps.Steps
-import com.melvic.lohika.core.prover.interpreters.LiveProver.{Steps, given}
-import com.melvic.lohika.core.prover.programs.ProverProgram
+import com.melvic.lohika.core.meta.Entailment.{Derived, Direct}
+import com.melvic.lohika.core.prover.Prover.given
+import com.melvic.lohika.core.prover.{Proof, Prover}
 
 trait Eval:
   def run(rawEntailment: String): Result
@@ -16,13 +17,16 @@ object Eval:
   type Result = Either[String, (String, String)]
 
   def live: Eval = rawEntailment =>
-    def handleDirect(entailment: Direct, steps: List[String]): Result =
+    def handleDirect(entailment: Direct, proof: Proof): Result =
       val entailmentElem = MathJax.applyToText(entailment.show)
-      val solution = MathJax.applyToText(steps.mkString(" "))
+      val steps = Proof.toProse(proof)
+      val proofMethodStmt =
+        s"We use ${"proof by contradiction".link(Links.ProofByContradiction)}".sentence
+      val solution = MathJax.applyToText(proofMethodStmt + " " + steps.mkString(" "))
       Right(entailmentElem, solution)
 
-    ProverProgram.prove[Steps](rawEntailment).run match
-      case Left(error) => Left(error)
-      case Right(steps, (entailment: Direct, _)) => handleDirect(entailment, steps)
-      case Right(steps, (entailment: Derived, _)) =>
-        handleDirect(Entailment.unfold(entailment), steps)
+    Prover.prove(rawEntailment) match
+      case Left(error)                      => Left(error)
+      case Right(entailment: Direct, proof) => handleDirect(entailment, proof)
+      case Right(entailment: Derived, proof) =>
+        handleDirect(Entailment.unfold(entailment), proof)
