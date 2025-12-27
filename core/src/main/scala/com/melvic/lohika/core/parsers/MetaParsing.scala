@@ -1,11 +1,11 @@
 package com.melvic.lohika.core.parsers
 
 import cats.data.NonEmptyList
-import com.melvic.lohika.core.parsers.Parser.whitespace
+import com.melvic.lohika.core.parsers.Parser.{formula, whitespace}
 import com.melvic.lohika.core.expression.Expression.*
 import com.melvic.lohika.core.formula.Formula
 import com.melvic.lohika.core.meta.{Definition, Entailment}
-import Formula.PredicateApp
+import Formula.{And, PredicateApp}
 import com.melvic.lohika.core.meta.Definition.*
 import com.melvic.lohika.core.meta.Entailment.{Derived, Direct}
 import fastparse.*
@@ -18,16 +18,27 @@ private[parsers] trait MetaParsing:
     parse(input, entailment(using _))
 
   def entailment[$: P]: P[Entailment] =
-    (definitions ~ (Parser.formula.rep(
-      min = 1,
-      sep = Lexemes.PremisesDelimiter
-    ) ~ Lexemes.Entailment).? ~ Parser.formula ~ End).map:
-      case (Seq(), None, conclusion) => Direct(Nil, conclusion)
-      case (definitions, None, conclusion) =>
-        Derived(NonEmptyList.fromList(definitions.toList).get, Nil, conclusion)
-      case (Seq(), Some(premises), conclusion) => Direct(premises.toList, conclusion)
-      case (definitions, Some(premises), conclusion) =>
-        Derived(NonEmptyList.fromList(definitions.toList).get, premises.toList, conclusion)
+    nonEquivalence | equivalence
+
+  def nonEquivalence[$: P]: P[Entailment] = (definitions ~ (Parser.formula.rep(
+    min = 1,
+    sep = Lexemes.PremisesDelimiter
+  ) ~ Lexemes.Entailment).? ~ Parser.formula ~ End).map:
+    case (Seq(), None, conclusion) => Direct(Nil, conclusion)
+    case (definitions, None, conclusion) =>
+      Derived(NonEmptyList.fromList(definitions.toList).get, Nil, conclusion)
+    case (Seq(), Some(premises), conclusion) => Direct(premises.toList, conclusion)
+    case (definitions, Some(premises), conclusion) =>
+      Derived(NonEmptyList.fromList(definitions.toList).get, premises.toList, conclusion)
+
+  /**
+   * Semantic equivalence.
+   *
+   * Forall formulas `p` and `q`, `p = q` is the same as `|= (p -> q) & (q ->p)`
+   */
+  def equivalence[$: P]: P[Entailment] =
+    (formula ~ Lexemes.Equivalence ~ formula).map: (left, right) =>
+      Direct(Nil, (left --> right) & (right --> left))
 
   def definition[$: P]: P[Definition] = formulaDef | termDef
 

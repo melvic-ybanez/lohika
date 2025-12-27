@@ -9,6 +9,7 @@ trait Symbols:
   def Imply: String
   def Iff: String
   def Entailment: String
+  def Equivalence: String = "="
   def Forall: String
   def ThereExists: String
   def DefinedAs: String
@@ -23,6 +24,7 @@ trait Symbols:
    */
   def TextToSymbolsMap: List[(String, String)] = List(
     Lexemes.Entailment  -> Entailment,
+    Lexemes.Equivalence -> Equivalence,
     Lexemes.And         -> And,
     Lexemes.Or          -> Or,
     Lexemes.Not         -> Not,

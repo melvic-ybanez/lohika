@@ -13,6 +13,7 @@ object Lexemes:
   val LeftParen = "("
   val RightParen = ")"
   val Entailment = "|="
+  val Equivalence = "="
   val Const = "'"
   val LeftBracket = "["
   val RightBracket = "]"

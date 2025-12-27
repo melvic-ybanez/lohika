@@ -52,7 +52,7 @@ object Proof:
           val therefore = "Therefore, "
 
           if premises.isEmpty then
-            show"$therefore$conclusion is$notString a ${"tautology".link(Links.Tautology)}."
+            show"$therefore$conclusion is$notString a ${"tautology".link(Links.Tautology)}"
           else show"$therefore$conclusion ${followsString.strong} from $premises"
         case Step.Identity(_) => ""
       .map(_.sentence)

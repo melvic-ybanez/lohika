@@ -1,6 +1,6 @@
 package com.melvic.lohika.core.prover
 
-import cats.implicits.toFoldableOps
+import cats.implicits.{toFoldableOps, toShow}
 import com.melvic.lohika.core.Formatter
 import com.melvic.lohika.core.Formatter.Format
 import com.melvic.lohika.core.formula.Cnf.*
@@ -100,10 +100,10 @@ object Prover:
           val newLiterals1 = literals1.filterNot(_ == lit1)
           val newLiterals2 = literals2.filterNot(_ == lit2)
 
-          // note that we convert this to set to remove duplicates disjuncts (e.g. A | A)
+          // note that we convert this to Set to remove duplicated disjuncts (e.g. A | A)
           val cOrLiterals = (newLiterals1 ++ newLiterals2).toSet
 
-          if cOrLiterals.isEmpty then Contradiction(lit1, lit2)
+          if cOrLiterals.isEmpty then Contradiction(cor1, cor2)
           else
             val (clause1, clause2) = (cor1, cor2) match
               case (COr(lit1 :: Nil), COr(lit2 :: Nil)) => (lit1, lit2)
