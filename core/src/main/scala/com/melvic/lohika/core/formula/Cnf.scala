@@ -19,7 +19,12 @@ type Cnf = CAnd | Clause
  */
 object Cnf extends CnfGivens:
   final case class CAnd(clauses: List[Clause]) // TODO: Require at least one clause
-  final case class COr(literals: List[CLiteral]) // TODO: Require at least one literal
+
+  final case class COr(literals: List[CLiteral]): // TODO: Require at least one literal
+    def foldByIdempotency: Clause =
+      literals match
+        case head :: Nil => head
+        case _           => this
 
   final case class CNot(atomic: PredicateApp)
 

@@ -5,7 +5,7 @@ import com.melvic.lohika.core.meta.Entailment
 import com.melvic.lohika.core.parsers.Parser
 import fastparse.Parsed
 
-class EntailmentSpec extends BaseSpec:
+class EntailmentPropSpec extends BaseSpec:
   "Derived entailments" should "unfold given propositional definitions" in:
     assertUnfoldedEquals(
       s"""

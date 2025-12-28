@@ -2,12 +2,12 @@
 
 ![Lohika](https://github.com/user-attachments/assets/9fc94f81-dec0-4c7a-babe-29d94a7105ac)
 
-Lohika is a proof generator for entailments and tautologies
+Lohika is a proof generator for entailments, tautologies and semantic equivalences
 in [first-order logic](https://en.wikipedia.org/wiki/First-order_logic). It takes a logical statement, written in
 first-order logic,
 and applies resolution calculus to it (see [How Lohika's Proof Generator Works](#how-lohikas-proof-generator-works)) to
 generate a proof. If premises are provided in the input, Lohika will attempt to prove the conclusion from them.
-Otherwise, Lohika will check if the statement is a _tautology_.
+Otherwise, Lohika will check if the statement is a _tautology_. 
 
 ## Contents
 

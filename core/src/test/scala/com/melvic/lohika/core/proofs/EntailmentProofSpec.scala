@@ -1,15 +1,15 @@
-package com.melvic.lohika.core
+package com.melvic.lohika.core.proofs
 
-import com.melvic.lohika.core.ProofSpec.result
 import com.melvic.lohika.core.formula.Cnf.Clause
+import com.melvic.lohika.core.proofs.BaseProofSpec.result
 import com.melvic.lohika.core.prover.Proof.Step
 import com.melvic.lohika.core.prover.Proof.Step.{Contradiction, Exhaustion}
-import com.melvic.lohika.core.prover.{Proof, Prover}
 import com.melvic.lohika.core.prover.Prover.given
+import com.melvic.lohika.core.prover.{Proof, Prover}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-class ProofSpec extends AnyFlatSpec with should.Matchers:
+class EntailmentProofSpec extends BaseProofSpec:
   "A" should "be provable from A | B" in:
     contradiction("A |= A | B", "A")
 
@@ -46,9 +46,6 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
     contradiction("P(a) | !P(a)")
     contradiction("(P | !P) & (!P | P)")
     contradiction("((P | !P) -> (!P | P)) & ((!P | P) -> (P | !P))")
-
-  "Semantic Equivalences" should "be provable" in:
-    contradiction("P | !P = !P | P")
 
   "(P | Q) & (!Q -> R) -> (P -> R)" should "not be provable from P | Q and !Q -> R" in:
     exhaustion("P | Q, !Q -> R |= (P | Q) & (!Q -> R) -> (P -> R)")
@@ -146,26 +143,3 @@ class ProofSpec extends AnyFlatSpec with should.Matchers:
          |R(x) := S(x) & A:xS(x) & P(x, x);
          |A:x, y[P(x, y)], R(y) |= Q(b, c)
          |""".stripMargin)
-
-  def contradiction(entailment: String): Unit =
-    result(entailment) should matchPattern:
-      case Right(Contradiction(_, _)) =>
-
-  def contradiction(entailment: String, varName: String): Unit =
-    contradiction(entailment, Contradiction.fromPropVarName(varName))
-
-  def contradiction(entailment: String, clause1: Clause, clause2: Clause): Unit =
-    contradiction(entailment, Contradiction(clause1, clause2))
-
-  def contradiction(entailment: String, contradiction: Contradiction): Unit =
-    result(entailment) should be(Right(contradiction))
-
-  def exhaustion(entailment: String): Unit =
-    result(entailment) should be(Right(Exhaustion))
-
-object ProofSpec:
-  def result(entailment: String): Either[String, Step] =
-    Prover
-      .prove(entailment)
-      .map: (_, proof) =>
-        Proof.toSteps(proof).init.last

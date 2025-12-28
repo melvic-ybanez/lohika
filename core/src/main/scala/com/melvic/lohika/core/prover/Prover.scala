@@ -1,6 +1,6 @@
 package com.melvic.lohika.core.prover
 
-import cats.implicits.{toFoldableOps, toShow}
+import cats.implicits.{showInterpolator, toFoldableOps, toShow}
 import com.melvic.lohika.core.Formatter
 import com.melvic.lohika.core.Formatter.Format
 import com.melvic.lohika.core.formula.Cnf.*
@@ -22,7 +22,7 @@ object Prover:
     parseEntailment(rawEntailment).map: entailment =>
       val Direct(premises, conclusion) = Entailment.unfold(entailment)
       val negatedConclusion = !Formula.addImpliedForall(conclusion)
-      val (conversions, cnfs) = convertCnfsToSteps(premises ++ List(negatedConclusion))
+      val (conversions, cnfs) = convertToCnfsAndSteps(premises ++ List(negatedConclusion))
       val firstStep = Nullary(ConclusionNeg(negatedConclusion))
       val clauseMap = conversions
         .zip(cnfs)
@@ -57,7 +57,7 @@ object Prover:
       case Parsed.Success(entailment, _)   => Right(entailment)
       case Parsed.Failure(label, _, extra) => Left(s"Unable to parse '$rawEntailment'.")
 
-  def convertCnfsToSteps(formulae: List[Formula]): (List[Identity | Rewrite], List[Cnf]) =
+  def convertToCnfsAndSteps(formulae: List[Formula]): (List[Identity | Rewrite], List[Cnf]) =
     val cnfs = Formula.toCnfAll(formulae)
     val steps = formulae
       .zip(cnfs)
@@ -103,18 +103,10 @@ object Prover:
           // note that we convert this to Set to remove duplicated disjuncts (e.g. A | A)
           val cOrLiterals = (newLiterals1 ++ newLiterals2).toSet
 
-          if cOrLiterals.isEmpty then Contradiction(cor1, cor2)
-          else
-            val (clause1, clause2) = (cor1, cor2) match
-              case (COr(lit1 :: Nil), COr(lit2 :: Nil)) => (lit1, lit2)
-              case (COr(lit1 :: Nil), clause2)          => (lit1, clause2)
-              case (clause1, COr(lit2 :: Nil))          => (clause1, lit2)
-              case _                                    => (cor1, cor2)
-            Derived(
-              clause1,
-              clause2,
-              if cOrLiterals.size == 1 then cOrLiterals.head else COr(cOrLiterals.toList)
-            )
+          val (clause1, clause2) = (cor1.foldByIdempotency, cor2.foldByIdempotency)
+
+          if cOrLiterals.isEmpty then Contradiction(clause1, clause2)
+          else Derived(clause1, clause2, COr(cOrLiterals.toList).foldByIdempotency)
 
   def complementary: (CLiteral, CLiteral) => Option[(CLiteral, CLiteral)] =
     case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if unifyCompare(p1, p2) => Some(p1, c2)
