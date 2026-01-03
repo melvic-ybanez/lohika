@@ -1,8 +1,10 @@
 package com.melvic.lohika.core.prover
 
-import cats.implicits.{showInterpolator, toFoldableOps, toShow}
+import cats.Endo
+import cats.implicits.{showInterpolator, toFoldableOps}
 import com.melvic.lohika.core.Formatter
 import com.melvic.lohika.core.Formatter.Format
+import com.melvic.lohika.core.expression.Expression.Mgu
 import com.melvic.lohika.core.formula.Cnf.*
 import com.melvic.lohika.core.formula.Formula.PredicateApp
 import com.melvic.lohika.core.formula.{Clauses, Cnf, Formula}
@@ -90,32 +92,46 @@ object Prover:
     outerLoop(clauseSet, Exhaustion)
 
   def resolvePair: (Clause, Clause) => Option[Derived | Contradiction] =
-    case (lit1: CLiteral, lit2: CLiteral) => complementary(lit1, lit2).map(Contradiction(_, _))
-    case (lit: CLiteral, or: COr)         => resolvePair(COr(lit :: Nil), or)
-    case (or: COr, lit: CLiteral)         => resolvePair(or, COr(lit :: Nil))
+    case (lit1: CLiteral, lit2: CLiteral) =>
+      complementary(lit1, lit2).map(_ => Contradiction(lit1, lit2))
+    case (lit: CLiteral, or: COr) => resolvePair(COr(lit :: Nil), or)
+    case (or: COr, lit: CLiteral) => resolvePair(or, COr(lit :: Nil))
     case (cor1 @ COr(literals1), cor2 @ COr(literals2)) =>
       literals1
         .collectFirstSome(lit1 => literals2.collectFirstSome(complementary(lit1, _)))
-        .map: (lit1, lit2) =>
-          val newLiterals1 = literals1.filterNot(_ == lit1)
-          val newLiterals2 = literals2.filterNot(_ == lit2)
+        .map: (lit1, lit2, mgu) =>
+          def substitute(literals: List[CLiteral]): List[CLiteral] =
+            literals.map(Mgu.applyToLiteral(mgu))
+
+          val newLiterals1 = substitute(literals1).filterNot(_ == lit1)
+          val newLiterals2 = substitute(literals2).filterNot(_ == lit2)
 
           // note that we convert this to Set to remove duplicated disjuncts (e.g. A | A)
           val cOrLiterals = (newLiterals1 ++ newLiterals2).toSet
 
-          val (clause1, clause2) = (cor1.foldByIdempotency, cor2.foldByIdempotency)
+          val (clause1, clause2) = (COr.foldByIdempotency(cor1), COr.foldByIdempotency(cor2))
 
           if cOrLiterals.isEmpty then Contradiction(clause1, clause2)
-          else Derived(clause1, clause2, COr(cOrLiterals.toList).foldByIdempotency)
+          else Derived(clause1, clause2, COr.foldByIdempotency(COr(cOrLiterals.toList)))
 
-  def complementary: (CLiteral, CLiteral) => Option[(CLiteral, CLiteral)] =
-    case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) if unifyCompare(p1, p2) => Some(p1, c2)
-    case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) if unifyCompare(p1, p2) => Some(c1, p2)
-    case _                                                                       => None
+  def complementary: (CLiteral, CLiteral) => Option[(CLiteral, CLiteral, Mgu)] =
+    case (p1: PredicateApp, c2 @ CNot(p2: PredicateApp)) =>
+      unifyCompare(p1, p2).map: (p1, p2, mgu) =>
+        (p1, CNot(p2), mgu)
+    case (c1 @ CNot(p1: PredicateApp), p2: PredicateApp) =>
+      unifyCompare(p1, p2).map: (p1, p2, mgu) =>
+        (CNot(p1), p2, mgu)
+    case _ => None
 
-  def unifyCompare(pred1: PredicateApp, pred2: PredicateApp): Boolean =
-    val (newPred1, newPred2) = PredicateApp.unify(pred1, pred2)
-    newPred1 == newPred2
+  def unifyCompare(
+      pred1: PredicateApp,
+      pred2: PredicateApp
+  ): Option[(PredicateApp, PredicateApp, Mgu)] =
+    val mgu = PredicateApp.unify(pred1, pred2)
+    val applyMgu = Mgu.applyToPredicate(mgu)
+    val newPred1 = applyMgu(pred1)
+    val newPred2 = applyMgu(pred2)
+    if newPred1 == newPred2 then Some(newPred1, newPred2, mgu) else None
 
   opaque type ClauseMap = Map[Clause, Proof]
 

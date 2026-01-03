@@ -5,6 +5,7 @@ import cats.data.State
 import cats.implicits.*
 import com.melvic.lohika.core.formula.Formula
 import Formula.*
+import com.melvic.lohika.core.rewriteOrId
 
 private[formula] trait Conversions
     extends CnfConversion
@@ -18,7 +19,7 @@ private[formula] trait Conversions
   private[formula] final case class NoIff(raw: Formula)
   private[formula] final case class NoIf(raw: Formula)
   private[formula] final case class DistributedOrs(raw: Formula)
-  private[formula] final case class MatrixForm(raw: Formula)
+  private[formula] final case class QuantifierFree(raw: Formula)
 
   def eliminateBiconditionals: Formula => NoIff =
     def recurse: Endo[Formula] =
@@ -39,7 +40,7 @@ private[formula] trait Conversions
 
       NoIf(recurse(fm))
 
-  def distributeOrOverAnds: MatrixForm => DistributedOrs =
+  def distributeOrOverAnds: QuantifierFree => DistributedOrs =
     def recurse: Endo[Formula] =
       case Or(p, And(ap, aq, ars), Nil) =>
         convertConjunction(recurse)(And(p | ap, p | aq, ars.map(p | _)))
@@ -54,7 +55,7 @@ private[formula] trait Conversions
 
     matrixForm => DistributedOrs(recurse(matrixForm.raw))
 
-  private def flattenConjunctionsRaw: Endo[Formula] =
+  private def flattenConjunctionsRaw: Endo[Formula] = rewriteOrId:
     case and: And =>
       val flattened = and.components.map(flattenOrsAndAndsRaw)
       flattened.tail.foldLeft(flattened.head):
@@ -63,9 +64,8 @@ private[formula] trait Conversions
         case (fm, And(p, q, rs))       => And(fm, p, q :: rs)
         case (fm1, fm2)                => fm1 & fm2
     case or: Or => convertDisjunction(flattenConjunctionsRaw)(or)
-    case fm     => fm
 
-  private def flattenDisjunctionsRaw: Endo[Formula] =
+  private def flattenDisjunctionsRaw: Endo[Formula] = rewriteOrId:
     case or: Or =>
       val flattened = or.components.map(flattenOrsAndAndsRaw)
       flattened.tail.foldLeft(flattened.head):
@@ -74,17 +74,15 @@ private[formula] trait Conversions
         case (fm, Or(p, q, rs))     => Or(fm, p, q :: rs)
         case (fm1, fm2)             => fm1 | fm2
     case and: And => convertConjunction(flattenDisjunctionsRaw)(and)
-    case fm       => fm
 
-  private def flattenOrsAndAndsRaw: Endo[Formula] =
+  private def flattenOrsAndAndsRaw: Endo[Formula] = rewriteOrId:
     case and: And => flattenConjunctionsRaw(and)
     case or: Or   => flattenDisjunctionsRaw(or)
-    case fm       => fm
 
   def flattenOrsAndAnds(distributedOrs: DistributedOrs): Formula =
     flattenOrsAndAndsRaw(distributedOrs.raw)
 
-  def convertBy(transform: Endo[Formula]): Endo[Formula] =
+  def convertBy(transform: Endo[Formula]): Endo[Formula] = rewriteOrId:
     case iff: Iff                 => convertBiconditional(transform)(iff)
     case imply: Imply             => convertImplication(transform)(imply)
     case or: Or                   => convertDisjunction(transform)(or)
@@ -92,7 +90,6 @@ private[formula] trait Conversions
     case not: Not                 => convertNegation(transform)(not)
     case forall: Forall           => convertUniversal(transform)(forall)
     case thereExists: ThereExists => convertExistential(transform)(thereExists)
-    case fm                       => fm
 
   def convertBiconditional: Convert[Iff] = f =>
     case Iff(p, q, rs) => Iff(f(p), f(q), rs.map(f))
@@ -122,6 +119,6 @@ private[formula] trait Conversions
       srs <- fList.rs.map(by).sequence
     yield (sp, sq, srs)
 
-  def dropUniversalQuantifiers: Snf => MatrixForm =
-    case Snf(Forall(boundVars, matrix)) => dropUniversalQuantifiers(Snf(matrix))
-    case Snf(matrix)                    => MatrixForm(matrix)
+  def dropUniversalQuantifiers: Snf => QuantifierFree =
+    case Snf(Forall(boundVars, scope)) => dropUniversalQuantifiers(Snf(scope))
+    case Snf(scope)                    => QuantifierFree(scope)

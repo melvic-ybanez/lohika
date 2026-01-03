@@ -19,7 +19,7 @@ private[parsers] trait FormulaParsing:
       Q <:< Formula
   ): P[Formula] =
     P(quantifier ~ firstOrderVar.rep(min = 1, sep = ",") ~ highestPrecedence).map:
-      case (Seq(x, xs*), matrix) => make((x, xs.toList), matrix)
+      case (Seq(x, xs*), scope) => make((x, xs.toList), scope)
 
   def forall[$: P]: P[Formula] = quantified(Lexemes.Forall, Forall.apply)
 

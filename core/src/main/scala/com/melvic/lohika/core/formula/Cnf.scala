@@ -2,11 +2,11 @@ package com.melvic.lohika.core.formula
 
 import cats.*
 import cats.implicits.*
-import com.melvic.lohika.core.Formatter
-import com.melvic.lohika.core.Formatter
-import Cnf.*
-import Formula.*
 import com.melvic.lohika.core.expression.Expression
+import com.melvic.lohika.core.expression.Expression.{Substitute, Term, Var}
+import com.melvic.lohika.core.formula.Cnf.*
+import com.melvic.lohika.core.formula.Formula.*
+import com.melvic.lohika.core.{Formatter, rewriteOrId}
 
 /**
  * Conjunctive Normal Form
@@ -19,17 +19,21 @@ type Cnf = CAnd | Clause
  */
 object Cnf extends CnfGivens:
   final case class CAnd(clauses: List[Clause]) // TODO: Require at least one clause
-
-  final case class COr(literals: List[CLiteral]): // TODO: Require at least one literal
-    def foldByIdempotency: Clause =
-      literals match
-        case head :: Nil => head
-        case _           => this
+  final case class COr(literals: List[CLiteral]) // TODO: Require at least one literal
 
   final case class CNot(atomic: PredicateApp)
 
   type Clause = COr | CLiteral
   type CLiteral = PredicateApp | CNot
+
+  object CLiteral:
+    def substitute: Substitute[CLiteral] =
+      case CNot(pred) => (variable, term) => CNot(PredicateApp.substitute(pred)(variable, term))
+      case pred: PredicateApp => PredicateApp.substitute(pred)
+
+  object COr:
+    def foldByIdempotency: COr => Clause = rewriteOrId:
+      case COr(head :: Nil) => head
 
   def prettyPrint(cnf: Cnf): String =
     Expression.prettyPrint(Formula.fromCnf(cnf))

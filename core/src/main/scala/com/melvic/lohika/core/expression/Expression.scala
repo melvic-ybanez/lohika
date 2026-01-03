@@ -3,19 +3,23 @@ package com.melvic.lohika.core.expression
 import cats.*
 import cats.implicits.*
 import com.melvic.lohika.core.Formatter.*
-import Expression.{Term, Var}
-import com.melvic.lohika.core.Formatter
-import com.melvic.lohika.core.meta.Definition
-import com.melvic.lohika.core.formula.Formula.*
-import Definition.*
+import com.melvic.lohika.core.expression.Expression.Term
+import com.melvic.lohika.core.formula.Cnf.CLiteral
 import com.melvic.lohika.core.formula.Formula
+import com.melvic.lohika.core.formula.Formula.*
+import com.melvic.lohika.core.meta.Definition
+import com.melvic.lohika.core.meta.Definition.*
+import com.melvic.lohika.core.{Formatter, rewriteOrId}
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Set
 
 type Expression = Formula | Term
 
 object Expression extends ExpressionGivens with PrettyPrinting:
   type Term = Var | Const | True.type | False.type | FunctionApp
+
+  type Substitute[A] = A => (Var, Term) => A
 
   final case class FunctionApp(name: String, args: List[Term])
 
@@ -29,14 +33,26 @@ object Expression extends ExpressionGivens with PrettyPrinting:
   case object True
   case object False
 
-  def substitute[E <: Expression](variable: Var, term: Term): Endo[Expression] =
-    case expr: Term  => Term.substitute(variable, term)(expr)
-    case fm: Formula => Formula.substitute(variable, term)(fm)
+  def substitute[E <: Expression]: Substitute[Expression] =
+    case expr: Term  => Term.substitute(expr)
+    case fm: Formula => Formula.substitute(fm)
 
-  def unifyApp: ((String, List[Term]), (String, List[Term])) => (List[Term], List[Term]) =
+  def unifyApp: ((String, List[Term]), (String, List[Term])) => Mgu =
     case ((f, fArgs), (g, gArgs)) if f == g && fArgs.length == gArgs.length =>
-      fArgs.zip(gArgs).map(Term.unify).unzip
-    case ((_, fArgs), (_, gArgs)) => (fArgs, gArgs)
+      @tailrec
+      def unify(argPairs: List[(Term, Term)], mgu: Mgu): Mgu =
+        argPairs match
+          case Nil => mgu
+          case (fArg, gArg) :: rest =>
+            val newMgu = Term.unify(fArg, gArg) ++ mgu
+            if newMgu.isEmpty then Map.empty
+            else
+              val newRest = rest.map: (fArg, gArg) =>
+                val applyMgu = Mgu.applyToTerm(newMgu)
+                (applyMgu(fArg), applyMgu(gArg))
+              unify(newRest, newMgu)
+      unify(fArgs.zip(gArgs), Map.empty)
+    case _ => Map.empty
 
   def freeVarNames(using quantifiedNames: Set[String]): Expression => Set[String] =
     collect:
@@ -61,23 +77,21 @@ object Expression extends ExpressionGivens with PrettyPrinting:
   object Term:
     /**
      * Unifies the two terms.
-     *
-     * Note: This isn't a fail-fast implementation
      */
-    def unify: Endo[(Term, Term)] =
-      case (_: Var, term) => (term, term)
-      case (term, _: Var) => (term, term)
+    def unify: (Term, Term) => Mgu =
+      case (v: Var, term) => Map(v -> term)
+      case (term, v: Var) => Map(v -> term)
       case (FunctionApp(f, fArgs), FunctionApp(g, gArgs)) =>
-        val (newFArgs, newGArgs) = unifyApp((f, fArgs), (g, gArgs))
-        (FunctionApp(f, newFArgs), FunctionApp(g, gArgs))
-      case terms => terms
+        unifyApp((f, fArgs), (g, gArgs))
+      case _ => Map.empty
 
-    def substitute(variable: Var, term: Term): Endo[Term] =
-      case Var(name) if name == variable.name => term
-      case FunctionApp(name, args) => FunctionApp(name, args.map(substitute(variable, term)))
-      case term: Term              => term
+    def substitute: Substitute[Term] =
+      case v @ Var(name) => (variable, term) => if name == variable.name then term else v
+      case FunctionApp(name, args) =>
+        (variable, term) => FunctionApp(name, args.map(substitute(_)(variable, term)))
+      case term: Term => (_, _) => term
 
-    def unfold(using definitions: List[Definition]): Endo[Term] =
+    def unfold(using definitions: List[Definition]): Endo[Term] = rewriteOrId:
       case function @ FunctionApp(name, args) =>
         val unfoldedArgs = args.map(unfold)
         definitions
@@ -86,15 +100,40 @@ object Expression extends ExpressionGivens with PrettyPrinting:
               params
                 .zip(unfoldedArgs)
                 .foldLeft(term):
-                  case (term, (param, arg)) => Term.substitute(param, arg)(term)
+                  case (term, (param, arg)) => Term.substitute(term)(param, arg)
             )
           }
           .getOrElse(FunctionApp(name, unfoldedArgs))
-      case term => term
 
   object FunctionApp:
     def unary(name: String, arg: Term): FunctionApp =
       FunctionApp(name, arg :: Nil)
+
+  /**
+   * Most General Unifier
+   */
+  opaque type Mgu = Map[Var, Term]
+
+  object Mgu:
+    type ApplyAll[A] = Mgu => Endo[A]
+
+    def isEmpty: Mgu => Boolean =
+      _.isEmpty
+
+    def applyToTerm: ApplyAll[Term] =
+      applyAll(Term.substitute)
+
+    def applyToLiteral: ApplyAll[CLiteral] =
+      Mgu.applyAll(CLiteral.substitute)
+
+    def applyToPredicate: ApplyAll[PredicateApp] =
+      Mgu.applyAll(PredicateApp.substitute)
+
+    def applyAll[A](substitute: Substitute[A]): ApplyAll[A] =
+      mgu =>
+        mgu.foldLeft(_):
+          case (acc, (variable, term)) =>
+            substitute(acc)(variable, term)
 
 private trait ExpressionGivens:
   given showExpr[E <: Expression](using Formatter): Show[E] =

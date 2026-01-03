@@ -24,7 +24,7 @@ class EquivalenceProofSpec extends BaseProofSpec:
     contradiction("(P & Q) & R = P & (Q & R)")
 
   "Distributive laws" should "be provable" in:
-//    contradiction("P | (Q & R) = (P | Q) & (P | R)")
+    contradiction("P | (Q & R) = (P | Q) & (P | R)")
     contradiction("P & (Q | R) = (P & Q) | (P & R)")
 
   "De Morgan's laws" should "be provable" in:

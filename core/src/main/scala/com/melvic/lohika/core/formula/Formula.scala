@@ -2,13 +2,14 @@ package com.melvic.lohika.core.formula
 
 import cats.Endo
 import com.melvic.lohika.core.expression.Expression
-import Expression.{Term, Var}
+import Expression.{Mgu, Substitute, Term, Var}
 import com.melvic.lohika.core.meta.Definition
 import Formula.*
 import Formula.Quantified.BoundVars
 import Definition.{FormulaDef, PredId, PropId}
 import com.melvic.lohika.core.formula.conversions.Conversions
 import com.melvic.lohika.core.parsers.Lexemes
+import com.melvic.lohika.core.rewriteOrId
 
 import scala.annotation.targetName
 import scala.util.chaining.*
@@ -24,8 +25,8 @@ object Formula extends FormulaGivens with Conversions:
   final case class Imply(p: Formula, q: Formula)
   final case class Iff(p: Formula, q: Formula, rs: List[Formula]) extends FList
   final case class Not(p: Formula)
-  final case class Forall(boundVars: BoundVars, matrix: Formula) extends Quantified
-  final case class ThereExists(boundVars: BoundVars, matrix: Formula) extends Quantified
+  final case class Forall(boundVars: BoundVars, scope: Formula) extends Quantified
+  final case class ThereExists(boundVars: BoundVars, scope: Formula) extends Quantified
   final case class PredicateApp(name: String, args: List[Term])
 
   type Property = Formula => Boolean
@@ -42,7 +43,7 @@ object Formula extends FormulaGivens with Conversions:
   sealed trait Quantified:
     def boundVars: BoundVars
 
-    def matrix: Formula
+    def scope: Formula
 
   def unfold(using definitions: List[Definition]): Endo[Formula] =
     case predicate @ PredicateApp(name, Nil) =>
@@ -59,17 +60,16 @@ object Formula extends FormulaGivens with Conversions:
             params
               .zip(unfoldedArgs)
               .foldLeft(formula):
-                case (formula, (param, arg)) => Formula.substitute(param, arg)(formula)
+                case (formula, (param, arg)) => Formula.substitute(formula)(param, arg)
           )
         }
         .getOrElse(PredicateApp(name, unfoldedArgs))
     case fm => convertBy(unfold)(fm)
 
-  def substitute(variable: Var, term: Term): Endo[Formula] =
-    case PredicateApp(name, args) =>
-      PredicateApp(name, args.map(Term.substitute(variable, term)))
-    case quantified: Quantified => quantified
-    case fm: Formula            => convertBy(substitute(variable, term))(fm)
+  def substitute: Substitute[Formula] =
+    case pred: PredicateApp     => PredicateApp.substitute(pred)
+    case quantified: Quantified => (_, _) => quantified
+    case fm: Formula            => (variable, term) => convertBy(substitute(_)(variable, term))(fm)
 
   def isInCnf: Property =
     case fm if isLiteral(fm) => true
@@ -108,12 +108,10 @@ object Formula extends FormulaGivens with Conversions:
         toList(chain.p) ++ toList(chain.q) ++ chain.rs.flatMap(toList)
       case fm => List(fm)
 
-    {
+    rewriteOrId:
       case fm if filter.isDefinedAt(fm) =>
         toList(fm).pipe:
           case h :: t :: rest => make(h, t, rest)
-      case fm => fm
-    }
 
   object Quantified:
     type BoundVars = (Var, List[Var])
@@ -189,10 +187,13 @@ object Formula extends FormulaGivens with Conversions:
     def unary(name: String, arg: Term): PredicateApp =
       PredicateApp(name, arg :: Nil)
 
-    def unify: Endo[(PredicateApp, PredicateApp)] =
+    def unify: (PredicateApp, PredicateApp) => Mgu =
       case (PredicateApp(f, fArgs), PredicateApp(g, gArgs)) =>
-        val (newFArgs, newGArgs) = Expression.unifyApp((f, fArgs), (g, gArgs))
-        (PredicateApp(f, newFArgs), PredicateApp(g, newGArgs))
+        Expression.unifyApp((f, fArgs), (g, gArgs))
+
+    def substitute: Substitute[PredicateApp] =
+      case PredicateApp(name, args) =>
+        (variable, term) => PredicateApp(name, args.map(Term.substitute(_)(variable, term)))
 
     object Nullary:
       def unapply(predicate: PredicateApp): Option[String] =

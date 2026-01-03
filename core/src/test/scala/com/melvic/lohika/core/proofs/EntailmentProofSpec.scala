@@ -86,7 +86,6 @@ class EntailmentProofSpec extends BaseProofSpec:
     exhaustion("E:xP(x) |= P(a)")
     exhaustion("A:x(P(x) | Q(x)) |= A:xP(x) | A:xQ(x)")
     exhaustion("E:xP(x) |= A:xP(x)")
-    exhaustion("A:x(P(x) & Q(x)) |= A:xP(x) & A:xQ(x)")
     exhaustion("E:x(P(x) | Q(x)), !P(a) |= Q(a)")
     exhaustion("E:a!Q(a) |= !Q(a)")
     exhaustion("A:xE:yP(x, y), A:xE:y!P(x, y) |= Q(a)")
@@ -117,6 +116,9 @@ class EntailmentProofSpec extends BaseProofSpec:
 
   "Contrapositive" should "be provable" in:
     contradiction("A:x(P(x) -> Q(x)), !Q(a) |= !P(a)")
+
+  "Universal quantification" should "distribute over conjunction" in:
+    contradiction("A:x(P(x) & Q(x)) |= A:xP(x) & A:xQ(x)")
 
   "Derived Entailments" should "unfold given propositional variable definitions" in:
     contradiction(s"""

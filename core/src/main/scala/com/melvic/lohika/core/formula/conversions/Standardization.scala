@@ -37,7 +37,7 @@ private[formula] trait Standardization:
     case quantified @ Quantified(quantifier, (x, xs), matrix) =>
       for
         sq <- standardizeQuantifiedM(quantified)
-        sm <- standardizeM(sq.matrix) // we standardize the matrix for nested quantifiers
+        sm <- standardizeM(sq.scope) // we standardize the matrix for nested quantifiers
       yield Quantified(quantifier, sq.boundVars, sm)
     case or: Or   => standardizeFListM(or).map(Or.apply)
     case and: And => standardizeFListM(and).map(And.apply)

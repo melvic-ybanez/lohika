@@ -5,6 +5,7 @@ import com.melvic.lohika.core.expression.Expression
 import Expression.Var
 import com.melvic.lohika.core.formula.Formula
 import Formula.*
+import com.melvic.lohika.core.rewriteOrId
 
 private[formula] trait AlphaConversion:
   final case class RenamingPair(originalName: String, newName: String)
@@ -48,10 +49,9 @@ private[formula] trait AlphaConversion:
     case PredicateApp(name, args) =>
       PredicateApp(
         name,
-        args.map {
-          case varArg: Var => renameVariable(varArg)
-          case fm          => fm
-        }
+        args.map:
+          rewriteOrId:
+            case varArg: Var => renameVariable(varArg)
       )
     // the variable is not free, return as-is
     case quantified @ Quantified(_, (Var(x), xs), _)
