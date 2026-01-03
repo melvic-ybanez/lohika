@@ -34,32 +34,33 @@ object Entailment:
       given definitionList: List[Definition] = definitions.toList
       Direct(premises.map(Formula.unfold), Formula.unfold(conclusion))
 
-  given [E <: Entailment](using formatter: Formatter): Show[E] = Show.show:
-    case Direct(Nil, conclusion) => conclusion.show
-    case Derived(definitions, Nil, conclusion) =>
-      show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}$conclusion"
-    case Direct(premises, conclusion) =>
-      // Disable the formatter for the formula so that it won't
-      // accidentally format the premises and the conclusion separately.
-      // Otherwise, it will screw up the rendering (due to extra html tags).
-      // We will use the formula formatter only for the whole entailment.
-      given Formatter with
-        def emphasize: Format = formatter.emphasize
+  given [E <: Entailment](using formatter: Formatter): Show[E] =
+    // Disable the formatter for the formula so that it won't
+    // accidentally format the premises and the conclusion separately.
+    // Otherwise, it will screw up the rendering (due to extra html tags).
+    // We will use the formula formatter only for the whole entailment.
+    given Formatter with
+      def emphasize: Format = formatter.emphasize
 
-        def strong: Format = formatter.strong
+      def strong: Format = formatter.strong
 
-        def link(target: String): Format = formatter.link(target)
+      def link(target: String): Format = formatter.link(target)
 
-        def itemNumber: String = formatter.itemNumber
+      def itemNumber: String = formatter.itemNumber
 
-        def newline: String = formatter.newline
+      def newline: String = formatter.newline
 
-        override def formula: Format = identity
+      override def formula: Format = identity
 
-        def sentence: Format = formatter.sentence
+      def sentence: Format = formatter.sentence
 
-      formatter.formula(
-        show"${premises.map(_.show).mkString(", ")} ${Lexemes.Entailment} $conclusion"
-      )
-    case entailment @ Derived(definitions, _, _) =>
-      show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}${entailment.toDirect}"
+    Show.show:
+      case Direct(Nil, conclusion) => formatter.formula(show"${Lexemes.Entailment} $conclusion")
+      case Derived(definitions, Nil, conclusion) =>
+        show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}$conclusion"
+      case Direct(premises, conclusion) =>
+        formatter.formula(
+          show"${premises.map(_.show).mkString(", ")} ${Lexemes.Entailment} $conclusion"
+        )
+      case entailment @ Derived(definitions, _, _) =>
+        show"$definitions${Lexemes.StmtDelimiter}${formatter.newline}${entailment.toDirect}"
