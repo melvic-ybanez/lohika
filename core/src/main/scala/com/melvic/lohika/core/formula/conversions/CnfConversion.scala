@@ -20,8 +20,6 @@ private[formula] trait CnfConversion:
       case or: Or if or.components.forall(isLiteral) =>
         COr(toCnfAll(or.components).map(_.asInstanceOf[CLiteral]))
       case and: And if and.components.forall(isClause) =>
-        println(and)
-        println(Expression.prettyPrint(and))
         CAnd(toCnfAll(and.components).map(_.asInstanceOf[Clause]))
       case Not(predicateApp: PredicateApp) => CNot(predicateApp)
       case predicateApp: PredicateApp      => predicateApp
