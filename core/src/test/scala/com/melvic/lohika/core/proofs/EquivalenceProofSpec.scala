@@ -31,7 +31,7 @@ class EquivalenceProofSpec extends BaseProofSpec:
     contradiction("!(P & Q) = !P | !Q")
     contradiction("!(P | Q) = !P & !Q")
 
-  "Implication" should "correspond to its algter" in:
+  "Implication" should "correspond to its alternative disjunctive form" in:
     contradiction("P -> Q = !P | Q")
 
   it should "correspond to the correct contrapositive form" in:

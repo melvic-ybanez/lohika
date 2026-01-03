@@ -14,13 +14,13 @@ import fastparse.*
  * Parsing support for meta-logical constructs
  */
 private[parsers] trait MetaParsing:
-  def parseEntailment(input: String): Parsed[Entailment] =
-    parse(input, entailment(using _))
+  def parseRelation(input: String): Parsed[Entailment] =
+    parse(input, relation(using _))
 
-  def entailment[$: P]: P[Entailment] =
-    nonEquivalence | equivalence
+  def relation[$: P]: P[Entailment] =
+    entailment | equivalence
 
-  def nonEquivalence[$: P]: P[Entailment] = (definitions ~ (Parser.formula.rep(
+  def entailment[$: P]: P[Entailment] = (definitions ~ (Parser.formula.rep(
     min = 1,
     sep = Lexemes.PremisesDelimiter
   ) ~ Lexemes.Entailment).? ~ Parser.formula ~ End).map:
@@ -37,8 +37,14 @@ private[parsers] trait MetaParsing:
    * Forall formulas `p` and `q`, `p = q` is the same as `|= (p -> q) & (q ->p)`
    */
   def equivalence[$: P]: P[Entailment] =
-    (formula ~ Lexemes.Equivalence ~ formula).map: (left, right) =>
-      Direct(Nil, (left --> right) & (right --> left))
+    (definitions ~ Parser.formula ~ Lexemes.Equivalence ~ Parser.formula ~ End).map:
+      case (Seq(), left, right) => Direct(Nil, (left --> right) & (right --> left))
+      case (definitions, left, right) =>
+        Derived(
+          NonEmptyList.fromList(definitions.toList).get,
+          Nil,
+          (left --> right) & (right --> left)
+        )
 
   def definition[$: P]: P[Definition] = formulaDef | termDef
 

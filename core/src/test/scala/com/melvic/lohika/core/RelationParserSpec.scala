@@ -9,7 +9,7 @@ import com.melvic.lohika.core.meta.{Definition, Entailment}
 import com.melvic.lohika.core.parsers.Parser
 import fastparse.Parsed
 
-class EntailmentParserSpec extends BaseSpec:
+class RelationParserSpec extends BaseSpec:
   "Entailments" should "support formula definitions" in:
     parseSuccess(
       "P := R & T; Q := X; P -> Q",
@@ -39,6 +39,19 @@ class EntailmentParserSpec extends BaseSpec:
       )
     )
 
+  "Equivalences" should "support formula definitions" in:
+    parseSuccess(
+      "P := R & T; Q := X; P = Q",
+      Derived(
+        NonEmptyList.of(
+          FormulaDef(PropId("P"), "R" & "T"),
+          FormulaDef(PropId("Q"), "X")
+        ),
+        Nil,
+        ("P" --> "Q") & ("Q" --> "P")
+      )
+    )
+
   def parseSuccess(input: String, expected: Entailment): Unit =
-    Parser.parseEntailment(input) should matchPattern:
+    Parser.parseRelation(input) should matchPattern:
       case Parsed.Success(`expected`, _) =>

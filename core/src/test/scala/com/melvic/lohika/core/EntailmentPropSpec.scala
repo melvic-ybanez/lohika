@@ -81,7 +81,7 @@ class EntailmentPropSpec extends BaseSpec:
     )
 
   def parse(input: String): Option[Entailment] =
-    Parser.parseEntailment(input) match
+    Parser.parseRelation(input) match
       case Parsed.Success(entailment, _) => Some(entailment)
       case _                             => None
 

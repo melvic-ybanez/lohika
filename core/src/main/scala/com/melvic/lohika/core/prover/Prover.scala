@@ -20,8 +20,8 @@ import scala.annotation.tailrec
 object Prover:
   type Result[A] = Either[String, A]
 
-  def prove(rawEntailment: String)(using Formatter): Result[(Entailment, Proof)] =
-    parseEntailment(rawEntailment).map: entailment =>
+  def prove(rawRelation: String)(using Formatter): Result[(Entailment, Proof)] =
+    parseRelation(rawRelation).map: entailment =>
       val Direct(premises, conclusion) = Entailment.unfold(entailment)
       val negatedConclusion = !Formula.addImpliedForall(conclusion)
       val (conversions, cnfs) = convertToCnfsAndSteps(premises ++ List(negatedConclusion))
@@ -54,10 +54,10 @@ object Prover:
           clauseMap + (clause -> Binary(derived, clauseMap.proofOf(left), clauseMap.proofOf(right)))
         )
 
-  def parseEntailment(rawEntailment: String): Result[Entailment] =
-    Parser.parseEntailment(rawEntailment) match
+  def parseRelation(rawRelation: String): Result[Entailment] =
+    Parser.parseRelation(rawRelation) match
       case Parsed.Success(entailment, _)   => Right(entailment)
-      case Parsed.Failure(label, _, extra) => Left(s"Unable to parse '$rawEntailment'.")
+      case Parsed.Failure(label, _, extra) => Left(s"Unable to parse '$rawRelation'.")
 
   def convertToCnfsAndSteps(formulae: List[Formula]): (List[Identity | Rewrite], List[Cnf]) =
     val cnfs = Formula.toCnfAll(formulae)

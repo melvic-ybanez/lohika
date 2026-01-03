@@ -16,7 +16,7 @@ trait Eval:
 object Eval:
   type Result = Either[String, (String, String)]
 
-  def live: Eval = rawEntailment =>
+  def live: Eval = rawRelation =>
     def handleDirect(entailment: Direct, proof: Proof): Result =
       val entailmentElem = MathJax.applyToText(entailment.show)
       val steps = Proof.toProse(proof)
@@ -25,7 +25,7 @@ object Eval:
       val solution = MathJax.applyToText(proofMethodStmt + " " + steps.mkString(" "))
       Right(entailmentElem, solution)
 
-    Prover.prove(rawEntailment) match
+    Prover.prove(rawRelation) match
       case Left(error)                      => Left(error)
       case Right(entailment: Direct, proof) => handleDirect(entailment, proof)
       case Right(entailment: Derived, proof) =>
